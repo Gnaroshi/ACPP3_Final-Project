@@ -32,9 +32,11 @@
 - 기본 화면에는 현재 조건 요약만 두고, 위치·부담·에너지·시간·예산·관심사·검색 필터·상세 상태 수정은 접힌 `조건 바꾸기` 패널로 이동했습니다.
 - 추천 결과는 대표 미션 1개를 첫 추천 카드에 직접 노출하고, 대표 공식 자원 1개만 함께 보여줍니다. 나머지 미션·자원·지도·결과 기록은 collapsed expander로 이동했습니다.
 - 사용자 화면의 visible slider를 selectbox로 바꿔 모바일 세로 길이와 theme 색상 충돌을 줄였습니다.
+- visual system을 다시 조정했습니다. 헤더는 진한 서비스 바, 미션은 blue accent, 다음 행동은 warm accent, 공식 자원은 teal accent로 역할별 색을 분리했습니다.
+- 카드와 버튼에는 얕은 shadow와 일관된 8px radius를 적용해 Streamlit 기본 UI의 납작한 느낌을 줄였습니다.
 
 ## 검증
 - Desktop 1440px: horizontal overflow 없음, low contrast 없음, 기본 탭 3개만 노출, 첫 화면에 조건·대표 미션·다음 행동·대표 자원 표시
 - Mobile 390px: horizontal overflow 없음, low contrast 없음, visible slider 0개, 첫 화면에 조건 요약·대표 미션·시작 버튼 표시
-- 사용자 화면의 slider는 selectbox/expander 구조로 교체했고 tab highlight는 `rgb(7, 86, 165)`로 통일
+- 사용자 화면의 slider는 selectbox/expander 구조로 교체했고 tab highlight는 `rgb(11, 92, 171)` 계열로 통일
 - Sidebar: 기본 접힘, open 상태에서도 `#FFFFFF` 배경과 `#172033` 텍스트 적용
