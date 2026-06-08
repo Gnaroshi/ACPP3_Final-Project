@@ -135,6 +135,13 @@ OUTCOME_STATUS_LABELS = {
     "rework_requested": "보완 필요",
     "unknown": "확인 전",
 }
+PROGRESS_STATUS_LABELS = {
+    "recommended": "추천됨",
+    "started": "시작",
+    "completed": "완료",
+    "skipped": "나중에",
+    "too_hard": "너무 어려움",
+}
 MAP_BOUNDS = {
     "lat_min": 37.34,
     "lat_max": 37.78,
@@ -147,23 +154,23 @@ st.markdown(
     """
     <style>
       :root {
-        --rr-bg: #f6f7fb;
+        --rr-bg: #f4f6f9;
         --rr-surface: #ffffff;
-        --rr-surface-2: #eef2f7;
-        --rr-ink: #111827;
-        --rr-muted: #374151;
-        --rr-soft: #4b5563;
-        --rr-line: #d1d7e0;
-        --rr-line-strong: #aeb8c6;
-        --rr-primary: #1d4ed8;
-        --rr-primary-strong: #1e3a8a;
-        --rr-primary-soft: #e8efff;
-        --rr-info: #0f766e;
-        --rr-info-soft: #e6f3f1;
-        --rr-warm: #9a4d00;
-        --rr-warm-soft: #fff1df;
-        --rr-danger: #b42318;
-        --rr-danger-soft: #fff0ee;
+        --rr-surface-2: #eef3f8;
+        --rr-ink: #172033;
+        --rr-muted: #4b5565;
+        --rr-soft: #667085;
+        --rr-line: #d8dee8;
+        --rr-line-strong: #b8c2d1;
+        --rr-primary: #0756a5;
+        --rr-primary-strong: #043f7d;
+        --rr-primary-soft: #eaf2fb;
+        --rr-info: #246b61;
+        --rr-info-soft: #edf7f5;
+        --rr-warm: #8a4b05;
+        --rr-warm-soft: #fff6e8;
+        --rr-danger: #a6372d;
+        --rr-danger-soft: #fff2ef;
       }
 
       html, body, .stApp, .stMarkdown, .stText, .stCaption, li, label,
@@ -279,19 +286,38 @@ st.markdown(
         min-height: 2.55rem;
         border-radius: 8px;
         border: 1px solid var(--rr-primary) !important;
-        background: var(--rr-primary) !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
+        background: #ffffff !important;
+        color: var(--rr-primary) !important;
+        font-weight: 750 !important;
         line-height: 1.2 !important;
         white-space: normal !important;
       }
 
       .stButton > button * {
-        color: #ffffff !important;
+        color: inherit !important;
       }
 
       .stButton > button:hover,
       .stButton > button:focus {
+        background: var(--rr-primary-soft) !important;
+        border-color: var(--rr-primary-strong) !important;
+        color: var(--rr-primary-strong) !important;
+      }
+
+      [data-testid="stBaseButton-primary"],
+      .stFormSubmitButton > button {
+        background: var(--rr-primary) !important;
+        border-color: var(--rr-primary) !important;
+        color: #ffffff !important;
+      }
+
+      [data-testid="stBaseButton-primary"] *,
+      .stFormSubmitButton > button * {
+        color: #ffffff !important;
+      }
+
+      [data-testid="stBaseButton-primary"]:hover,
+      .stFormSubmitButton > button:hover {
         background: var(--rr-primary-strong) !important;
         border-color: var(--rr-primary-strong) !important;
         color: #ffffff !important;
@@ -300,6 +326,14 @@ st.markdown(
       [data-baseweb="tab-list"] {
         gap: 0.25rem;
         border-bottom: 1px solid var(--rr-line);
+      }
+
+      [data-baseweb="tab-highlight"] {
+        background-color: var(--rr-primary) !important;
+      }
+
+      [data-baseweb="tab-border"] {
+        background-color: var(--rr-line) !important;
       }
 
       [data-baseweb="tab"] {
@@ -321,12 +355,22 @@ st.markdown(
         color: var(--rr-ink) !important;
       }
 
+      .rr-topbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        color: var(--rr-muted) !important;
+        font-size: 0.84rem;
+        line-height: 1.45;
+        margin: 0 0 0.5rem;
+      }
+
       .rr-app-header {
         background: var(--rr-surface);
         border: 1px solid var(--rr-line);
-        border-left: 5px solid var(--rr-primary);
+        border-top: 4px solid var(--rr-primary);
         border-radius: 8px;
-        padding: 1rem 1.1rem;
+        padding: 1.05rem 1.15rem;
         margin-bottom: 0.85rem;
       }
 
@@ -345,12 +389,83 @@ st.markdown(
         line-height: 1.6;
       }
 
+      .rr-header-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1rem;
+        align-items: end;
+      }
+
+      .rr-header-badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.35rem;
+      }
+
+      .rr-page-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 1rem;
+        margin: 0.3rem 0 0.7rem;
+      }
+
+      .rr-page-title h2 {
+        margin: 0 !important;
+        font-size: 1.28rem !important;
+      }
+
+      .rr-page-title p {
+        margin: 0.2rem 0 0;
+        color: var(--rr-muted) !important;
+        font-size: 0.92rem;
+        line-height: 1.55;
+      }
+
       .rr-panel {
         background: var(--rr-surface);
         border: 1px solid var(--rr-line);
         border-radius: 8px;
         padding: 1rem;
         margin: 0.65rem 0;
+      }
+
+      .rr-filter-panel {
+        background: var(--rr-surface);
+        border: 1px solid var(--rr-line);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .rr-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.6rem;
+        margin: 0.65rem 0 0.95rem;
+      }
+
+      .rr-summary-item {
+        background: #f8fafc;
+        border: 1px solid var(--rr-line);
+        border-radius: 8px;
+        padding: 0.68rem 0.75rem;
+      }
+
+      .rr-summary-item span {
+        display: block;
+        color: var(--rr-soft) !important;
+        font-size: 0.76rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+
+      .rr-summary-item strong {
+        display: block;
+        color: var(--rr-ink) !important;
+        font-size: 0.92rem;
+        line-height: 1.35;
       }
 
       .rr-step-grid {
@@ -438,6 +553,52 @@ st.markdown(
         color: var(--rr-muted) !important;
         line-height: 1.6;
         margin-bottom: 0.55rem;
+      }
+
+      .rr-resource-card {
+        background: var(--rr-surface);
+        border: 1px solid var(--rr-line);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.75rem 0;
+      }
+
+      .rr-info-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.55rem;
+        margin: 0.65rem 0;
+      }
+
+      .rr-info-item {
+        border: 1px solid var(--rr-line);
+        border-radius: 8px;
+        padding: 0.55rem 0.6rem;
+        background: #f8fafc;
+        min-height: 3.25rem;
+      }
+
+      .rr-info-item span {
+        display: block;
+        color: var(--rr-soft) !important;
+        font-size: 0.72rem;
+        font-weight: 750;
+        margin-bottom: 0.18rem;
+      }
+
+      .rr-info-item strong {
+        color: var(--rr-ink) !important;
+        font-size: 0.86rem;
+        line-height: 1.3;
+      }
+
+      .rr-next-action {
+        background: #f8fbff;
+        border: 1px solid #bfd4ef;
+        border-left: 4px solid var(--rr-primary);
+        border-radius: 8px;
+        padding: 0.9rem;
+        margin: 0.8rem 0;
       }
 
       .rr-resource-meta {
@@ -654,6 +815,17 @@ st.markdown(
 
         .rr-flow {
           grid-template-columns: 1fr;
+        }
+
+        .rr-header-grid,
+        .rr-page-title,
+        .rr-summary-grid,
+        .rr-info-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .rr-header-badges {
+          justify-content: flex-start;
         }
 
         .rr-map {
@@ -1064,36 +1236,39 @@ def record_outcome(
 
 
 def render_profile_controls() -> None:
-    st.markdown('<div class="rr-section-title">1. 내 조건</div>', unsafe_allow_html=True)
+    st.markdown('<div class="rr-section-title">조건 입력</div>', unsafe_allow_html=True)
     st.selectbox("현재 위치", DISTRICTS, key="district")
-    st.checkbox("위도/경도 직접 입력", key="manual_location")
-    if st.session_state.get("manual_location"):
-        loc1, loc2 = st.columns(2)
-        loc1.number_input("위도", min_value=33.0, max_value=39.0, step=0.0001, format="%.4f", key="user_latitude")
-        loc2.number_input("경도", min_value=124.0, max_value=132.0, step=0.0001, format="%.4f", key="user_longitude")
-    else:
-        lat, lon = district_center(str(st.session_state["district"]))
-        st.session_state["user_latitude"] = lat
-        st.session_state["user_longitude"] = lon
-        st.caption(f"지도에는 {st.session_state['district']} 중심 좌표를 내 위치로 표시합니다.")
+    with st.expander("정확한 위치를 직접 입력"):
+        st.checkbox("위도/경도 직접 입력", key="manual_location")
+        if st.session_state.get("manual_location"):
+            loc1, loc2 = st.columns(2)
+            loc1.number_input("위도", min_value=33.0, max_value=39.0, step=0.0001, format="%.4f", key="user_latitude")
+            loc2.number_input("경도", min_value=124.0, max_value=132.0, step=0.0001, format="%.4f", key="user_longitude")
+        else:
+            lat, lon = district_center(str(st.session_state["district"]))
+            st.session_state["user_latitude"] = lat
+            st.session_state["user_longitude"] = lon
+            st.caption(f"{st.session_state['district']} 중심 좌표를 내 위치로 사용합니다.")
 
-    st.text_area("오늘 상태", height=90, key="free_text")
     col1, col2 = st.columns(2)
-    col1.slider("외출 부담", 1, 5, key="outside_burden")
-    col2.slider("대면 부담", 1, 5, key="social_burden")
+    col1.slider("밖에 나가는 부담", 1, 5, key="outside_burden")
+    col2.slider("사람을 만나는 부담", 1, 5, key="social_burden")
     col3, col4 = st.columns(2)
-    col3.slider("에너지", 1, 5, key="energy_level")
-    col4.slider("생활 리듬", 1, 5, key="daily_rhythm_level")
+    col3.slider("오늘 에너지", 1, 5, key="energy_level")
+    col4.number_input("가능한 시간(분)", min_value=0, max_value=360, step=5, key="max_outdoor_minutes")
     col5, col6 = st.columns(2)
-    col5.slider("취업 부담", 1, 5, key="employment_burden")
-    col6.slider("미래 불안", 1, 5, key="future_anxiety")
-    st.selectbox("선호 방식", list(CONTACT_LABELS.keys()), format_func=lambda x: CONTACT_LABELS[x], key="preferred_contact_mode")
+    col5.number_input("오늘 예산(원)", min_value=0, max_value=100000, step=1000, key="budget_limit")
+    col6.selectbox("선호 방식", list(CONTACT_LABELS.keys()), format_func=lambda x: CONTACT_LABELS[x], key="preferred_contact_mode")
     st.multiselect("관심 분야", INTERESTS, format_func=lambda x: INTEREST_LABELS.get(x, x), key="interests")
-    col7, col8 = st.columns(2)
-    col7.number_input("외출 가능 시간(분)", min_value=0, max_value=360, step=5, key="max_outdoor_minutes")
-    col8.number_input("오늘 예산(원)", min_value=0, max_value=100000, step=1000, key="budget_limit")
-    st.checkbox("함께 확인해줄 사람이 있음", key="has_support_person")
-    if st.button("기본값으로 되돌리기", width="stretch"):
+
+    with st.expander("상세 상태"):
+        st.text_area("오늘 상태 메모", height=90, key="free_text", placeholder="예: 오늘은 집에서 먼저 확인할 수 있는 활동만 보고 싶어요.")
+        detail1, detail2 = st.columns(2)
+        detail1.slider("생활 리듬", 1, 5, key="daily_rhythm_level")
+        detail2.slider("취업 부담", 1, 5, key="employment_burden")
+        st.slider("미래 불안", 1, 5, key="future_anxiety")
+        st.checkbox("함께 확인해줄 사람이 있음", key="has_support_person")
+    if st.button("조건 초기화", width="stretch"):
         reset_demo_state()
         st.rerun()
 
@@ -1146,22 +1321,21 @@ def render_user_mission(profile: UserProfile, mission: dict[str, Any], recommend
             <div class="rr-card-title">{e(mission["title"])}</div>
             <div class="rr-card-body">{e(mission["description"])}</div>
             {chip("예상 " + str(int(mission["expected_minutes"])) + "분", "teal")}
-            {chip("부담도 " + burden_text(mission["burden_level"]), "gold")}
+            {chip("부담 " + burden_text(mission["burden_level"]), "gold")}
             {chip("외출 필요" if bool(mission["outdoor_required"]) else "집에서 가능", "gray")}
             {chip("대면 있음" if bool(mission["social_contact_required"]) else "대면 없음", "gray")}
             """,
             unsafe_allow_html=True,
         )
-        c1, c2 = st.columns(2)
-        c3, c4 = st.columns(2)
         mission_key = f"{key_prefix}_{mission['mission_id']}"
+        c1, c2, c3, c4 = st.columns(4)
         if c1.button("시작", key=f"start_{mission_key}", width="stretch"):
             record_mission_action(profile, mission, ProgressStatus.started, recommended_stage)
-        if c2.button("완료", key=f"complete_{mission_key}", width="stretch"):
+        if c2.button("완료", key=f"complete_{mission_key}", width="stretch", type="primary"):
             record_mission_action(profile, mission, ProgressStatus.completed, recommended_stage)
         if c3.button("나중에", key=f"skip_{mission_key}", width="stretch"):
             record_mission_action(profile, mission, ProgressStatus.skipped, recommended_stage)
-        if c4.button("너무 어려움", key=f"hard_{mission_key}", width="stretch"):
+        if c4.button("어려움", key=f"hard_{mission_key}", width="stretch"):
             record_mission_action(profile, mission, ProgressStatus.too_hard, recommended_stage)
 
 
@@ -1175,32 +1349,30 @@ def render_user_resource(resource: dict[str, Any], key_prefix: str) -> None:
     online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "현장 정보 확인 필요"
     distance = resource.get("distance_km")
     distance_text = f" · 내 위치에서 약 {float(distance):.1f}km" if distance is not None and pd.notna(distance) else ""
-    source_link = (
-        f'<a class="rr-source-link" href="{e(source_url)}" target="_blank" rel="noopener noreferrer">{e(source_name)} 열기</a>'
-        if source_url
-        else ""
+    source_link = f'<a class="rr-source-link" href="{e(source_url)}" target="_blank" rel="noopener noreferrer">공식 페이지 열기</a>' if source_url else ""
+    st.markdown(
+        f"""
+        <div class="rr-resource-card">
+          <div class="rr-card-title">{e(resource["name"])}</div>
+          <div class="rr-card-body">{e(resource["description"])}</div>
+          {chip(RESOURCE_TYPE_LABELS.get(str(resource["resource_type"]), str(resource["resource_type"])), "teal")}
+          {chip("부담도 " + burden_text(resource["burden_level"]), "gray")}
+          <div class="rr-info-grid">
+            <div class="rr-info-item"><span>지역</span><strong>{e(str(resource["district"]))}</strong></div>
+            <div class="rr-info-item"><span>비용</span><strong>{e(COST_LABELS.get(str(resource["cost_type"]), str(resource["cost_type"])))}</strong></div>
+            <div class="rr-info-item"><span>운영 기간</span><strong>{e(period)}</strong></div>
+            <div class="rr-info-item"><span>확인 방식</span><strong>{e(online_text)}</strong></div>
+            <div class="rr-info-item"><span>예상 시간</span><strong>{e(str(duration))}분</strong></div>
+            <div class="rr-info-item"><span>거리</span><strong>{e(distance_text.replace(' · 내 위치에서 약 ', '') or '위치 확인')}</strong></div>
+            <div class="rr-info-item"><span>문의</span><strong>{e(contact or '공식 페이지 확인')}</strong></div>
+            <div class="rr-info-item"><span>출처</span><strong>{e(source_name)}</strong></div>
+          </div>
+          <div class="rr-resource-meta">{e(address) if address else "주소는 공식 페이지에서 확인하세요."}</div>
+          {source_link}
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-    with st.container(border=True):
-        st.markdown(
-            f"""
-            <div class="rr-card-title">{e(resource["name"])}</div>
-            <div class="rr-card-body">{e(resource["description"])}</div>
-            {chip(RESOURCE_TYPE_LABELS.get(str(resource["resource_type"]), str(resource["resource_type"])), "teal")}
-            {chip(str(resource["district"]), "gray")}
-            {chip(COST_LABELS.get(str(resource["cost_type"]), str(resource["cost_type"])), "gold")}
-            {chip("부담도 " + burden_text(resource["burden_level"]), "gray")}
-            <div class="rr-resource-meta">
-              {e(online_text)}
-              · 예상 {e(str(duration))}분
-              · {e(period)}
-              {e(distance_text)}
-              {(" · " + e(contact)) if contact else ""}
-              {("<br/>" + e(address)) if address else ""}
-            </div>
-            {source_link}
-            """,
-            unsafe_allow_html=True,
-        )
 
 
 def render_safety_branch(analysis: dict[str, Any]) -> None:
@@ -1233,13 +1405,67 @@ def technical_resource_frame(resources: list[dict[str, Any]]) -> pd.DataFrame:
     return pd.DataFrame(resources)[[col for col in cols if col in pd.DataFrame(resources).columns]]
 
 
+def user_progress_frame(progress_df: pd.DataFrame, missions_df: pd.DataFrame) -> pd.DataFrame:
+    if progress_df.empty:
+        return progress_df
+    mission_lookup = missions_df.set_index("mission_id")["title"].to_dict() if "mission_id" in missions_df.columns else {}
+    view = progress_df.tail(20).copy()
+    return pd.DataFrame(
+        {
+            "상태": view["status"].map(lambda value: PROGRESS_STATUS_LABELS.get(str(value), str(value))),
+            "미션": view["mission_id"].map(lambda value: mission_lookup.get(value, "오늘 할 행동")),
+            "메모": view["user_note"].map(display_text) if "user_note" in view.columns else "",
+            "완료 시각": view["completed_at"].map(display_text) if "completed_at" in view.columns else "",
+            "기록 시각": view["created_at"].map(display_text) if "created_at" in view.columns else "",
+        }
+    )
+
+
+def user_outcome_frame(outcome_df: pd.DataFrame, resources_df: pd.DataFrame, missions_df: pd.DataFrame) -> pd.DataFrame:
+    if outcome_df.empty:
+        return outcome_df
+    resource_lookup = resources_df.set_index("resource_id")["name"].to_dict() if "resource_id" in resources_df.columns else {}
+    mission_lookup = missions_df.set_index("mission_id")["title"].to_dict() if "mission_id" in missions_df.columns else {}
+    view = outcome_df.tail(20).copy()
+    return pd.DataFrame(
+        {
+            "기록 종류": view["outcome_type"].map(lambda value: OUTCOME_TYPE_LABELS.get(str(value), str(value))),
+            "결과": view["outcome_status"].map(lambda value: OUTCOME_STATUS_LABELS.get(str(value), str(value))),
+            "활동/지원 대상": view["resource_id"].map(lambda value: resource_lookup.get(value, "직접 기록")),
+            "연결 미션": view["mission_id"].map(lambda value: mission_lookup.get(value, "")),
+            "준비도": view["readiness_rating"].map(display_text),
+            "진행 후 부담": view["burden_after"].map(display_text),
+            "메모": view["result_note"].map(display_text),
+            "기록 시각": view["created_at"].map(display_text),
+        }
+    )
+
+
 init_session_state()
+
+with st.sidebar:
+    st.markdown("### RebootRoute")
+    st.caption("발표/개발 중 내부 지표를 확인할 때만 켭니다.")
+    show_operator_tools = st.toggle("운영자 도구 보기", value=False)
 
 st.markdown(
     """
+    <div class="rr-topbar">
+      <span>공식 출처 기반 인천 청년정책·문화활동 탐색</span>
+      <span>진단/상담 서비스 아님</span>
+    </div>
     <div class="rr-app-header">
-      <div class="rr-app-title">RebootRoute</div>
-      <p class="rr-app-subtitle">내 위치와 부담도에 맞춰 인천의 실제 정책·문화 활동을 찾고, 오늘 할 행동과 결과까지 기록합니다.</p>
+      <div class="rr-header-grid">
+        <div>
+          <div class="rr-app-title">RebootRoute</div>
+          <p class="rr-app-subtitle">내 조건에 맞는 인천 정책·문화 활동을 찾고, 오늘 할 수 있는 한 가지 행동까지 정리합니다.</p>
+        </div>
+        <div class="rr-header-badges">
+          <span class="rr-chip teal">맞춤 검색</span>
+          <span class="rr-chip blue">지도 확인</span>
+          <span class="rr-chip gray">결과 기록</span>
+        </div>
+      </div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -1248,24 +1474,38 @@ st.markdown(
 if st.session_state.get("last_action_message"):
     st.success(st.session_state.pop("last_action_message"))
 
-tabs = st.tabs(["오늘 루트", "자원·지도", "기록", "검증"])
+tab_labels = ["내 루트", "정책·문화 찾기", "내 기록"]
+if show_operator_tools:
+    tab_labels.append("운영자 검증")
+tabs = st.tabs(tab_labels)
 
 with tabs[0]:
     data = cached_data()
     resources_df = data["resources"]
-    st.subheader("오늘 루트")
+    st.markdown(
+        """
+        <div class="rr-page-title">
+          <div>
+            <h2>내 루트</h2>
+            <p>오늘 가능한 조건을 입력하면 추천 행동, 공식 자원, 위치, 기록 순서로 확인할 수 있습니다.</p>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     render_step_guide()
 
     input_col, route_col = st.columns([0.88, 1.32], gap="large")
     with input_col:
-        render_profile_controls()
-        st.markdown('<div class="rr-divider"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="rr-section-title">자원 조건</div>', unsafe_allow_html=True)
-        st.multiselect("자원 종류", list(RESOURCE_TYPE_LABELS.keys()), format_func=lambda x: RESOURCE_TYPE_LABELS[x], key="resource_types")
-        st.multiselect("비용", list(COST_LABELS.keys()), format_func=lambda x: COST_LABELS[x], key="resource_costs")
-        st.slider("최대 부담도", 0, 5, key="resource_max_burden")
-        st.checkbox("온라인으로 먼저 확인 가능한 자원만 보기", key="resource_online_only")
-        st.text_input("검색어", placeholder="예: 유유기지, 전시, 구직활동비, 청년공간", key="resource_query")
+        with st.container(border=True):
+            render_profile_controls()
+        with st.container(border=True):
+            st.markdown('<div class="rr-section-title">자원 조건</div>', unsafe_allow_html=True)
+            st.text_input("검색어", placeholder="예: 유유기지, 전시, 구직활동비, 청년공간", key="resource_query")
+            st.multiselect("자원 종류", list(RESOURCE_TYPE_LABELS.keys()), format_func=lambda x: RESOURCE_TYPE_LABELS[x], key="resource_types")
+            st.multiselect("비용", list(COST_LABELS.keys()), format_func=lambda x: COST_LABELS[x], key="resource_costs")
+            st.slider("최대 부담도", 0, 5, key="resource_max_burden")
+            st.checkbox("온라인으로 먼저 확인 가능한 자원만 보기", key="resource_online_only")
 
     profile, analysis = current_profile_and_analysis()
     with route_col:
@@ -1278,8 +1518,7 @@ with tabs[0]:
               <div class="rr-section-title">2. 추천 루트</div>
               <div class="rr-card-title">{e(STAGE_LABELS.get(stage, '추천 단계'))}</div>
               <div class="rr-card-body">{e(analysis.get("burden_summary", ""))}</div>
-              {chip("자동 반영", "teal")}
-              {chip("Stage " + str(stage), "gray")}
+              {chip("조건 변경 즉시 반영", "teal")}
             </div>
             """,
             unsafe_allow_html=True,
@@ -1292,6 +1531,17 @@ with tabs[0]:
             costs=list(st.session_state["resource_costs"]),
             max_burden=int(st.session_state["resource_max_burden"]),
             online_only=bool(st.session_state["resource_online_only"]),
+        )
+        st.markdown(
+            f"""
+            <div class="rr-summary-grid">
+              <div class="rr-summary-item"><span>현재 위치</span><strong>{e(str(st.session_state["district"]))}</strong></div>
+              <div class="rr-summary-item"><span>가능 시간</span><strong>{int(st.session_state["max_outdoor_minutes"])}분</strong></div>
+              <div class="rr-summary-item"><span>예산</span><strong>{int(st.session_state["budget_limit"]):,}원</strong></div>
+              <div class="rr-summary-item"><span>맞는 후보</span><strong>{len(filtered_resources)}개</strong></div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
         st.markdown('<div class="rr-section-title">오늘 할 미션</div>', unsafe_allow_html=True)
         missions = analysis.get("next_3_missions", [])
@@ -1311,12 +1561,10 @@ with tabs[0]:
                 unsafe_allow_html=True,
             )
         else:
-            st.markdown('<div class="rr-section-title">3. 위치와 활동 장소</div>', unsafe_allow_html=True)
-            render_location_map(filtered_resources, title="내 위치와 추천 장소", max_items=6)
             top_resource = filtered_resources.iloc[0].to_dict()
             st.markdown(
                 f"""
-                <div class="rr-panel rr-stage-panel">
+                <div class="rr-next-action">
                   <div class="rr-section-title">가장 작은 다음 행동</div>
                   <div class="rr-muted"><strong>{e(display_text(top_resource.get("name")))}</strong>의 공식 페이지에서 현재 운영 여부와 조건 1줄만 확인합니다.</div>
                   <ol class="rr-action-list">
@@ -1326,21 +1574,34 @@ with tabs[0]:
                 """,
                 unsafe_allow_html=True,
             )
+            st.markdown('<div class="rr-section-title">추천 정책·문화 활동</div>', unsafe_allow_html=True)
             for idx, resource in enumerate(filtered_resources.head(6).to_dict("records")):
                 render_user_resource(resource, f"official_{idx}")
+            st.markdown('<div class="rr-section-title">3. 지도에서 위치 확인</div>', unsafe_allow_html=True)
+            render_location_map(filtered_resources, title="내 위치와 추천 장소", max_items=6)
             render_outcome_form(profile, filtered_resources, missions, "today")
 
 with tabs[1]:
-    st.subheader("자원·지도")
+    st.markdown(
+        """
+        <div class="rr-page-title">
+          <div>
+            <h2>정책·문화 찾기</h2>
+            <p>공식 출처 기반 자원을 질문으로 검색하고, 결과의 위치와 확인 방법을 봅니다.</p>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     data = cached_data()
-    st.markdown('<div class="rr-section-title">공식 자원 검색</div>', unsafe_allow_html=True)
+    st.markdown('<div class="rr-section-title">공식 자료 검색</div>', unsafe_allow_html=True)
     search_col, filter_col = st.columns([1.15, 0.85], gap="large")
     with search_col:
         st.text_input("검색 질문", key="rag_query")
     with filter_col:
         rag_district = st.selectbox("구/군 필터", available_districts(data["resources"]), key="rag_district")
         rag_burden = st.slider("최대 부담도", 0, 5, 3, key="rag_max_burden")
-    if st.button("근거 자료 검색", width="stretch"):
+    if st.button("공식 자료 검색", width="stretch", type="primary"):
         district_value = None if rag_district == "전체" else rag_district
         st.session_state["rag_result"] = search_policy_culture_resources(
             st.session_state["rag_query"],
@@ -1368,7 +1629,18 @@ with tabs[1]:
 
 with tabs[2]:
     profile, analysis = current_profile_and_analysis()
-    st.subheader("기록")
+    data = cached_data()
+    st.markdown(
+        """
+        <div class="rr-page-title">
+          <div>
+            <h2>내 기록</h2>
+            <p>내가 시작한 미션과 확인한 정책·문화 활동 결과를 시간순으로 확인합니다.</p>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.markdown(
         """
         <div class="rr-panel">
@@ -1384,155 +1656,152 @@ with tabs[2]:
     m1, m2, m3 = st.columns(3)
     m1.metric("미션 로그", len(progress_df))
     m2.metric("활동/지원 결과", len(outcome_df))
-    m3.metric("피드백 이벤트", len(feedback_df))
+    m3.metric("저장된 반응", len(feedback_df))
     st.markdown("#### 미션 진행")
     if progress_df.empty:
         st.markdown('<div class="rr-empty-note">아직 시작/완료/너무 어려움 기록이 없습니다.</div>', unsafe_allow_html=True)
     else:
-        user_progress = progress_df[["status", "mission_id", "user_note", "completed_at", "points_awarded", "created_at"]].tail(20)
-        st.dataframe(user_progress, width="stretch", hide_index=True)
+        st.dataframe(user_progress_frame(progress_df, data["missions"]), width="stretch", hide_index=True)
     st.markdown("#### 활동·지원 결과")
     if outcome_df.empty:
         st.markdown('<div class="rr-empty-note">아직 참여/지원 결과 기록이 없습니다. 오늘 루트 탭에서 결과를 저장하세요.</div>', unsafe_allow_html=True)
     else:
-        view = outcome_df[
-            [
-                "outcome_type",
-                "outcome_status",
-                "resource_id",
-                "mission_id",
-                "readiness_rating",
-                "burden_after",
-                "result_note",
-                "created_at",
-            ]
-        ].tail(20)
-        st.dataframe(view, width="stretch", hide_index=True)
+        st.dataframe(user_outcome_frame(outcome_df, data["resources"], data["missions"]), width="stretch", hide_index=True)
 
-with tabs[3]:
-    st.subheader("검증")
-    profile, analysis = current_profile_and_analysis()
-    data = cached_data()
-    stage = int(analysis["recommended_stage"])
+if show_operator_tools:
+    with tabs[3]:
+        st.subheader("운영자 검증")
+        profile, analysis = current_profile_and_analysis()
+        data = cached_data()
+        stage = int(analysis["recommended_stage"])
 
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Rule Stage", stage)
-    c2.metric("ML 보조 Stage", analysis["model_info"].get("ml_predicted_stage", "N/A"))
-    c3.metric("Safety", "분기" if analysis["safety_flag"] else "정상")
-    c4.metric("Data Version", analysis["model_info"].get("data_version", "unknown"))
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Rule Stage", stage)
+        c2.metric("ML 보조 Stage", analysis["model_info"].get("ml_predicted_stage", "N/A"))
+        c3.metric("Safety", "분기" if analysis["safety_flag"] else "정상")
+        c4.metric("Data Version", analysis["model_info"].get("data_version", "unknown"))
 
-    if analysis.get("contributing_factors"):
-        st.markdown("**기여 요인**")
-        st.write(", ".join(analysis["contributing_factors"]))
+        if analysis.get("contributing_factors"):
+            st.markdown("**기여 요인**")
+            st.write(", ".join(analysis["contributing_factors"]))
 
-    st.markdown("#### 추천 미션 Debug")
-    missions_debug = analysis.get("next_3_missions", [])
-    if missions_debug:
-        st.dataframe(technical_mission_frame(missions_debug), width="stretch", hide_index=True)
+        st.markdown("#### 추천 미션 Debug")
+        missions_debug = analysis.get("next_3_missions", [])
+        if missions_debug:
+            st.dataframe(technical_mission_frame(missions_debug), width="stretch", hide_index=True)
 
-    st.markdown("#### 추천 자원 Debug")
-    resources_debug = analysis.get("recommended_resources", [])
-    if resources_debug:
-        st.dataframe(technical_resource_frame(resources_debug), width="stretch", hide_index=True)
+        st.markdown("#### 추천 자원 Debug")
+        resources_debug = analysis.get("recommended_resources", [])
+        if resources_debug:
+            st.dataframe(technical_resource_frame(resources_debug), width="stretch", hide_index=True)
 
-    st.markdown("#### Stage별 후보 미션")
-    selected_stage = st.selectbox("검토할 Stage", list(range(8)), index=stage)
-    ranked = rank_missions(profile, data["missions"], selected_stage, data["resources"], top_n=12)
-    st.dataframe(technical_mission_frame(ranked), width="stretch", hide_index=True)
+        st.markdown("#### Stage별 후보 미션")
+        selected_stage = st.selectbox("검토할 Stage", list(range(8)), index=stage)
+        ranked = rank_missions(profile, data["missions"], selected_stage, data["resources"], top_n=12)
+        st.dataframe(technical_mission_frame(ranked), width="stretch", hide_index=True)
 
-    st.markdown("#### 자원 매칭 Debug")
-    resource_filter_col1, resource_filter_col2, resource_filter_col3 = st.columns(3)
-    district_filter = resource_filter_col1.selectbox("구/군", ["전체"] + DISTRICTS, key="research_district")
-    max_burden = resource_filter_col2.slider("최대 부담도", 0, 5, 3, key="research_max_burden")
-    contact_mode = resource_filter_col3.selectbox("접촉 방식", list(CONTACT_LABELS.keys()), format_func=lambda x: CONTACT_LABELS[x], key="research_contact")
-    resources = data["resources"].copy()
-    if district_filter != "전체":
-        resources = resources[resources["district"] == district_filter]
-    resources = resources[resources["burden_level"] <= max_burden]
-    if hasattr(profile, "model_copy"):
-        research_profile = profile.model_copy(deep=True)
-    elif hasattr(profile, "copy"):
-        research_profile = profile.copy(deep=True)
-    else:
-        research_profile = UserProfile(**profile.model_dump())
-    research_profile.preferred_contact_mode = ContactMode(contact_mode)
-    ranked_resources = rank_resources(research_profile, resources, recommended_stage=stage, top_n=20)
-    st.dataframe(technical_resource_frame(ranked_resources), width="stretch", hide_index=True)
+        st.markdown("#### 자원 매칭 Debug")
+        resource_filter_col1, resource_filter_col2, resource_filter_col3 = st.columns(3)
+        district_filter = resource_filter_col1.selectbox("구/군", ["전체"] + DISTRICTS, key="research_district")
+        max_burden = resource_filter_col2.slider("최대 부담도", 0, 5, 3, key="research_max_burden")
+        contact_mode = resource_filter_col3.selectbox(
+            "접촉 방식",
+            list(CONTACT_LABELS.keys()),
+            format_func=lambda x: CONTACT_LABELS[x],
+            key="research_contact",
+        )
+        resources = data["resources"].copy()
+        if district_filter != "전체":
+            resources = resources[resources["district"] == district_filter]
+        resources = resources[resources["burden_level"] <= max_burden]
+        if hasattr(profile, "model_copy"):
+            research_profile = profile.model_copy(deep=True)
+        elif hasattr(profile, "copy"):
+            research_profile = profile.copy(deep=True)
+        else:
+            research_profile = UserProfile(**profile.model_dump())
+        research_profile.preferred_contact_mode = ContactMode(contact_mode)
+        ranked_resources = rank_resources(research_profile, resources, recommended_stage=stage, top_n=20)
+        st.dataframe(technical_resource_frame(ranked_resources), width="stretch", hide_index=True)
 
-    st.markdown("#### Feedback / Progress 로그")
-    feedback_df = get_feedback_df(profile.user_id)
-    progress_df = get_progress_df(profile.user_id)
-    outcome_df = get_outcomes_df(profile.user_id)
-    log_col1, log_col2, log_col3 = st.columns(3)
-    with log_col1:
-        st.caption("feedback_events")
-        st.dataframe(feedback_df.tail(20), width="stretch", hide_index=True)
-    with log_col2:
-        st.caption("progress_logs")
-        st.dataframe(progress_df.tail(20), width="stretch", hide_index=True)
-    with log_col3:
-        st.caption("outcome_events")
-        st.dataframe(outcome_df.tail(20), width="stretch", hide_index=True)
+        st.markdown("#### Feedback / Progress 로그")
+        feedback_df = get_feedback_df(profile.user_id)
+        progress_df = get_progress_df(profile.user_id)
+        outcome_df = get_outcomes_df(profile.user_id)
+        log_col1, log_col2, log_col3 = st.columns(3)
+        with log_col1:
+            st.caption("feedback_events")
+            st.dataframe(feedback_df.tail(20), width="stretch", hide_index=True)
+        with log_col2:
+            st.caption("progress_logs")
+            st.dataframe(progress_df.tail(20), width="stretch", hide_index=True)
+        with log_col3:
+            st.caption("outcome_events")
+            st.dataframe(outcome_df.tail(20), width="stretch", hide_index=True)
 
-    st.markdown("#### 운영자 검토 입력")
-    with st.form("operator_review_form", clear_on_submit=True):
-        review_status = st.selectbox("검토 결과", ["verified", "needs_follow_up", "rework_requested"], format_func=lambda value: OUTCOME_STATUS_LABELS[value])
-        operator_note = st.text_area("운영자 메모", placeholder="예: 미션 난이도 적합, 다음에는 부담도 1 낮춘 미션 권장")
-        submitted_review = st.form_submit_button("검토 저장", width="stretch")
-    if submitted_review:
-        record_outcome(
-            profile,
-            outcome_type="operator_review",
-            outcome_status=review_status,
-            resource_id=None,
-            mission_id=None,
-            readiness_rating=None,
-            burden_after=None,
-            result_note=None,
-            operator_review_status=review_status,
-            operator_note=operator_note,
+        st.markdown("#### 운영자 검토 입력")
+        with st.form("operator_review_form", clear_on_submit=True):
+            review_status = st.selectbox(
+                "검토 결과",
+                ["verified", "needs_follow_up", "rework_requested"],
+                format_func=lambda value: OUTCOME_STATUS_LABELS[value],
+            )
+            operator_note = st.text_area("운영자 메모", placeholder="예: 미션 난이도 적합, 다음에는 부담도 1 낮춘 미션 권장")
+            submitted_review = st.form_submit_button("검토 저장", width="stretch")
+        if submitted_review:
+            record_outcome(
+                profile,
+                outcome_type="operator_review",
+                outcome_status=review_status,
+                resource_id=None,
+                mission_id=None,
+                readiness_rating=None,
+                burden_after=None,
+                result_note=None,
+                operator_review_status=review_status,
+                operator_note=operator_note,
+            )
+
+        with st.expander("Raw analyze_profile payload"):
+            st.json(analysis)
+
+        st.markdown("#### 평가·모델")
+        cfg = load_config()
+        metadata = load_metadata()
+        cols = st.columns(4)
+        cols[0].metric("Stage 모델", metadata.get("stage_model_name", "untrained"))
+        cols[1].metric("Mission 모델", metadata.get("mission_success_model_name", "untrained"))
+        cols[2].metric("Data Version", metadata.get("data_version", "unknown"))
+        cols[3].metric("학습 시각", metadata.get("trained_at") or "N/A")
+
+        metrics = {
+            "Stage accuracy": metadata.get("stage_metrics", {}).get("accuracy"),
+            "Stage macro F1": metadata.get("stage_metrics", {}).get("macro_f1"),
+            "Mission accuracy": metadata.get("mission_success_metrics", {}).get("accuracy"),
+            "Mission macro F1": metadata.get("mission_success_metrics", {}).get("macro_f1"),
+            "Mission ROC-AUC": metadata.get("mission_success_metrics", {}).get("roc_auc"),
+        }
+        st.dataframe(pd.DataFrame([metrics]), width="stretch", hide_index=True)
+
+        st.markdown("#### 산출물")
+        st.markdown(
+            f"""
+            - 모델 메타데이터: `{cfg.model_dir / "metadata.json"}`
+            - 모델 카드: `{cfg.reports_dir / "model_card.md"}`
+            - 데이터 카드: `{cfg.reports_dir / "data_card.md"}`
+            - Human eval sheet: `{cfg.reports_dir / "human_eval_review_sheet.csv"}`
+            """
         )
 
-    with st.expander("Raw analyze_profile payload"):
-        st.json(analysis)
+        eval_path = cfg.reports_dir / "human_eval_review_sheet.csv"
+        if eval_path.exists():
+            st.markdown("#### Human Evaluation 샘플")
+            st.dataframe(pd.read_csv(eval_path).head(10), width="stretch", hide_index=True)
 
-    st.markdown("#### 평가·모델")
-    cfg = load_config()
-    metadata = load_metadata()
-    cols = st.columns(4)
-    cols[0].metric("Stage 모델", metadata.get("stage_model_name", "untrained"))
-    cols[1].metric("Mission 모델", metadata.get("mission_success_model_name", "untrained"))
-    cols[2].metric("Data Version", metadata.get("data_version", "unknown"))
-    cols[3].metric("학습 시각", metadata.get("trained_at") or "N/A")
-
-    metrics = {
-        "Stage accuracy": metadata.get("stage_metrics", {}).get("accuracy"),
-        "Stage macro F1": metadata.get("stage_metrics", {}).get("macro_f1"),
-        "Mission accuracy": metadata.get("mission_success_metrics", {}).get("accuracy"),
-        "Mission macro F1": metadata.get("mission_success_metrics", {}).get("macro_f1"),
-        "Mission ROC-AUC": metadata.get("mission_success_metrics", {}).get("roc_auc"),
-    }
-    st.dataframe(pd.DataFrame([metrics]), width="stretch", hide_index=True)
-
-    st.markdown("#### 산출물")
-    st.markdown(
-        f"""
-        - 모델 메타데이터: `{cfg.model_dir / "metadata.json"}`
-        - 모델 카드: `{cfg.reports_dir / "model_card.md"}`
-        - 데이터 카드: `{cfg.reports_dir / "data_card.md"}`
-        - Human eval sheet: `{cfg.reports_dir / "human_eval_review_sheet.csv"}`
-        """
-    )
-
-    eval_path = cfg.reports_dir / "human_eval_review_sheet.csv"
-    if eval_path.exists():
-        st.markdown("#### Human Evaluation 샘플")
-        st.dataframe(pd.read_csv(eval_path).head(10), width="stretch", hide_index=True)
-
-    st.markdown("#### Synthetic label 경고")
-    st.warning(
-        metadata.get(
-            "synthetic_label_warning_ko",
-            "현재 학습 label은 synthetic placeholder입니다. 실제 관측 outcome label은 운영 또는 기관 연계 후 수집·import해야 합니다.",
+        st.markdown("#### Synthetic label 경고")
+        st.warning(
+            metadata.get(
+                "synthetic_label_warning_ko",
+                "현재 학습 label은 synthetic placeholder입니다. 실제 관측 outcome label은 운영 또는 기관 연계 후 수집·import해야 합니다.",
+            )
         )
-    )

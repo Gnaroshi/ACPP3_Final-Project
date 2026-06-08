@@ -461,6 +461,7 @@ Capstone workshop/PDF 대응 산출물:
 docs/capstone_project_brief.md
 docs/baseline_plan.md
 docs/data_version_strategy.md
+docs/dashboard_redesign_notes.md
 docs/final_presentation_outline.md
 docs/RebootRoute_Project_Report.docx
 reports/capstone_requirements_check.md
@@ -617,6 +618,7 @@ docs/
   capstone_project_brief.md
   baseline_plan.md
   data_version_strategy.md
+  dashboard_redesign_notes.md
   final_presentation_outline.md
   RebootRoute_Project_Report.docx
 artifacts/
