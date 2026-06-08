@@ -82,6 +82,28 @@ class FeedbackEventType(str, Enum):
     operator_review = "operator_review"
 
 
+class OutcomeType(str, Enum):
+    program_participation = "program_participation"
+    support_application = "support_application"
+    support_result = "support_result"
+    mini_project_submission = "mini_project_submission"
+    operator_review = "operator_review"
+
+
+class OutcomeStatus(str, Enum):
+    planned = "planned"
+    applied = "applied"
+    participated = "participated"
+    submitted = "submitted"
+    accepted = "accepted"
+    rejected = "rejected"
+    not_eligible = "not_eligible"
+    needs_follow_up = "needs_follow_up"
+    verified = "verified"
+    rework_requested = "rework_requested"
+    unknown = "unknown"
+
+
 class UserProfile(BaseModel):
     user_id: str = Field(default_factory=lambda: new_id("user"))
     age: int = Field(ge=19, le=39)
@@ -184,6 +206,23 @@ class FeedbackEvent(BaseModel):
     created_at: datetime = Field(default_factory=now_utc)
 
 
+class OutcomeEvent(BaseModel):
+    outcome_id: str = Field(default_factory=lambda: new_id("outcome"))
+    user_id: str
+    outcome_type: OutcomeType
+    outcome_status: OutcomeStatus
+    mission_id: str | None = None
+    resource_id: str | None = None
+    readiness_rating: int | None = Field(default=None, ge=1, le=5)
+    burden_after: int | None = Field(default=None, ge=1, le=5)
+    result_note: str | None = None
+    operator_review_status: str | None = None
+    operator_note: str | None = None
+    evidence_url: str | None = None
+    policy_version: str | None = None
+    created_at: datetime = Field(default_factory=now_utc)
+
+
 class RAGSearchRequest(BaseModel):
     query: str
     district: str | None = None
@@ -201,4 +240,3 @@ def to_plain_dict(model: BaseModel) -> dict[str, Any]:
     if hasattr(model, "model_dump"):
         return model.model_dump(mode="json")
     return model.dict()
-

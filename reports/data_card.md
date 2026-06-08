@@ -20,5 +20,5 @@ The current training labels are synthetic placeholders for user behavior and ins
 의학적 진단, 치료, 배제 목적의 위험 점수화, 운영 환경의 개입 의사결정에는 사용할 수 없습니다.
 
 ## 구현된 것과 실제 관측이 필요한 것
-- 구현됨: 공식 출처 기반 resource seed, feedback/progress schema, `/feedback/log`, 운영자 debug view, human eval sheet, batch retraining pipeline
+- 구현됨: 공식 출처 기반 resource seed, feedback/progress/outcome schema, `/feedback/log`, `/progress/log`, `/outcomes/log`, 검증 view, 운영자 review 입력, human eval sheet, batch retraining pipeline
 - 실제 관측 필요: 미션 시작/완료/건너뜀/too-hard, 프로그램 참여, 지원 결과, 운영자 review, 검증된 미니 프로젝트 제출 outcome

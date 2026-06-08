@@ -39,3 +39,24 @@ def test_sample_profile_and_analyze_intake():
     assert body["safety_flag"] is False
     assert "model_info" in body
 
+
+def test_outcome_log_api():
+    client = TestClient(app)
+    payload = {
+        "user_id": "api_user_outcome",
+        "outcome_type": "program_participation",
+        "outcome_status": "participated",
+        "mission_id": "mission_014",
+        "resource_id": "resource_001",
+        "readiness_rating": 4,
+        "burden_after": 3,
+        "result_note": "프로그램 참여 완료",
+        "policy_version": "test",
+    }
+    response = client.post("/outcomes/log", json=payload)
+    assert response.status_code == 200
+    assert response.json()["stored"] is True
+
+    rows = client.get("/outcomes", params={"user_id": "api_user_outcome"})
+    assert rows.status_code == 200
+    assert rows.json()["outcomes"]

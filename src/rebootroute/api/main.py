@@ -9,15 +9,14 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from rebootroute import __version__
-from rebootroute.config import load_config
 from rebootroute.data.mock_data import get_sample_profile, load_raw_data
-from rebootroute.database import get_reboot_points, log_feedback, log_progress
+from rebootroute.database import get_outcomes_df, get_reboot_points, log_feedback, log_outcome, log_progress
 from rebootroute.modeling.registry import load_metadata
 from rebootroute.recommender.mission_recommender import rank_missions
 from rebootroute.recommender.resource_recommender import rank_resources
 from rebootroute.rag.retriever import search_policy_culture_resources
 from rebootroute.recommender.route_builder import analyze_profile, recommend_full_route
-from rebootroute.schemas import FeedbackEvent, ProgressLog, ProgressStatus, RAGSearchRequest, SimulationRequest, UserProfile
+from rebootroute.schemas import FeedbackEvent, OutcomeEvent, ProgressLog, ProgressStatus, RAGSearchRequest, SimulationRequest, UserProfile
 
 
 app = FastAPI(
@@ -111,6 +110,17 @@ def rag_search(request: RAGSearchRequest) -> dict[str, Any]:
 @app.post("/feedback/log")
 def feedback_log(event: FeedbackEvent) -> dict[str, Any]:
     return json_safe(log_feedback(event))
+
+
+@app.post("/outcomes/log")
+def outcomes_log(event: OutcomeEvent) -> dict[str, Any]:
+    return json_safe(log_outcome(event))
+
+
+@app.get("/outcomes")
+def outcomes(user_id: str | None = None) -> dict[str, Any]:
+    rows = get_outcomes_df(user_id).to_dict("records")
+    return json_safe({"outcomes": rows})
 
 
 @app.post("/progress/log")

@@ -212,6 +212,55 @@ def validate_progress(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def validate_outcomes(df: pd.DataFrame) -> pd.DataFrame:
+    outcome_types = {
+        "program_participation",
+        "support_application",
+        "support_result",
+        "mini_project_submission",
+        "operator_review",
+    }
+    outcome_statuses = {
+        "planned",
+        "applied",
+        "participated",
+        "submitted",
+        "accepted",
+        "rejected",
+        "not_eligible",
+        "needs_follow_up",
+        "verified",
+        "rework_requested",
+        "unknown",
+    }
+    if df.empty:
+        return df
+    if pa is not None:
+        schema = DataFrameSchema(
+            {
+                "outcome_id": Column(str),
+                "user_id": Column(str),
+                "outcome_type": Column(str, Check.isin(sorted(outcome_types))),
+                "outcome_status": Column(str, Check.isin(sorted(outcome_statuses))),
+                "readiness_rating": Column(float, nullable=True),
+                "burden_after": Column(float, nullable=True),
+                "created_at": Column(str),
+            },
+            coerce=True,
+        )
+        return schema.validate(df)
+    return _manual_validate(
+        df,
+        {
+            "outcome_id": lambda s: s.notna(),
+            "user_id": lambda s: s.notna(),
+            "outcome_type": _in_values(outcome_types),
+            "outcome_status": _in_values(outcome_statuses),
+        },
+        "outcomes",
+    )
+
+
 def validate_all() -> dict[str, int]:
     cfg = load_config()
     ensure_directories(cfg)
@@ -220,11 +269,13 @@ def validate_all() -> dict[str, int]:
     resources = validate_resources(pd.read_csv(paths["resources"]))
     missions = validate_missions(pd.read_csv(paths["missions"]))
     progress = validate_progress(pd.read_csv(paths["progress"]))
+    outcomes = validate_outcomes(pd.read_csv(paths["outcomes"]))
     return {
         "profiles": len(profiles),
         "resources": len(resources),
         "missions": len(missions),
         "progress": len(progress),
+        "outcomes": len(outcomes),
         "pandera_available": int(pa is not None),
     }
 

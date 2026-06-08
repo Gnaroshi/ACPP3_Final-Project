@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -17,6 +17,23 @@ DISTRICTS = ["중구", "동구", "미추홀구", "연수구", "남동구", "부�
 CONTACT_MODES = ["online", "low_contact", "small_group", "in_person"]
 INTERESTS = ["culture", "design", "writing", "IT", "public_policy", "planning", "library", "media", "craft", "data"]
 SAMPLE_GENERATED_AT = "2026-06-08T00:00:00+00:00"
+SAMPLE_GENERATED_AT_DT = datetime.fromisoformat(SAMPLE_GENERATED_AT)
+OUTCOME_COLUMNS = [
+    "outcome_id",
+    "user_id",
+    "outcome_type",
+    "outcome_status",
+    "mission_id",
+    "resource_id",
+    "readiness_rating",
+    "burden_after",
+    "result_note",
+    "operator_review_status",
+    "operator_note",
+    "evidence_url",
+    "policy_version",
+    "created_at",
+]
 
 FREE_TEXT_TEMPLATES = [
     "취업해야 하는데 자신이 없고 사람 만나는 것도 부담돼요. 요즘은 거의 집에만 있어요.",
@@ -579,11 +596,15 @@ def generate_progress(profiles: pd.DataFrame, missions: pd.DataFrame, seed: int 
                     "mission_id": mission_id,
                     "status": status,
                     "user_note": "샘플 진행 로그",
-                    "completed_at": (datetime.now(timezone.utc) - timedelta(days=rng.randint(0, 60))).isoformat() if status == "completed" else "",
+                    "completed_at": (SAMPLE_GENERATED_AT_DT - timedelta(days=rng.randint(0, 60))).isoformat() if status == "completed" else "",
                     "points_awarded": rng.randint(5, 25) if status == "completed" else 0,
                 }
             )
     return pd.DataFrame(rows)
+
+
+def generate_outcomes() -> pd.DataFrame:
+    return pd.DataFrame(columns=OUTCOME_COLUMNS)
 
 
 def save_mock_data(output_dir: Path | None = None, seed: int = 42) -> dict[str, Path]:
@@ -595,16 +616,19 @@ def save_mock_data(output_dir: Path | None = None, seed: int = 42) -> dict[str, 
     missions = generate_missions(seed=seed)
     resources = generate_resources(seed=seed)
     progress = generate_progress(profiles, missions, seed=seed)
+    outcomes = generate_outcomes()
     paths = {
         "profiles": out_dir / "sample_profiles.csv",
         "missions": out_dir / "sample_missions.csv",
         "resources": out_dir / "sample_resources.csv",
         "progress": out_dir / "sample_progress.csv",
+        "outcomes": out_dir / "sample_outcomes.csv",
     }
     _write_csv_atomic(profiles, paths["profiles"])
     _write_csv_atomic(missions, paths["missions"])
     _write_csv_atomic(resources, paths["resources"])
     _write_csv_atomic(progress, paths["progress"])
+    _write_csv_atomic(outcomes, paths["outcomes"])
     return paths
 
 
@@ -615,6 +639,7 @@ def ensure_mock_data() -> dict[str, Path]:
         "missions": cfg.raw_data_dir / "sample_missions.csv",
         "resources": cfg.raw_data_dir / "sample_resources.csv",
         "progress": cfg.raw_data_dir / "sample_progress.csv",
+        "outcomes": cfg.raw_data_dir / "sample_outcomes.csv",
     }
     if not all(path.exists() for path in paths.values()):
         return save_mock_data(cfg.raw_data_dir, cfg.random_seed)

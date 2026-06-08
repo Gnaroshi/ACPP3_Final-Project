@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 import json
+import math
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,13 +18,23 @@ if str(SRC_ROOT) not in sys.path:
 from rebootroute.config import load_config
 from rebootroute.data.mock_data import load_raw_data
 from rebootroute.data.validation import parse_list
-from rebootroute.database import get_feedback_df, get_progress_df, log_feedback, log_progress
+from rebootroute.database import get_feedback_df, get_outcomes_df, get_progress_df, log_feedback, log_outcome, log_progress
 from rebootroute.modeling.registry import load_metadata
 from rebootroute.rag.retriever import search_policy_culture_resources
 from rebootroute.recommender.mission_recommender import rank_missions
 from rebootroute.recommender.resource_recommender import rank_resources
 from rebootroute.recommender.route_builder import analyze_profile
-from rebootroute.schemas import ContactMode, FeedbackEvent, FeedbackEventType, ProgressLog, ProgressStatus, UserProfile
+from rebootroute.schemas import (
+    ContactMode,
+    FeedbackEvent,
+    FeedbackEventType,
+    OutcomeEvent,
+    OutcomeStatus,
+    OutcomeType,
+    ProgressLog,
+    ProgressStatus,
+    UserProfile,
+)
 
 
 st.set_page_config(page_title="RebootRoute", page_icon="RR", layout="wide")
@@ -91,6 +102,45 @@ DEFAULT_STATE = {
 }
 DEFAULT_RESOURCE_TYPES = ["youth_program", "support_program", "culture_event", "culture_facility"]
 DEFAULT_COSTS = ["free", "low_cost", "unknown"]
+DISTRICT_CENTERS = {
+    "중구": (37.4737, 126.6219),
+    "동구": (37.4739, 126.6427),
+    "미추홀구": (37.4636, 126.6504),
+    "연수구": (37.4104, 126.6783),
+    "남동구": (37.4473, 126.7314),
+    "부평구": (37.5070, 126.7219),
+    "계양구": (37.5374, 126.7378),
+    "서구": (37.5454, 126.6759),
+    "강화군": (37.7465, 126.4878),
+    "옹진군": (37.4469, 126.6368),
+    "인천 전역": (37.4563, 126.7052),
+}
+OUTCOME_TYPE_LABELS = {
+    "program_participation": "프로그램/공간 참여",
+    "support_application": "지원 신청",
+    "support_result": "지원 결과",
+    "mini_project_submission": "미니 프로젝트 제출",
+    "operator_review": "운영자 검토",
+}
+OUTCOME_STATUS_LABELS = {
+    "planned": "예정",
+    "applied": "신청 완료",
+    "participated": "참여 완료",
+    "submitted": "제출 완료",
+    "accepted": "선정/통과",
+    "rejected": "미선정",
+    "not_eligible": "대상 아님",
+    "needs_follow_up": "추가 확인 필요",
+    "verified": "검토 완료",
+    "rework_requested": "보완 필요",
+    "unknown": "확인 전",
+}
+MAP_BOUNDS = {
+    "lat_min": 37.34,
+    "lat_max": 37.78,
+    "lon_min": 126.46,
+    "lon_max": 126.82,
+}
 
 
 st.markdown(
@@ -434,6 +484,122 @@ st.markdown(
         background: #fbfcfb;
       }
 
+      .rr-flow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.6rem;
+        margin: 0.75rem 0 1rem;
+      }
+
+      .rr-flow-step {
+        background: var(--rr-surface);
+        border: 1px solid var(--rr-line);
+        border-radius: 8px;
+        padding: 0.75rem;
+        min-height: 5.1rem;
+      }
+
+      .rr-flow-step strong {
+        display: block;
+        color: var(--rr-ink) !important;
+        font-size: 0.92rem;
+        line-height: 1.35;
+        margin-bottom: 0.25rem;
+      }
+
+      .rr-flow-step span {
+        color: var(--rr-muted) !important;
+        font-size: 0.84rem;
+        line-height: 1.45;
+      }
+
+      .rr-map {
+        position: relative;
+        height: 420px;
+        overflow: hidden;
+        border: 1px solid var(--rr-line);
+        border-radius: 8px;
+        background:
+          linear-gradient(90deg, rgba(29, 78, 216, 0.08) 1px, transparent 1px),
+          linear-gradient(rgba(29, 78, 216, 0.08) 1px, transparent 1px),
+          linear-gradient(135deg, #eef7f5 0%, #f8fafc 42%, #eef2ff 100%);
+        background-size: 52px 52px, 52px 52px, auto;
+      }
+
+      .rr-map::before {
+        content: "INCHEON";
+        position: absolute;
+        right: 1rem;
+        bottom: 0.75rem;
+        color: rgba(17, 24, 39, 0.16);
+        font-weight: 900;
+        letter-spacing: 0.08rem;
+      }
+
+      .rr-map-marker {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        width: 0.95rem;
+        height: 0.95rem;
+        border-radius: 999px;
+        border: 2px solid #ffffff;
+        box-shadow: 0 4px 12px rgba(17, 24, 39, 0.2);
+      }
+
+      .rr-map-marker.user {
+        width: 1.25rem;
+        height: 1.25rem;
+        background: var(--rr-primary);
+      }
+
+      .rr-map-marker.place {
+        background: var(--rr-info);
+      }
+
+      .rr-map-label {
+        position: absolute;
+        transform: translate(0.55rem, -0.6rem);
+        min-width: 6.4rem;
+        max-width: 11rem;
+        border: 1px solid var(--rr-line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.96);
+        color: var(--rr-ink) !important;
+        font-size: 0.76rem;
+        line-height: 1.3;
+        font-weight: 800;
+        padding: 0.28rem 0.42rem;
+      }
+
+      .rr-map-label small {
+        display: block;
+        color: var(--rr-muted) !important;
+        font-size: 0.7rem;
+        font-weight: 650;
+        margin-top: 0.1rem;
+      }
+
+      .rr-map-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 0.55rem;
+        color: var(--rr-muted) !important;
+        font-size: 0.86rem;
+      }
+
+      .rr-dot {
+        display: inline-block;
+        width: 0.72rem;
+        height: 0.72rem;
+        border-radius: 999px;
+        margin-right: 0.25rem;
+        vertical-align: -0.08rem;
+      }
+
+      .rr-dot.user { background: var(--rr-primary); }
+      .rr-dot.place { background: var(--rr-info); }
+
       @media (max-width: 760px) {
         .block-container {
           padding: 0.75rem 0.85rem 2rem;
@@ -485,6 +651,19 @@ st.markdown(
         .rr-step-grid {
           grid-template-columns: 1fr;
         }
+
+        .rr-flow {
+          grid-template-columns: 1fr;
+        }
+
+        .rr-map {
+          height: 360px;
+        }
+
+        .rr-map-label {
+          max-width: 8.5rem;
+          font-size: 0.7rem;
+        }
       }
     </style>
     """,
@@ -509,6 +688,12 @@ def init_session_state() -> None:
     st.session_state.setdefault("resource_online_only", False)
     st.session_state.setdefault("rag_query", "연수구 무료 전시 청년 문화활동")
     st.session_state.setdefault("rag_result", None)
+    st.session_state.setdefault("manual_location", False)
+    st.session_state.setdefault("user_latitude", DISTRICT_CENTERS[DEFAULT_STATE["district"]][0])
+    st.session_state.setdefault("user_longitude", DISTRICT_CENTERS[DEFAULT_STATE["district"]][1])
+    st.session_state.setdefault("outcome_type", "program_participation")
+    st.session_state.setdefault("outcome_status", "planned")
+    st.session_state.setdefault("outcome_note", "")
 
 
 def e(value: Any) -> str:
@@ -561,6 +746,88 @@ def available_districts(resources: pd.DataFrame) -> list[str]:
     return ordered + extras
 
 
+def district_center(district: str) -> tuple[float, float]:
+    return DISTRICT_CENTERS.get(district, DISTRICT_CENTERS["인천 전역"])
+
+
+def current_user_location() -> tuple[float, float]:
+    if st.session_state.get("manual_location"):
+        return float(st.session_state["user_latitude"]), float(st.session_state["user_longitude"])
+    return district_center(str(st.session_state["district"]))
+
+
+def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    radius = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    d_phi = math.radians(lat2 - lat1)
+    d_lambda = math.radians(lon2 - lon1)
+    a = math.sin(d_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2) ** 2
+    return radius * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
+def add_distance(resources: pd.DataFrame, user_lat: float, user_lon: float) -> pd.DataFrame:
+    if resources.empty or "latitude" not in resources.columns or "longitude" not in resources.columns:
+        return resources
+    df = resources.copy()
+    lat = pd.to_numeric(df["latitude"], errors="coerce")
+    lon = pd.to_numeric(df["longitude"], errors="coerce")
+    df["distance_km"] = [
+        haversine_km(user_lat, user_lon, float(row_lat), float(row_lon)) if pd.notna(row_lat) and pd.notna(row_lon) else None
+        for row_lat, row_lon in zip(lat, lon, strict=False)
+    ]
+    return df
+
+
+def map_position(lat: float, lon: float) -> tuple[float, float]:
+    left = (lon - MAP_BOUNDS["lon_min"]) / (MAP_BOUNDS["lon_max"] - MAP_BOUNDS["lon_min"]) * 100
+    top = (MAP_BOUNDS["lat_max"] - lat) / (MAP_BOUNDS["lat_max"] - MAP_BOUNDS["lat_min"]) * 100
+    return max(2, min(98, left)), max(2, min(98, top))
+
+
+def render_location_map(resources: pd.DataFrame, *, title: str, max_items: int = 8) -> None:
+    user_lat, user_lon = current_user_location()
+    points = resources.copy()
+    if not points.empty:
+        points["latitude"] = pd.to_numeric(points["latitude"], errors="coerce")
+        points["longitude"] = pd.to_numeric(points["longitude"], errors="coerce")
+        points = points.dropna(subset=["latitude", "longitude"]).head(max_items)
+    user_left, user_top = map_position(user_lat, user_lon)
+    markers = [
+        (
+            f'<div class="rr-map-marker user" style="left:{user_left:.2f}%; top:{user_top:.2f}%;" title="내 위치"></div>'
+            f'<div class="rr-map-label" style="left:{user_left:.2f}%; top:{user_top:.2f}%;">'
+            f"내 위치<small>{e('직접 입력' if st.session_state.get('manual_location') else str(st.session_state['district']) + ' 중심')}</small>"
+            "</div>"
+        )
+    ]
+    for _, row in points.iterrows():
+        left, top = map_position(float(row["latitude"]), float(row["longitude"]))
+        name = display_text(row.get("name")) or "활동 장소"
+        district = display_text(row.get("district"))
+        distance = row.get("distance_km")
+        distance_text = f"{float(distance):.1f}km" if distance is not None and pd.notna(distance) else "거리 확인"
+        markers.append(
+            (
+                f'<div class="rr-map-marker place" style="left:{left:.2f}%; top:{top:.2f}%;" title="{e(name)}"></div>'
+                f'<div class="rr-map-label" style="left:{left:.2f}%; top:{top:.2f}%;">'
+                f"{e(name)}<small>{e(district)} · {e(distance_text)}</small>"
+                "</div>"
+            )
+        )
+    st.markdown(f'<div class="rr-section-title">{e(title)}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="rr-map">{"".join(markers)}</div>', unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="rr-map-legend">
+          <span><span class="rr-dot user"></span>내 위치</span>
+          <span><span class="rr-dot place"></span>정책·문화 활동 장소</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def filter_resources_for_user(
     resources: pd.DataFrame,
     *,
@@ -599,13 +866,16 @@ def filter_resources_for_user(
         filtered = filtered[filtered.apply(lambda row: query in row_text(row), axis=1)]
     if filtered.empty:
         return filtered
+    user_lat, user_lon = current_user_location()
+    filtered = add_distance(filtered, user_lat, user_lon)
     cost_rank = {"free": 0, "low_cost": 1, "unknown": 2, "paid": 3}
     filtered = filtered.assign(
         _cost_rank=filtered["cost_type"].map(lambda value: cost_rank.get(str(value), 4)),
         _online_rank=filtered["online_available"].map(lambda value: 0 if as_bool(value) else 1),
+        _distance_rank=filtered["distance_km"].fillna(999) if "distance_km" in filtered.columns else 999,
     )
-    return filtered.sort_values(["burden_level", "_cost_rank", "_online_rank", "estimated_duration_minutes", "name"]).drop(
-        columns=["_cost_rank", "_online_rank"]
+    return filtered.sort_values(["burden_level", "_cost_rank", "_online_rank", "_distance_rank", "estimated_duration_minutes", "name"]).drop(
+        columns=["_cost_rank", "_online_rank", "_distance_rank"]
     )
 
 
@@ -640,18 +910,22 @@ def next_action_items(resource: dict[str, Any]) -> list[str]:
 def render_step_guide() -> None:
     st.markdown(
         """
-        <div class="rr-step-grid">
-          <div class="rr-step">
-            <span class="rr-step-number">1</span><strong>실제 자원 확인</strong>
-            <p>인천청년포털과 인천문화재단 등 공식 출처의 정책·공간·문화 자원을 먼저 봅니다.</p>
+        <div class="rr-flow">
+          <div class="rr-flow-step">
+            <strong>1. 내 조건</strong>
+            <span>위치, 외출 가능 시간, 비용, 대면 부담을 고릅니다.</span>
           </div>
-          <div class="rr-step">
-            <span class="rr-step-number">2</span><strong>조건 줄이기</strong>
-            <p>지역, 비용, 대면 부담, 온라인 가능 여부로 오늘 볼 수 있는 후보만 남깁니다.</p>
+          <div class="rr-flow-step">
+            <strong>2. 추천 루트</strong>
+            <span>현재 부담도에 맞는 단계와 오늘 할 미션을 바로 확인합니다.</span>
           </div>
-          <div class="rr-step">
-            <span class="rr-step-number">3</span><strong>다음 행동 정하기</strong>
-            <p>신청이나 방문을 강요하지 않고, 공식 페이지 확인 같은 가장 작은 행동으로 끝냅니다.</p>
+          <div class="rr-flow-step">
+            <strong>3. 위치 확인</strong>
+            <span>내 위치와 활동 장소를 같은 지도에서 봅니다.</span>
+          </div>
+          <div class="rr-flow-step">
+            <strong>4. 결과 기록</strong>
+            <span>시작, 완료, 너무 어려움, 참여/지원 결과를 남깁니다.</span>
           </div>
         </div>
         """,
@@ -702,6 +976,8 @@ def current_profile_and_analysis(force: bool = False) -> tuple[UserProfile, dict
 def reset_demo_state() -> None:
     for key, value in DEFAULT_STATE.items():
         st.session_state[key] = value
+    st.session_state["manual_location"] = False
+    st.session_state["user_latitude"], st.session_state["user_longitude"] = DISTRICT_CENTERS[DEFAULT_STATE["district"]]
     st.session_state["analysis_signature"] = ""
     st.session_state["rag_result"] = None
 
@@ -742,6 +1018,127 @@ def record_mission_action(profile: UserProfile, mission: dict[str, Any], status:
     st.rerun()
 
 
+def record_outcome(
+    profile: UserProfile,
+    *,
+    outcome_type: str,
+    outcome_status: str,
+    resource_id: str | None,
+    mission_id: str | None,
+    readiness_rating: int | None,
+    burden_after: int | None,
+    result_note: str | None,
+    operator_review_status: str | None = None,
+    operator_note: str | None = None,
+) -> None:
+    log_outcome(
+        OutcomeEvent(
+            user_id=profile.user_id,
+            outcome_type=OutcomeType(outcome_type),
+            outcome_status=OutcomeStatus(outcome_status),
+            mission_id=mission_id,
+            resource_id=resource_id,
+            readiness_rating=readiness_rating,
+            burden_after=burden_after,
+            result_note=result_note,
+            operator_review_status=operator_review_status,
+            operator_note=operator_note,
+            policy_version="streamlit_demo",
+        )
+    )
+    log_feedback(
+        FeedbackEvent(
+            user_id=profile.user_id,
+            event_type=FeedbackEventType.operator_review if outcome_type == "operator_review" else FeedbackEventType.resource_click,
+            mission_id=mission_id,
+            resource_id=resource_id,
+            recommended_stage=None,
+            burden_after=burden_after,
+            appropriateness_rating=readiness_rating,
+            user_note=result_note,
+            policy_version="streamlit_demo",
+        )
+    )
+    st.session_state["last_action_message"] = "활동/지원 결과를 기록했습니다."
+    st.rerun()
+
+
+def render_profile_controls() -> None:
+    st.markdown('<div class="rr-section-title">1. 내 조건</div>', unsafe_allow_html=True)
+    st.selectbox("현재 위치", DISTRICTS, key="district")
+    st.checkbox("위도/경도 직접 입력", key="manual_location")
+    if st.session_state.get("manual_location"):
+        loc1, loc2 = st.columns(2)
+        loc1.number_input("위도", min_value=33.0, max_value=39.0, step=0.0001, format="%.4f", key="user_latitude")
+        loc2.number_input("경도", min_value=124.0, max_value=132.0, step=0.0001, format="%.4f", key="user_longitude")
+    else:
+        lat, lon = district_center(str(st.session_state["district"]))
+        st.session_state["user_latitude"] = lat
+        st.session_state["user_longitude"] = lon
+        st.caption(f"지도에는 {st.session_state['district']} 중심 좌표를 내 위치로 표시합니다.")
+
+    st.text_area("오늘 상태", height=90, key="free_text")
+    col1, col2 = st.columns(2)
+    col1.slider("외출 부담", 1, 5, key="outside_burden")
+    col2.slider("대면 부담", 1, 5, key="social_burden")
+    col3, col4 = st.columns(2)
+    col3.slider("에너지", 1, 5, key="energy_level")
+    col4.slider("생활 리듬", 1, 5, key="daily_rhythm_level")
+    col5, col6 = st.columns(2)
+    col5.slider("취업 부담", 1, 5, key="employment_burden")
+    col6.slider("미래 불안", 1, 5, key="future_anxiety")
+    st.selectbox("선호 방식", list(CONTACT_LABELS.keys()), format_func=lambda x: CONTACT_LABELS[x], key="preferred_contact_mode")
+    st.multiselect("관심 분야", INTERESTS, format_func=lambda x: INTEREST_LABELS.get(x, x), key="interests")
+    col7, col8 = st.columns(2)
+    col7.number_input("외출 가능 시간(분)", min_value=0, max_value=360, step=5, key="max_outdoor_minutes")
+    col8.number_input("오늘 예산(원)", min_value=0, max_value=100000, step=1000, key="budget_limit")
+    st.checkbox("함께 확인해줄 사람이 있음", key="has_support_person")
+    if st.button("기본값으로 되돌리기", width="stretch"):
+        reset_demo_state()
+        st.rerun()
+
+
+def render_outcome_form(profile: UserProfile, resources: pd.DataFrame, missions: list[dict[str, Any]], key_prefix: str) -> None:
+    st.markdown('<div class="rr-section-title">4. 활동/지원 결과 기록</div>', unsafe_allow_html=True)
+    if resources.empty:
+        st.markdown('<div class="rr-empty-note">기록할 자원이 없습니다. 조건을 완화해 후보를 먼저 확인하세요.</div>', unsafe_allow_html=True)
+        return
+    resource_records = resources.head(10).to_dict("records")
+    resource_options = {f"{row['name']} · {row['district']}": row["resource_id"] for row in resource_records}
+    mission_options = {"미션 연결 안 함": None}
+    mission_options.update({mission["title"]: mission["mission_id"] for mission in missions})
+    with st.form(f"{key_prefix}_outcome_form", clear_on_submit=False):
+        selected_resource_label = st.selectbox("활동/지원 대상", list(resource_options.keys()))
+        selected_type = st.selectbox(
+            "기록 종류",
+            list(OUTCOME_TYPE_LABELS.keys()),
+            format_func=lambda value: OUTCOME_TYPE_LABELS[value],
+            key=f"{key_prefix}_outcome_type",
+        )
+        selected_status = st.selectbox(
+            "현재 결과",
+            list(OUTCOME_STATUS_LABELS.keys()),
+            format_func=lambda value: OUTCOME_STATUS_LABELS[value],
+            key=f"{key_prefix}_outcome_status",
+        )
+        selected_mission_label = st.selectbox("연결 미션", list(mission_options.keys()))
+        readiness = st.slider("상담/지원 준비도", 1, 5, 3)
+        burden_after = st.slider("진행 후 부담도", 1, 5, 3)
+        note = st.text_area("메모", placeholder="예: 공식 페이지 확인 후 신청 대상 조건을 확인함 / 프로그램에 참여함 / 결과 대기 중")
+        submitted = st.form_submit_button("결과 저장", use_container_width=True)
+    if submitted:
+        record_outcome(
+            profile,
+            outcome_type=selected_type,
+            outcome_status=selected_status,
+            resource_id=resource_options[selected_resource_label],
+            mission_id=mission_options[selected_mission_label],
+            readiness_rating=readiness,
+            burden_after=burden_after,
+            result_note=note,
+        )
+
+
 def render_user_mission(profile: UserProfile, mission: dict[str, Any], recommended_stage: int, key_prefix: str) -> None:
     with st.container(border=True):
         st.markdown(
@@ -776,6 +1173,8 @@ def render_user_resource(resource: dict[str, Any], key_prefix: str) -> None:
     address = display_text(resource.get("address"))
     period = format_period(resource)
     online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "현장 정보 확인 필요"
+    distance = resource.get("distance_km")
+    distance_text = f" · 내 위치에서 약 {float(distance):.1f}km" if distance is not None and pd.notna(distance) else ""
     source_link = (
         f'<a class="rr-source-link" href="{e(source_url)}" target="_blank" rel="noopener noreferrer">{e(source_name)} 열기</a>'
         if source_url
@@ -794,6 +1193,7 @@ def render_user_resource(resource: dict[str, Any], key_prefix: str) -> None:
               {e(online_text)}
               · 예상 {e(str(duration))}분
               · {e(period)}
+              {e(distance_text)}
               {(" · " + e(contact)) if contact else ""}
               {("<br/>" + e(address)) if address else ""}
             </div>
@@ -834,13 +1234,12 @@ def technical_resource_frame(resources: list[dict[str, Any]]) -> pd.DataFrame:
 
 
 init_session_state()
-profile, analysis = current_profile_and_analysis()
 
 st.markdown(
     """
     <div class="rr-app-header">
       <div class="rr-app-title">RebootRoute</div>
-      <p class="rr-app-subtitle">인천의 실제 정책·문화 자원을 확인하고, 오늘 끝낼 수 있는 다음 행동을 고릅니다.</p>
+      <p class="rr-app-subtitle">내 위치와 부담도에 맞춰 인천의 실제 정책·문화 활동을 찾고, 오늘 할 행동과 결과까지 기록합니다.</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -849,69 +1248,76 @@ st.markdown(
 if st.session_state.get("last_action_message"):
     st.success(st.session_state.pop("last_action_message"))
 
-tabs = st.tabs(["오늘 순서", "인천 자원 검색", "운영자", "평가"])
+tabs = st.tabs(["오늘 루트", "자원·지도", "기록", "검증"])
 
 with tabs[0]:
     data = cached_data()
     resources_df = data["resources"]
-    st.subheader("오늘 볼 순서")
+    st.subheader("오늘 루트")
     render_step_guide()
 
-    filter_col, result_col = st.columns([0.86, 1.34], gap="large")
-    with filter_col:
-        st.markdown('<div class="rr-section-title">1. 실제 자원 선택</div>', unsafe_allow_html=True)
-        st.multiselect(
-            "자원 종류",
-            list(RESOURCE_TYPE_LABELS.keys()),
-            format_func=lambda x: RESOURCE_TYPE_LABELS[x],
-            key="resource_types",
-        )
-        st.selectbox("구/군", available_districts(resources_df), key="resource_district")
-        st.text_input("검색어", placeholder="예: 유유기지, 전시, 구직활동비, 청년공간", key="resource_query")
-
+    input_col, route_col = st.columns([0.88, 1.32], gap="large")
+    with input_col:
+        render_profile_controls()
         st.markdown('<div class="rr-divider"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="rr-section-title">2. 오늘 조건</div>', unsafe_allow_html=True)
+        st.markdown('<div class="rr-section-title">자원 조건</div>', unsafe_allow_html=True)
+        st.multiselect("자원 종류", list(RESOURCE_TYPE_LABELS.keys()), format_func=lambda x: RESOURCE_TYPE_LABELS[x], key="resource_types")
         st.multiselect("비용", list(COST_LABELS.keys()), format_func=lambda x: COST_LABELS[x], key="resource_costs")
         st.slider("최대 부담도", 0, 5, key="resource_max_burden")
         st.checkbox("온라인으로 먼저 확인 가능한 자원만 보기", key="resource_online_only")
+        st.text_input("검색어", placeholder="예: 유유기지, 전시, 구직활동비, 청년공간", key="resource_query")
 
+    profile, analysis = current_profile_and_analysis()
+    with route_col:
+        if analysis.get("safety_flag"):
+            render_safety_branch(analysis)
+        stage = int(analysis["recommended_stage"])
         st.markdown(
-            """
-            <div class="rr-panel">
-              <div class="rr-section-title">이 화면에서 얻는 것</div>
-              <div class="rr-muted">공식 출처 링크, 비용·대면 부담, 오늘 끝낼 수 있는 확인 행동을 한 번에 봅니다.</div>
+            f"""
+            <div class="rr-panel rr-stage-panel">
+              <div class="rr-section-title">2. 추천 루트</div>
+              <div class="rr-card-title">{e(STAGE_LABELS.get(stage, '추천 단계'))}</div>
+              <div class="rr-card-body">{e(analysis.get("burden_summary", ""))}</div>
+              {chip("자동 반영", "teal")}
+              {chip("Stage " + str(stage), "gray")}
             </div>
             """,
             unsafe_allow_html=True,
         )
-
-    with result_col:
         filtered_resources = filter_resources_for_user(
             resources_df,
             query=st.session_state["resource_query"],
-            district=st.session_state["resource_district"],
+            district=str(st.session_state["district"]),
             resource_types=list(st.session_state["resource_types"]),
             costs=list(st.session_state["resource_costs"]),
             max_burden=int(st.session_state["resource_max_burden"]),
             online_only=bool(st.session_state["resource_online_only"]),
         )
-        st.markdown('<div class="rr-section-title">3. 오늘 확인할 후보</div>', unsafe_allow_html=True)
+        st.markdown('<div class="rr-section-title">오늘 할 미션</div>', unsafe_allow_html=True)
+        missions = analysis.get("next_3_missions", [])
+        if missions:
+            for idx, mission in enumerate(missions):
+                render_user_mission(profile, mission, stage, f"today_{idx}")
+        else:
+            st.markdown('<div class="rr-empty-note">현재 조건에서는 일반 미션 대신 안전 확인 또는 조건 완화가 필요합니다.</div>', unsafe_allow_html=True)
+
         if filtered_resources.empty:
             st.markdown(
                 """
                 <div class="rr-empty-note">
-                  조건에 맞는 공식 자원이 없습니다. 구/군을 전체로 바꾸거나 최대 부담도를 한 단계 높여 확인하세요.
+                  조건에 맞는 공식 자원이 없습니다. 최대 부담도를 한 단계 높이거나 자원 종류를 넓혀 확인하세요.
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
         else:
-            st.caption(f"조건에 맞는 공식 자원 {len(filtered_resources)}개")
+            st.markdown('<div class="rr-section-title">3. 위치와 활동 장소</div>', unsafe_allow_html=True)
+            render_location_map(filtered_resources, title="내 위치와 추천 장소", max_items=6)
             top_resource = filtered_resources.iloc[0].to_dict()
             st.markdown(
                 f"""
                 <div class="rr-panel rr-stage-panel">
-                  <div class="rr-section-title">오늘의 가장 작은 행동</div>
+                  <div class="rr-section-title">가장 작은 다음 행동</div>
                   <div class="rr-muted"><strong>{e(display_text(top_resource.get("name")))}</strong>의 공식 페이지에서 현재 운영 여부와 조건 1줄만 확인합니다.</div>
                   <ol class="rr-action-list">
                     {''.join(f"<li>{e(item)}</li>" for item in next_action_items(top_resource))}
@@ -922,11 +1328,13 @@ with tabs[0]:
             )
             for idx, resource in enumerate(filtered_resources.head(6).to_dict("records")):
                 render_user_resource(resource, f"official_{idx}")
+            render_outcome_form(profile, filtered_resources, missions, "today")
 
 with tabs[1]:
-    st.subheader("인천 자원 검색")
+    st.subheader("자원·지도")
     data = cached_data()
-    search_col, filter_col = st.columns([1.2, 0.8], gap="large")
+    st.markdown('<div class="rr-section-title">공식 자원 검색</div>', unsafe_allow_html=True)
+    search_col, filter_col = st.columns([1.15, 0.85], gap="large")
     with search_col:
         st.text_input("검색 질문", key="rag_query")
     with filter_col:
@@ -943,6 +1351,7 @@ with tabs[1]:
 
     rag_result = st.session_state.get("rag_result")
     if rag_result:
+        rag_sources_df = add_distance(pd.DataFrame(rag_result.get("sources", [])), *current_user_location())
         st.markdown(
             f"""
             <div class="rr-panel">
@@ -952,11 +1361,56 @@ with tabs[1]:
             """,
             unsafe_allow_html=True,
         )
-        for idx, resource in enumerate(rag_result.get("sources", [])):
+        if not rag_sources_df.empty:
+            render_location_map(rag_sources_df, title="내 위치와 검색 결과", max_items=8)
+        for idx, resource in enumerate(rag_sources_df.to_dict("records")):
             render_user_resource(resource, f"rag_{idx}")
 
 with tabs[2]:
-    st.subheader("운영자 점검")
+    profile, analysis = current_profile_and_analysis()
+    st.subheader("기록")
+    st.markdown(
+        """
+        <div class="rr-panel">
+          <div class="rr-section-title">현재 데모 세션 기록</div>
+          <div class="rr-muted">시작/완료/너무 어려움은 progress log에, 프로그램 참여·지원 신청·지원 결과·미니 프로젝트 제출은 outcome log에 저장됩니다.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    progress_df = get_progress_df(profile.user_id)
+    outcome_df = get_outcomes_df(profile.user_id)
+    feedback_df = get_feedback_df(profile.user_id)
+    m1, m2, m3 = st.columns(3)
+    m1.metric("미션 로그", len(progress_df))
+    m2.metric("활동/지원 결과", len(outcome_df))
+    m3.metric("피드백 이벤트", len(feedback_df))
+    st.markdown("#### 미션 진행")
+    if progress_df.empty:
+        st.markdown('<div class="rr-empty-note">아직 시작/완료/너무 어려움 기록이 없습니다.</div>', unsafe_allow_html=True)
+    else:
+        user_progress = progress_df[["status", "mission_id", "user_note", "completed_at", "points_awarded", "created_at"]].tail(20)
+        st.dataframe(user_progress, width="stretch", hide_index=True)
+    st.markdown("#### 활동·지원 결과")
+    if outcome_df.empty:
+        st.markdown('<div class="rr-empty-note">아직 참여/지원 결과 기록이 없습니다. 오늘 루트 탭에서 결과를 저장하세요.</div>', unsafe_allow_html=True)
+    else:
+        view = outcome_df[
+            [
+                "outcome_type",
+                "outcome_status",
+                "resource_id",
+                "mission_id",
+                "readiness_rating",
+                "burden_after",
+                "result_note",
+                "created_at",
+            ]
+        ].tail(20)
+        st.dataframe(view, width="stretch", hide_index=True)
+
+with tabs[3]:
+    st.subheader("검증")
     profile, analysis = current_profile_and_analysis()
     data = cached_data()
     stage = int(analysis["recommended_stage"])
@@ -1008,19 +1462,41 @@ with tabs[2]:
     st.markdown("#### Feedback / Progress 로그")
     feedback_df = get_feedback_df(profile.user_id)
     progress_df = get_progress_df(profile.user_id)
-    log_col1, log_col2 = st.columns(2)
+    outcome_df = get_outcomes_df(profile.user_id)
+    log_col1, log_col2, log_col3 = st.columns(3)
     with log_col1:
         st.caption("feedback_events")
         st.dataframe(feedback_df.tail(20), width="stretch", hide_index=True)
     with log_col2:
         st.caption("progress_logs")
         st.dataframe(progress_df.tail(20), width="stretch", hide_index=True)
+    with log_col3:
+        st.caption("outcome_events")
+        st.dataframe(outcome_df.tail(20), width="stretch", hide_index=True)
+
+    st.markdown("#### 운영자 검토 입력")
+    with st.form("operator_review_form", clear_on_submit=True):
+        review_status = st.selectbox("검토 결과", ["verified", "needs_follow_up", "rework_requested"], format_func=lambda value: OUTCOME_STATUS_LABELS[value])
+        operator_note = st.text_area("운영자 메모", placeholder="예: 미션 난이도 적합, 다음에는 부담도 1 낮춘 미션 권장")
+        submitted_review = st.form_submit_button("검토 저장", width="stretch")
+    if submitted_review:
+        record_outcome(
+            profile,
+            outcome_type="operator_review",
+            outcome_status=review_status,
+            resource_id=None,
+            mission_id=None,
+            readiness_rating=None,
+            burden_after=None,
+            result_note=None,
+            operator_review_status=review_status,
+            operator_note=operator_note,
+        )
 
     with st.expander("Raw analyze_profile payload"):
         st.json(analysis)
 
-with tabs[3]:
-    st.subheader("평가·모델")
+    st.markdown("#### 평가·모델")
     cfg = load_config()
     metadata = load_metadata()
     cols = st.columns(4)

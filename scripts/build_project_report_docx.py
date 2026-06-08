@@ -250,22 +250,23 @@ def build_doc() -> None:
     add_heading(doc, "2. 사용자 화면 사용 순서", 1)
     add_paragraph(
         doc,
-        "대시보드의 첫 탭은 실제 사용자가 무엇을 먼저 보고 무엇을 얻는지 명확히 알 수 있도록 세 단계로 재구성했습니다. 필터를 변경하면 결과와 다음 행동이 즉시 갱신되며, 별도 업데이트 버튼이나 추천 루트 버튼을 누르지 않습니다.",
+        "대시보드의 첫 탭은 실제 사용자가 무엇을 먼저 보고 무엇을 얻는지 명확히 알 수 있도록 네 단계로 재구성했습니다. 조건을 변경하면 추천 루트, 미션, 자원 후보, 지도 위치가 즉시 갱신되며, 별도 업데이트 버튼이나 추천 루트 버튼을 누르지 않습니다.",
     )
     add_table(
         doc,
         ["순서", "화면에서 하는 일", "사용자가 얻는 것"],
         [
-            ["1", "실제 자원 확인", "인천청년포털, 인천문화재단 등 공식 출처 기반 자원 카드"],
-            ["2", "조건 줄이기", "구/군, 비용, 최대 부담도, 온라인 확인 가능 여부로 후보 축소"],
-            ["3", "다음 행동 정하기", "공식 페이지 확인, 조건 1줄 정리, 문의처 메모 같은 오늘의 최소 행동"],
+            ["1", "내 조건 입력", "위치, 외출 가능 시간, 비용, 대면 부담, 관심 분야"],
+            ["2", "추천 루트 확인", "현재 부담도에 맞는 단계와 오늘 할 미션"],
+            ["3", "지도 확인", "내 위치와 활동 장소의 상대 위치, 대략 직선거리"],
+            ["4", "결과 기록", "미션 시작/완료/too-hard, 프로그램 참여, 지원 신청/결과, 미니 프로젝트 제출"],
         ],
         [900, 3200, 5260],
     )
     add_callout(
         doc,
         "사용자 화면에서 숨기는 정보",
-        "resource_id, mission_id, ranking score, RAG score, stage 번호, reboot point, model metric, raw payload는 사용자 카드에 표시하지 않습니다. 이 정보는 운영자 탭과 API 응답에서만 내부 검증용으로 확인합니다.",
+        "resource_id, mission_id, ranking score, RAG score, reboot point, model metric, raw payload는 사용자 카드에 표시하지 않습니다. 이 정보는 검증 탭과 API 응답에서만 내부 검증용으로 확인합니다.",
         fill="FFF3D8",
     )
 
@@ -281,8 +282,8 @@ def build_doc() -> None:
             ["4", "RAG Resource Index", "src/rebootroute/rag/retriever.py", "TF-IDF 기반 공식 자원 검색"],
             ["5", "Safety Guardrail", "src/rebootroute/recommender/safety_guardrails.py", "위험 표현 감지 시 안전 자원 분기"],
             ["6", "Stage + Mission 추천", "src/rebootroute/recommender/*.py", "rule stage, mission ranking, resource ranking, mini project 생성"],
-            ["7", "API / Dashboard", "src/rebootroute/api/main.py, src/rebootroute/dashboard/app.py", "FastAPI와 Streamlit 사용자/운영자 화면"],
-            ["8", "Feedback Log", "src/rebootroute/database.py", "progress_logs, feedback_events, user_state 저장"],
+            ["7", "API / Dashboard", "src/rebootroute/api/main.py, src/rebootroute/dashboard/app.py", "FastAPI와 Streamlit 오늘 루트/자원·지도/기록/검증 화면"],
+            ["8", "Operational Logs", "src/rebootroute/database.py", "progress_logs, feedback_events, outcome_events, user_state 저장"],
             ["9", "Evaluation / Retraining", "evaluation/*.csv, scripts/build_human_eval_sheet.py, scripts/run_pipeline.py", "human eval sheet와 batch 학습 루프"],
         ],
         [760, 1720, 3320, 3560],
@@ -296,10 +297,10 @@ def build_doc() -> None:
         [
             ["configs/config.yaml", "프로젝트명, 경로, 추천 top_n, safety resource path 설정"],
             ["configs/safety_resources.example.yaml", "위험 표현 분기 시 보여줄 도움 연결 자원"],
-            ["src/rebootroute/schemas.py", "Pydantic schema: UserProfile, Mission, Resource, ProgressLog, FeedbackEvent, RAGSearchRequest"],
-            ["src/rebootroute/database.py", "SQLite 연결, DB 초기화, progress/feedback 저장, reboot point 조회"],
+            ["src/rebootroute/schemas.py", "Pydantic schema: UserProfile, Mission, Resource, ProgressLog, FeedbackEvent, OutcomeEvent, RAGSearchRequest"],
+            ["src/rebootroute/database.py", "SQLite 연결, DB 초기화, progress/feedback/outcome 저장, reboot point 조회"],
             ["src/rebootroute/api/main.py", "FastAPI endpoint 정의"],
-            ["src/rebootroute/dashboard/app.py", "Streamlit 대시보드. 오늘 순서, 인천 자원 검색, 운영자, 평가 탭"],
+            ["src/rebootroute/dashboard/app.py", "Streamlit 대시보드. 오늘 루트, 자원·지도, 기록, 검증 탭"],
             ["src/rebootroute/data/*.py", "Synthetic sample 생성, 공식 resource seed 생성, validation"],
             ["src/rebootroute/features/build_features.py", "feature table과 synthetic label 생성"],
             ["src/rebootroute/modeling/*.py", "모델 학습, 평가, registry, prediction, explanation"],
@@ -321,8 +322,9 @@ def build_doc() -> None:
             ["data/raw/sample_missions.csv", "Stage 0-7 미션 42개", "발표용 seed data"],
             ["data/raw/sample_resources.csv", "공식 출처 기반 인천 자원 seed", "인천청년포털, 인천문화재단, 인천아트플랫폼, 트라이보울 등"],
             ["data/raw/sample_progress.csv", "synthetic 진행 로그", "실제 완료 이력이 아님"],
+            ["data/raw/sample_outcomes.csv", "outcome import template", "실제 outcome row는 사용자 또는 기관 관측 후 입력"],
             ["data/features/training_features.csv", "학습 feature + synthetic labels", "production 전 교체 필요"],
-            ["data/rebootroute.db", "SQLite DB", "feedback_events, progress_logs, user_state"],
+            ["data/rebootroute.db", "SQLite DB", "feedback_events, progress_logs, outcome_events, user_state"],
             ["models/latest/*.joblib", "stage / mission success model", "MLOps 시연용"],
             ["models/latest/metadata.json", "모델명, metric, data_version, warning", "dashboard MLOps 탭에서 사용"],
             ["reports/data_card.md", "데이터 설명과 synthetic label 경고", "발표/검토 산출물"],
@@ -336,7 +338,7 @@ def build_doc() -> None:
     add_heading(doc, "6.1 사용자 화면 정렬", 2)
     add_paragraph(
         doc,
-        "현재 사용자 화면은 실제 사용자 profile을 요구하지 않습니다. 공식 자원 자체의 비용, 부담도, 온라인 확인 가능 여부, 예상 확인 시간을 기준으로 자원을 정렬하고, 가장 부담이 낮은 후보를 기준으로 오늘의 다음 행동을 만듭니다.",
+        "현재 사용자 화면은 데모 세션 profile과 공식 자원 속성을 함께 사용합니다. 비용, 부담도, 온라인 확인 가능 여부, 내 위치와의 직선거리, 예상 확인 시간을 기준으로 자원을 정렬하고, 가장 부담이 낮은 후보를 기준으로 오늘의 다음 행동을 만듭니다.",
     )
     add_bullets(
         doc,
@@ -414,7 +416,7 @@ def build_doc() -> None:
     add_heading(doc, "9. Feedback loop", 1)
     add_paragraph(
         doc,
-        "현재 운영 전 데이터 루프 설계는 상태 입력 → safety guardrail → stage 분류 → RAG/mission/resource 추천 → feedback/progress log → human evaluation → batch retraining입니다. 다만 실제 사용자 데이터를 확보할 수 없으므로, 사용자-facing 데모에서는 개인정보성 상태 입력을 제외하고 공식 자원 확인 흐름을 우선합니다.",
+        "현재 운영 전 데이터 루프 설계는 상태 입력 → safety guardrail → stage 분류 → RAG/mission/resource 추천 → progress/feedback/outcome log → human evaluation → batch retraining입니다. 실제 사용자 데이터가 없어 학습 label은 synthetic placeholder이지만, 데모 중 미션 시작/완료/too-hard와 프로그램 참여, 지원 신청, 지원 결과, 미니 프로젝트 제출, 운영자 검토는 SQLite에 기록됩니다.",
     )
     add_table(
         doc,
@@ -422,6 +424,7 @@ def build_doc() -> None:
         [
             ["progress_logs", "log_id, user_id, mission_id, status, completed_at, points_awarded, payload_json", "미션 시작/완료/건너뜀/너무 어려움 진행 로그"],
             ["feedback_events", "event_id, user_id, event_type, mission_id, resource_id, rating, user_note, policy_version", "추천 반응과 운영자 review event 저장"],
+            ["outcome_events", "outcome_id, user_id, outcome_type, outcome_status, mission_id, resource_id, readiness_rating, burden_after, result_note", "프로그램 참여, 지원 신청/결과, 미니 프로젝트 제출, 운영자 검토 outcome 저장"],
             ["user_state", "user_id, reboot_points, last_stage, updated_at", "사용자별 내부 상태 저장. point는 연구/운영용이며 사용자 화면에는 노출하지 않음"],
         ],
         [1700, 4700, 2960],
@@ -433,20 +436,22 @@ def build_doc() -> None:
         doc,
         ["탭", "보여주는 대상", "내용"],
         [
-            ["오늘 순서", "실제 사용자", "공식 자원 확인 → 조건 줄이기 → 오늘의 최소 행동 제안. ID, score, stage, point 숨김"],
-            ["인천 자원 검색", "실제 사용자", "RAG 검색 결과를 자원 카드와 공식 출처 링크 중심으로 표시. resource id, rag score 숨김"],
-            ["운영자", "발표자/운영자", "Rule stage, ML 보조 stage, contributing factors, IDs, score, raw payload, feedback/progress log 확인"],
-            ["평가", "발표자/운영자", "모델 metric, data version, model/data card, human eval sheet, synthetic label warning 확인"],
+            ["오늘 루트", "실제 사용자", "내 조건 입력 → 추천 루트 → 지도 → 미션/결과 기록. ID, score, point 숨김"],
+            ["자원·지도", "실제 사용자", "RAG 검색 결과를 자원 카드, 공식 출처 링크, 내 위치/활동 장소 지도 중심으로 표시"],
+            ["기록", "실제 사용자/발표자", "데모 세션의 progress/outcome/feedback 개수와 최근 로그 확인"],
+            ["검증", "발표자/운영자", "Rule stage, ML 보조 stage, contributing factors, IDs, score, raw payload, feedback/progress/outcome log, 운영자 review 입력, 모델 metric 확인"],
         ],
         [1700, 1900, 5760],
     )
     add_bullets(
         doc,
         [
-            "첫 화면에서 나이, 부담도, 자유입력 등 개인정보성 demo profile 입력을 제거했습니다.",
-            "필터 변경 즉시 결과와 다음 행동이 갱신됩니다.",
-            "저장/북마크/정보접촉 같은 의미 낮은 행동은 사용자 화면에서 제거했습니다.",
-            "사용자 화면에는 내부 ranking score, 식별자, Stage 번호, point를 숨기고, 운영자 탭에서만 표로 공개합니다.",
+            "첫 화면은 내 조건, 추천 루트, 지도, 결과 기록 순서로 보이도록 재구성했습니다.",
+            "조건 변경 즉시 추천 루트, 미션, 자원 후보, 지도 위치가 갱신됩니다.",
+            "사용자 화면의 행동은 시작, 완료, 너무 어려움, 참여/지원 결과처럼 실제 학습 loop에 필요한 기록으로 정리했습니다.",
+            "사용자 화면에는 내부 ranking score, 식별자, point를 숨기고, 검증 탭에서만 표로 공개합니다.",
+            "위도/경도 기반 미니맵으로 내 위치와 활동 장소를 함께 표시합니다.",
+            "미션 시작/완료/too-hard, 프로그램 참여, 지원 신청/결과, 미니 프로젝트 제출, 운영자 review를 SQLite에 저장합니다.",
             "모바일 폭에서는 단계 안내와 필터/카드가 한 열로 쌓이도록 반응형 CSS를 적용했습니다.",
         ],
     )
@@ -467,6 +472,8 @@ def build_doc() -> None:
             ["/rag/search", "POST", "정책/문화 RAG 검색"],
             ["/feedback/log", "POST", "feedback event 저장"],
             ["/progress/log", "POST", "progress log 저장 및 point 갱신"],
+            ["/outcomes/log", "POST", "program participation, support application/result, mini project submission, operator review outcome 저장"],
+            ["/outcomes", "GET", "사용자별 outcome log 조회"],
             ["/simulate", "POST", "field 변화 시 stage 변화 simulation"],
         ],
         [2500, 1100, 5760],
@@ -523,13 +530,15 @@ def build_doc() -> None:
         doc,
         [
             "make dashboard로 Streamlit을 실행한다.",
-            "오늘 순서 탭에서 공식 자원 카드와 세 단계 흐름을 보여준다.",
-            "자원 종류, 구/군, 비용, 최대 부담도, 온라인 확인 가능 여부를 바꿔 결과가 즉시 바뀌는 것을 보여준다.",
-            "오늘의 가장 작은 행동이 신청/방문 강요가 아니라 공식 페이지 확인과 조건 1줄 정리임을 설명한다.",
-            "인천 자원 검색 탭에서 RAG 검색 결과와 공식 출처 링크가 표시되는 것을 보여준다.",
-            "운영자 탭에서 mission_id, resource_id, score, raw payload, feedback log가 내부 검증용으로만 보이는 것을 확인한다.",
-            "평가 탭에서 data version, 모델 metric, human eval sheet, synthetic label warning을 설명한다.",
-            "API 문서에서 safety guardrail과 feedback endpoint가 남아 있음을 보여주되, 사용자 화면은 개인정보성 입력을 요구하지 않는다고 설명한다.",
+            "오늘 루트 탭에서 내 조건 → 추천 루트 → 지도 → 결과 기록 순서가 보이는지 확인한다.",
+            "외출 부담, 대면 부담, 위치, 자원 종류, 비용, 최대 부담도를 바꿔 추천 미션과 자원 후보가 즉시 바뀌는 것을 보여준다.",
+            "지도에서 내 위치와 활동 장소가 함께 표시되는 것을 보여준다.",
+            "미션 시작/완료/너무 어려움 버튼을 눌러 progress log가 저장되는 것을 보여준다.",
+            "활동/지원 결과 기록 폼에서 프로그램 참여 또는 지원 신청 outcome을 저장한다.",
+            "자원·지도 탭에서 RAG 검색 결과, 공식 출처 링크, 지도 표시를 보여준다.",
+            "기록 탭에서 progress/outcome/feedback 로그가 쌓인 것을 확인한다.",
+            "검증 탭에서 mission_id, resource_id, score, raw payload, feedback/outcome log가 내부 검증용으로만 보이는 것을 확인한다.",
+            "API 문서에서 safety guardrail, feedback, progress, outcomes endpoint가 구현되어 있음을 보여준다.",
         ],
     )
 
@@ -539,10 +548,10 @@ def build_doc() -> None:
         ["항목", "현재 상태", "운영 전 필요한 작업"],
         [
             ["공공데이터", "공식 출처 기반 curated seed", "자동 동기화 또는 운영자 검수형 갱신 프로세스 설계"],
-            ["Outcome label 구조", "schema/API/pipeline 구현", "실제 사용자 또는 기관 관측 label 수집·import"],
+            ["Outcome label 구조", "schema/API/dashboard 기록 구현", "실제 사용자 또는 기관 관측 label 수집·import"],
             ["Safety resource", "example YAML", "기관 검토 후 지역/전국 위기 대응 연락처 확정"],
             ["개인정보", "MVP 미구현", "동의, 보존 기간, 삭제 요청, 접근 권한 설계"],
-            ["운영자 workflow", "debug view 중심", "review queue, escalation protocol, audit log 설계"],
+            ["운영자 workflow", "검증 view와 review 입력 구현", "review queue, escalation protocol, audit log 설계"],
             ["Gemini/LLM", "필수 아님", "query expansion, grounded answer generation, operator assistant로 제한적 연결"],
             ["편향 점검", "기초 metric만 있음", "구/군, 접근성, 비용, 대면 부담별 성능 및 안전성 검토"],
         ],
@@ -555,7 +564,7 @@ def build_doc() -> None:
         [
             "현재 사용자 profile과 학습 label은 synthetic placeholder입니다. feedback/progress schema와 pipeline은 구현되어 있으나, 실제 mission completion, too-hard 피드백, 프로그램 참여, 지원 결과 label은 사용자 또는 기관 관측 후 수집·import해야 합니다.",
             "현재 resource는 공식 출처 기반 seed이지만 자동 크롤링/공공 API 동기화는 아직 없습니다.",
-            "거리 계산은 실제 이동거리가 아니라 구/군 일치 proxy에 가깝습니다.",
+            "지도 거리는 위도/경도 기반 직선거리 근사이며 실제 대중교통 이동시간은 아닙니다.",
             "ML 모델은 임상 위험 모델이 아니며 그렇게 해석하면 안 됩니다.",
             "RAG는 TF-IDF retrieval이므로 생성형 답변 품질이나 semantic matching에는 한계가 있습니다.",
             "실제 배포 전 개인정보, 운영자 권한, 기관 연계, 안전 escalation protocol을 별도로 설계해야 합니다.",
@@ -568,10 +577,10 @@ def build_doc() -> None:
         doc,
         ["검증", "현재 결과"],
         [
-            ["make test", "9 passed"],
+            ["make test", "11 passed"],
             ["make eval-sheet", "reports/human_eval_review_sheet.csv 생성 성공"],
             ["make pipeline", "성공. metadata, model card, data card 갱신"],
-            ["Dashboard QA", "사용자 화면의 개인 상태 입력 제거, 공식 자원 중심 흐름, ID/score 숨김, 모바일/색상 대비 점검"],
+            ["Dashboard QA", "내 조건→추천 루트→지도→결과 기록 흐름, ID/score 숨김, 모바일/색상 대비 점검"],
         ],
         [2500, 6860],
     )

@@ -8,7 +8,7 @@ from typing import Any
 import pandas as pd
 
 from rebootroute.config import load_config
-from rebootroute.schemas import FeedbackEvent, ProgressLog, ProgressStatus, to_plain_dict
+from rebootroute.schemas import FeedbackEvent, OutcomeEvent, ProgressLog, ProgressStatus, to_plain_dict
 
 
 def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
@@ -60,6 +60,27 @@ def init_db(db_path: Path | None = None) -> None:
                 appropriateness_rating INTEGER,
                 risk_rating INTEGER,
                 user_note TEXT,
+                policy_version TEXT,
+                payload_json TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS outcome_events (
+                outcome_id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                outcome_type TEXT NOT NULL,
+                outcome_status TEXT NOT NULL,
+                mission_id TEXT,
+                resource_id TEXT,
+                readiness_rating INTEGER,
+                burden_after INTEGER,
+                result_note TEXT,
+                operator_review_status TEXT,
+                operator_note TEXT,
+                evidence_url TEXT,
                 policy_version TEXT,
                 payload_json TEXT NOT NULL,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -133,9 +154,51 @@ def log_feedback(event: FeedbackEvent, db_path: Path | None = None) -> dict[str,
     return {"event_id": event.event_id, "stored": True}
 
 
+def log_outcome(event: OutcomeEvent, db_path: Path | None = None) -> dict[str, Any]:
+    init_db(db_path)
+    payload = to_plain_dict(event)
+    with get_connection(db_path) as conn:
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO outcome_events
+            (outcome_id, user_id, outcome_type, outcome_status, mission_id, resource_id, readiness_rating,
+             burden_after, result_note, operator_review_status, operator_note, evidence_url, policy_version, payload_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                event.outcome_id,
+                event.user_id,
+                event.outcome_type.value if hasattr(event.outcome_type, "value") else event.outcome_type,
+                event.outcome_status.value if hasattr(event.outcome_status, "value") else event.outcome_status,
+                event.mission_id,
+                event.resource_id,
+                event.readiness_rating,
+                event.burden_after,
+                event.result_note,
+                event.operator_review_status,
+                event.operator_note,
+                event.evidence_url,
+                event.policy_version,
+                json.dumps(payload, ensure_ascii=False),
+            ),
+        )
+    return {"outcome_id": event.outcome_id, "stored": True}
+
+
 def get_feedback_df(user_id: str | None = None, db_path: Path | None = None) -> pd.DataFrame:
     init_db(db_path)
     query = "SELECT * FROM feedback_events"
+    params: tuple[Any, ...] = ()
+    if user_id:
+        query += " WHERE user_id = ?"
+        params = (user_id,)
+    with get_connection(db_path) as conn:
+        return pd.read_sql_query(query, conn, params=params)
+
+
+def get_outcomes_df(user_id: str | None = None, db_path: Path | None = None) -> pd.DataFrame:
+    init_db(db_path)
+    query = "SELECT * FROM outcome_events"
     params: tuple[Any, ...] = ()
     if user_id:
         query += " WHERE user_id = ?"
@@ -160,4 +223,3 @@ def get_reboot_points(user_id: str, db_path: Path | None = None) -> int:
     with get_connection(db_path) as conn:
         row = conn.execute("SELECT reboot_points FROM user_state WHERE user_id = ?", (user_id,)).fetchone()
     return int(row["reboot_points"]) if row else 0
-
