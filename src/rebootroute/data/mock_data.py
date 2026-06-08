@@ -497,7 +497,7 @@ REAL_RESOURCE_SEEDS: list[dict[str, Any]] = [
         "resource_id": "resource_013",
         "resource_type": "culture_event",
         "name": "인천문화재단 문화행사 정보",
-        "description": "인천문화재단의 공연, 전시, 교육 등 문화행사 정보를 한 곳에서 확인하는 공식入口입니다. 구체 일정은 페이지에서 최신 상태를 확인합니다.",
+        "description": "인천문화재단 문화행사 목록에서 공연, 전시, 행사·축제, 교육·체험 정보를 확인할 수 있습니다. 진행 상태와 일정은 공식 페이지에서 최신 상태로 확인합니다.",
         "district": "인천 전역",
         "address": "인천광역시 일대",
         "latitude": 37.4563,
@@ -513,7 +513,7 @@ REAL_RESOURCE_SEEDS: list[dict[str, Any]] = [
         "career_tags": ["design", "media", "writing", "planning"],
         "recovery_tags": ["culture", "low_contact"],
         "source_name": "인천문화재단",
-        "source_url": "https://ifac.or.kr/index.do",
+        "source_url": "https://www.ifac.or.kr/culturalInfo/cuturalEvents/performanceSrch/list.do?key=m2501152621396",
         "contact": "공식 페이지 확인",
     },
     {

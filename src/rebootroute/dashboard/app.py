@@ -1633,7 +1633,7 @@ def render_featured_resource(resource: dict[str, Any]) -> None:
     st.markdown(
         f"""
         <div class="rr-featured-resource">
-          <div class="rr-section-title">맞는 공식 자원</div>
+          <div class="rr-section-title">공식 출처 기반 자원</div>
           <div class="rr-card-title">{e(resource["name"])}</div>
           <div class="rr-card-body">{e(resource["description"])}</div>
           {chip(RESOURCE_TYPE_LABELS.get(str(resource["resource_type"]), str(resource["resource_type"])), "teal")}
@@ -1827,7 +1827,7 @@ with tabs[0]:
                 st.markdown(
                     """
                     <div class="rr-empty-note">
-                      조건에 맞는 공식 자원이 없습니다. 최대 부담도를 한 단계 높이거나 자원 종류를 넓혀 확인하세요.
+                      조건에 맞는 공식 출처 기반 자원이 없습니다. 최대 부담도를 한 단계 높이거나 자원 종류를 넓혀 확인하세요.
                     </div>
                     """,
                     unsafe_allow_html=True,
