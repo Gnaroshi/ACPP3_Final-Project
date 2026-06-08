@@ -82,6 +82,18 @@ make eval-sheet
 reports/human_eval_review_sheet.csv
 ```
 
+Capstone PDF 요구사항 점검표 생성:
+
+```bash
+make capstone-check
+```
+
+생성 파일:
+
+```text
+reports/capstone_requirements_check.md
+```
+
 ## 3. 대시보드에서 보는 순서
 
 ### 3.1 오늘 루트
@@ -410,7 +422,17 @@ make pipeline
 4. stage model 학습
 5. mission success model 학습
 6. SQLite DB 초기화
-7. model card, data card, metadata 생성
+7. model card, data card, error analysis, metadata 생성
+
+Baseline과 tracking:
+
+- Stage classifier 후보: `dummy_most_frequent`, `logistic_regression`, `random_forest`, `gradient_boosting`
+- Mission success 후보: `dummy_stratified`, `logistic_regression`, `random_forest`, `gradient_boosting`
+- Tracking: MLflow SQLite backend (`data/mlflow.db`)와 `mlruns/`
+- 최신 모델 metadata: `models/latest/metadata.json`
+- Baseline 계획: `docs/baseline_plan.md`
+- 오류분석/해석 리포트: `reports/error_analysis.md`
+- 데이터 버전 전략: `docs/data_version_strategy.md`
 
 Human evaluation:
 
@@ -432,6 +454,18 @@ reports/human_eval_review_sheet.csv
 ```
 
 초기에는 closed-loop A/B test가 아니라 open-loop + human rubric evaluation + batch retraining이 적절합니다. 실제 사용자 completion/outcome data가 없기 때문입니다.
+
+Capstone workshop/PDF 대응 산출물:
+
+```text
+docs/capstone_project_brief.md
+docs/baseline_plan.md
+docs/data_version_strategy.md
+docs/final_presentation_outline.md
+docs/RebootRoute_Project_Report.docx
+reports/capstone_requirements_check.md
+reports/error_analysis.md
+```
 
 ## 9. 무엇을 업데이트해야 하는가
 
@@ -522,6 +556,7 @@ src/rebootroute/rag/retriever.py
 make pipeline
 make test
 make eval-sheet
+make capstone-check
 ```
 
 대시보드 실행 후 확인할 것:
@@ -567,12 +602,27 @@ scripts/
   run_pipeline.py
   train_models.py
   build_human_eval_sheet.py
+  build_capstone_checklist.py
   build_project_report_docx.py
 evaluation/
   human_eval_cases.csv
   rubric.md
+reports/
+  data_card.md
+  model_card.md
+  error_analysis.md
+  capstone_requirements_check.md
+  human_eval_review_sheet.csv
 docs/
+  capstone_project_brief.md
+  baseline_plan.md
+  data_version_strategy.md
+  final_presentation_outline.md
   RebootRoute_Project_Report.docx
+artifacts/
+  .gitkeep
+notebooks/
+  .gitkeep
 ```
 
 ## 12. 발표 시 핵심 메시지
@@ -585,6 +635,15 @@ docs/
 - progress/feedback/outcome logging과 retraining 구조는 구현되어 있다.
 - 실제 참여, 완료, too-hard, 운영자 review, 지원 결과는 사용자 또는 기관 관측이 있어야 실제 label이 된다.
 - 초기 검증은 closed-loop A/B가 아니라 human rubric evaluation과 batch retraining이 맞다.
+
+발표자가 열어볼 파일:
+
+- 전체 구현 명세: `docs/RebootRoute_Project_Report.docx`
+- 발표 outline: `docs/final_presentation_outline.md`
+- PDF 요구사항 체크: `reports/capstone_requirements_check.md`
+- 오류분석/해석: `reports/error_analysis.md`
+- 데이터 카드: `reports/data_card.md`
+- 모델 카드: `reports/model_card.md`
 
 ## 13. 현재 한계
 
@@ -602,6 +661,7 @@ docs/
 make pipeline
 make test
 make eval-sheet
+make capstone-check
 ```
 
 대시보드는 desktop/mobile에서 글자 대비, overflow, 탭 표시, 카드 표시를 확인해야 합니다.

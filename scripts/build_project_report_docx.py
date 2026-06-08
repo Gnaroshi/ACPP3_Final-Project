@@ -329,7 +329,13 @@ def build_doc() -> None:
             ["models/latest/metadata.json", "모델명, metric, data_version, warning", "dashboard MLOps 탭에서 사용"],
             ["reports/data_card.md", "데이터 설명과 synthetic label 경고", "발표/검토 산출물"],
             ["reports/model_card.md", "모델 후보, 선택 모델, metric, 한계", "발표/검토 산출물"],
+            ["reports/error_analysis.md", "baseline 비교, confusion matrix, reliability, 취약 구간", "PDF 오류분석/XAI 산출물"],
+            ["reports/capstone_requirements_check.md", "week15 capstone workshop PDF 요구사항 대응표", "발표 전 점검 산출물"],
             ["reports/human_eval_review_sheet.csv", "40개 human eval case 결과 sheet", "사람이 빈 score column을 채점"],
+            ["docs/capstone_project_brief.md", "문제 정의, 사용자 시나리오, 성공 기준, 팀 역할", "워크숍 project brief 산출물"],
+            ["docs/baseline_plan.md", "baseline model, split, metric, tracking 계획", "워크숍 baseline plan 산출물"],
+            ["docs/data_version_strategy.md", "raw/processed/features 버전 관리 전략", "데이터 재현성 산출물"],
+            ["docs/final_presentation_outline.md", "최종 발표 slide outline", "발표 산출물"],
         ],
         [2650, 4210, 2500],
     )
@@ -520,6 +526,7 @@ def build_doc() -> None:
             ["make api", "FastAPI 실행, http://localhost:8000/docs"],
             ["make test", "pytest 실행"],
             ["make eval-sheet", "reports/human_eval_review_sheet.csv 생성"],
+            ["make capstone-check", "reports/capstone_requirements_check.md 생성"],
             ["make docker-up", "docker compose up --build"],
         ],
         [2600, 6760],
@@ -558,6 +565,7 @@ def build_doc() -> None:
         [2000, 2500, 4860],
     )
 
+    doc.add_page_break()
     add_heading(doc, "16. Known limitations", 1)
     add_bullets(
         doc,
@@ -579,7 +587,8 @@ def build_doc() -> None:
         [
             ["make test", "11 passed"],
             ["make eval-sheet", "reports/human_eval_review_sheet.csv 생성 성공"],
-            ["make pipeline", "성공. metadata, model card, data card 갱신"],
+            ["make capstone-check", "reports/capstone_requirements_check.md 생성 성공"],
+            ["make pipeline", "성공. metadata, model card, data card, error analysis 갱신"],
             ["Dashboard QA", "내 조건→추천 루트→지도→결과 기록 흐름, ID/score 숨김, 모바일/색상 대비 점검"],
         ],
         [2500, 6860],

@@ -1,7 +1,7 @@
 PYTHON ?= python
 export PYTHONPATH := src
 
-.PHONY: setup sample-data validate train pipeline api dashboard eval-sheet test docker-up
+.PHONY: setup sample-data validate train pipeline api dashboard eval-sheet capstone-check test docker-up
 
 setup:
 	$(PYTHON) -m pip install -r requirements.txt
@@ -26,6 +26,9 @@ dashboard:
 
 eval-sheet:
 	$(PYTHON) scripts/build_human_eval_sheet.py
+
+capstone-check:
+	$(PYTHON) scripts/build_capstone_checklist.py
 
 test:
 	pytest -q

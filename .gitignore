@@ -17,3 +17,5 @@ models/latest/metadata.json
 mlruns/*
 !mlruns/.gitkeep
 reports/*metrics*.json
+artifacts/*
+!artifacts/.gitkeep

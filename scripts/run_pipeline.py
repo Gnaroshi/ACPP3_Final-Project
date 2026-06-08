@@ -41,6 +41,7 @@ def main() -> None:
     report_paths = {
         "data_card": str(cfg.reports_dir / "data_card.md"),
         "model_card": str(cfg.reports_dir / "model_card.md"),
+        "error_analysis": str(cfg.reports_dir / "error_analysis.md"),
         "metadata": str(cfg.model_dir / "metadata.json"),
     }
 
