@@ -4,8 +4,8 @@
 이 리포트는 capstone 발표에서 요구하는 baseline 비교, 모델 성능 해석, confusion matrix, 실패 조건, 한계 설명을 한 파일에서 확인하기 위한 산출물입니다.
 
 ## 학습 산출물
-- Data version: `03084bbbcc1e8b4f`
-- Stage model: `gradient_boosting`
+- Data version: `d2a7440a96209a42`
+- Stage model: `random_forest`
 - Mission success model: `logistic_regression`
 - Feature columns: 33개
 
@@ -14,18 +14,18 @@
 ### Stage classifier
 | model | accuracy | macro_f1 |
 | --- | --- | --- |
-| dummy_most_frequent | 0.289 | 0.056 |
-| logistic_regression | 0.600 | 0.572 |
-| random_forest | 0.689 | 0.526 |
-| gradient_boosting | 0.711 | 0.654 |
+| dummy_most_frequent | 0.288 | 0.056 |
+| logistic_regression | 0.660 | 0.610 |
+| random_forest | 0.856 | 0.809 |
+| gradient_boosting | 0.860 | 0.785 |
 
 ### Mission success predictor
 | model | accuracy | macro_f1 | roc_auc |
 | --- | --- | --- | --- |
-| dummy_stratified | 0.489 | 0.480 | 0.486 |
-| logistic_regression | 0.822 | 0.822 | 0.941 |
-| random_forest | 0.889 | 0.889 | 0.931 |
-| gradient_boosting | 0.911 | 0.911 | 0.937 |
+| dummy_stratified | 0.568 | 0.566 | 0.566 |
+| logistic_regression | 0.840 | 0.839 | 0.922 |
+| random_forest | 0.836 | 0.835 | 0.906 |
+| gradient_boosting | 0.820 | 0.819 | 0.907 |
 
 ## Confusion matrix
 
@@ -34,36 +34,36 @@ Stage 번호는 API/검증 화면의 내부 단계입니다. 사용자 화면에
 
 | actual \ predicted | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 0 | 3 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
-| 1 | 0 | 11 | 2 | 0 | 0 | 0 | 0 | 0 |
-| 2 | 0 | 1 | 9 | 0 | 0 | 0 | 1 | 0 |
-| 3 | 0 | 0 | 2 | 3 | 0 | 0 | 0 | 0 |
-| 4 | 0 | 0 | 0 | 0 | 3 | 0 | 0 | 1 |
-| 5 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
-| 6 | 0 | 0 | 0 | 1 | 0 | 0 | 2 | 0 |
-| 7 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | 0 |
+| 0 | 14 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 1 | 1 | 67 | 4 | 0 | 0 | 0 | 0 | 0 |
+| 2 | 0 | 4 | 16 | 7 | 0 | 0 | 0 | 0 |
+| 3 | 0 | 0 | 4 | 59 | 1 | 0 | 0 | 0 |
+| 4 | 0 | 0 | 0 | 5 | 41 | 0 | 0 | 0 |
+| 5 | 0 | 1 | 0 | 0 | 1 | 6 | 1 | 0 |
+| 6 | 0 | 0 | 0 | 0 | 0 | 0 | 9 | 0 |
+| 7 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 2 |
 
 ### Mission success predictor
 | actual \ predicted | not completed | completed |
 | --- | --- | --- |
-| not completed | 19 | 3 |
-| completed | 5 | 18 |
+| not completed | 96 | 21 |
+| completed | 19 | 114 |
 
 ## 취약 구간
 | stage | precision | recall | f1 | support |
 | --- | --- | --- | --- | --- |
-| 지원 결과/자립 연결 | 0.000 | 0.000 | 0.000 | 2.000 |
-| 미니 일경험 | 0.500 | 0.667 | 0.571 | 3.000 |
-| 짧은 외출 | 0.600 | 0.600 | 0.600 | 5.000 |
+| 온라인 신청 준비 | 0.667 | 0.593 | 0.627 | 27.000 |
+| 지원 결과/자립 연결 | 1.000 | 0.500 | 0.667 | 4.000 |
+| 프로그램 참여 | 1.000 | 0.667 | 0.800 | 9.000 |
 
 ## Mission success reliability summary
 | probability bin | mean predicted | observed success | count |
 | --- | --- | --- | --- |
-| 0.0-0.2 | 0.019 | 0.059 | 17 |
-| 0.2-0.4 | 0.340 | 0.400 | 5 |
-| 0.4-0.6 | 0.478 | 0.667 | 3 |
-| 0.6-0.8 | 0.694 | 1.000 | 2 |
-| 0.8-1.0 | 0.960 | 0.889 | 18 |
+| 0.0-0.2 | 0.043 | 0.048 | 83 |
+| 0.2-0.4 | 0.287 | 0.471 | 17 |
+| 0.4-0.6 | 0.482 | 0.583 | 24 |
+| 0.6-0.8 | 0.712 | 0.630 | 27 |
+| 0.8-1.0 | 0.949 | 0.909 | 99 |
 
 ## 해석 관점
 - 추천의 1차 기준은 rule-based stage classifier와 공식 자원 속성입니다.

@@ -318,11 +318,11 @@ def build_doc() -> None:
         doc,
         ["파일/테이블", "내용", "주의"],
         [
-            ["data/raw/sample_profiles.csv", "180개 synthetic profile", "실제 사용자가 아님"],
+            ["data/raw/sample_profiles.csv", "1000개 synthetic profile", "실제 사용자가 아님"],
             ["data/raw/sample_missions.csv", "Stage 0-7 미션 42개", "발표용 seed data"],
             ["data/raw/sample_resources.csv", "공식 출처 기반 인천 자원", "인천청년포털 청년정책/프로그램/공간대관, 인천문화재단 문화행사"],
             ["data/raw/sample_progress.csv", "synthetic 진행 로그", "실제 완료 이력이 아님"],
-            ["data/raw/sample_outcomes.csv", "outcome import template", "실제 outcome row는 사용자 또는 기관 관측 후 입력"],
+            ["data/raw/sample_outcomes.csv", "synthetic outcome event 1300건 내외", "실제 참여/지원 결과가 아님"],
             ["data/features/training_features.csv", "학습 feature + synthetic labels", "production 전 교체 필요"],
             ["data/rebootroute.db", "SQLite DB", "feedback_events, progress_logs, outcome_events, user_state"],
             ["models/latest/*.joblib", "stage / mission success model", "MLOps 시연용"],

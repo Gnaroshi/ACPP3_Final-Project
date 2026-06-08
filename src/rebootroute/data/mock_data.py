@@ -18,6 +18,7 @@ from rebootroute.data.official_sources import RESOURCE_COLUMNS, fetch_all_offici
 DISTRICTS = ["중구", "동구", "미추홀구", "연수구", "남동구", "부평구", "계양구", "서구", "강화군", "옹진군"]
 CONTACT_MODES = ["online", "low_contact", "small_group", "in_person"]
 INTERESTS = ["culture", "design", "writing", "IT", "public_policy", "planning", "library", "media", "craft", "data"]
+MOCK_PROFILE_COUNT = 1000
 SAMPLE_GENERATED_AT = "2026-06-08T00:00:00+00:00"
 SAMPLE_GENERATED_AT_DT = datetime.fromisoformat(SAMPLE_GENERATED_AT)
 OUTCOME_COLUMNS = [
@@ -48,6 +49,123 @@ FREE_TEXT_TEMPLATES = [
     "문화행사나 공모전 주제로 작은 포트폴리오를 만들고 싶습니다.",
 ]
 
+PROFILE_ARCHETYPES: list[dict[str, Any]] = [
+    {
+        "name": "home_first_rebuild",
+        "weight": 0.22,
+        "free_text": [
+            "밖에 나가는 건 어렵지만 오늘 집에서 확인할 수 있는 것부터 시작하고 싶어요.",
+            "신청이나 방문은 아직 부담스럽고, 공식 페이지에서 조건만 먼저 보고 싶습니다.",
+            "요즘 에너지가 낮아서 10분 안에 끝나는 준비 행동이 필요합니다.",
+        ],
+        "energy": [1, 1, 2, 2, 3],
+        "outside": [4, 4, 5, 5],
+        "social": [4, 5, 5],
+        "employment": [4, 5],
+        "rhythm": [1, 2, 2, 3],
+        "contact": ["online", "online", "low_contact"],
+        "interests": ["public_policy", "planning", "writing", "culture"],
+        "minutes": [0, 10, 15, 20],
+        "budget": [0, 0, 5000],
+        "support_prob": 0.28,
+    },
+    {
+        "name": "low_contact_culture",
+        "weight": 0.2,
+        "free_text": [
+            "전시나 도서관처럼 혼자 볼 수 있는 활동이면 해볼 수 있을 것 같아요.",
+            "사람을 많이 만나지 않는 문화활동으로 오늘 루틴을 만들고 싶습니다.",
+            "무료 전시나 짧은 산책 동선부터 확인하고 싶어요.",
+        ],
+        "energy": [2, 3, 3, 4],
+        "outside": [2, 3, 4],
+        "social": [3, 4, 4],
+        "employment": [2, 3, 4],
+        "rhythm": [2, 3, 3, 4],
+        "contact": ["online", "low_contact", "low_contact"],
+        "interests": ["culture", "design", "writing", "library", "media"],
+        "minutes": [20, 30, 45, 60],
+        "budget": [0, 5000, 10000],
+        "support_prob": 0.32,
+    },
+    {
+        "name": "policy_support_search",
+        "weight": 0.18,
+        "free_text": [
+            "지원금이나 자격증 응시료 같은 정책을 찾고 싶은데 조건 확인이 어렵습니다.",
+            "취업 관련 지원을 알아보고 싶은데 바로 신청하기보다는 자격 조건부터 보고 싶어요.",
+            "구직활동비나 면접 준비 지원처럼 비용 부담을 낮추는 정책이 필요합니다.",
+        ],
+        "energy": [2, 3, 3, 4],
+        "outside": [2, 3, 4],
+        "social": [2, 3, 4],
+        "employment": [4, 4, 5],
+        "rhythm": [2, 3, 4],
+        "contact": ["online", "online", "low_contact"],
+        "interests": ["public_policy", "planning", "data", "IT"],
+        "minutes": [10, 20, 30, 45],
+        "budget": [0, 0, 5000],
+        "support_prob": 0.4,
+    },
+    {
+        "name": "youth_space_trial",
+        "weight": 0.16,
+        "free_text": [
+            "청년공간을 가보고 싶지만 처음 방문하는 게 어색해서 짧은 동선부터 알고 싶습니다.",
+            "스터디룸이나 청년공간 위치를 확인하고, 부담이 낮으면 방문해보고 싶어요.",
+            "혼자 이용 가능한 공간과 운영시간을 먼저 확인하고 싶습니다.",
+        ],
+        "energy": [2, 3, 4, 4],
+        "outside": [2, 3, 3],
+        "social": [2, 3, 4],
+        "employment": [2, 3, 4],
+        "rhythm": [2, 3, 4],
+        "contact": ["low_contact", "small_group", "online"],
+        "interests": ["planning", "culture", "writing", "public_policy"],
+        "minutes": [20, 30, 45, 60],
+        "budget": [0, 5000, 10000],
+        "support_prob": 0.36,
+    },
+    {
+        "name": "creative_portfolio_seed",
+        "weight": 0.14,
+        "free_text": [
+            "문화행사나 프로그램을 바탕으로 작은 포트폴리오 결과물을 만들고 싶습니다.",
+            "글쓰기나 디자인 과제처럼 오늘 남길 수 있는 산출물이 있으면 좋겠습니다.",
+            "공식 행사 정보를 보고 카드뉴스나 짧은 리뷰 초안을 만들어보고 싶어요.",
+        ],
+        "energy": [3, 3, 4, 5],
+        "outside": [1, 2, 3],
+        "social": [2, 3, 3],
+        "employment": [3, 4, 5],
+        "rhythm": [3, 4, 4],
+        "contact": ["online", "low_contact", "small_group"],
+        "interests": ["culture", "design", "writing", "media", "craft"],
+        "minutes": [30, 45, 60, 90],
+        "budget": [0, 5000, 10000, 20000],
+        "support_prob": 0.42,
+    },
+    {
+        "name": "ready_for_program",
+        "weight": 0.1,
+        "free_text": [
+            "소규모 프로그램이면 직접 참여해볼 수 있고 일정과 비용을 비교하고 싶습니다.",
+            "청년 프로그램이나 취업 준비 특강 중 오늘 신청 가능한 것을 찾고 싶어요.",
+            "1시간 정도는 가능해서 프로그램 후보를 보고 다음 행동을 정하고 싶습니다.",
+        ],
+        "energy": [3, 4, 4, 5],
+        "outside": [1, 2, 2, 3],
+        "social": [1, 2, 3],
+        "employment": [3, 4, 5],
+        "rhythm": [3, 4, 5],
+        "contact": ["low_contact", "small_group", "in_person"],
+        "interests": ["planning", "public_policy", "IT", "data", "culture"],
+        "minutes": [45, 60, 90, 120],
+        "budget": [0, 5000, 10000, 20000],
+        "support_prob": 0.48,
+    },
+]
+
 
 def _json_list(values: list[str]) -> str:
     return json.dumps(values, ensure_ascii=False)
@@ -64,29 +182,27 @@ def _write_csv_atomic(df: pd.DataFrame, path: Path) -> None:
     tmp_path.replace(path)
 
 
-def generate_profiles(n: int = 180, seed: int = 42) -> pd.DataFrame:
+def generate_profiles(n: int = MOCK_PROFILE_COUNT, seed: int = 42) -> pd.DataFrame:
     rng = random.Random(seed)
     rows: list[dict[str, Any]] = []
+    archetype_weights = [float(item["weight"]) for item in PROFILE_ARCHETYPES]
     for i in range(n):
-        energy = rng.randint(1, 5)
-        outside = min(5, max(1, rng.randint(1, 5) + (1 if energy <= 2 and rng.random() < 0.5 else 0)))
-        social = min(5, max(1, rng.randint(1, 5) + (1 if outside >= 4 and rng.random() < 0.4 else 0)))
-        employment = rng.randint(2, 5)
+        archetype = rng.choices(PROFILE_ARCHETYPES, weights=archetype_weights, k=1)[0]
+        energy = int(rng.choice(archetype["energy"]))
+        outside = int(rng.choice(archetype["outside"]))
+        social = int(rng.choice(archetype["social"]))
+        employment = int(rng.choice(archetype["employment"]))
         anxiety = min(5, max(1, employment + rng.choice([-1, 0, 0, 1])))
-        rhythm = min(5, max(1, energy + rng.choice([-1, 0, 1])))
-        if outside >= 4 or social >= 4:
-            contact = rng.choice(["online", "online", "low_contact", "small_group"])
-        elif energy >= 4:
-            contact = rng.choice(CONTACT_MODES)
-        else:
-            contact = rng.choice(["online", "low_contact", "small_group"])
-        interests = rng.sample(INTERESTS, rng.randint(1, 4))
+        rhythm = int(rng.choice(archetype["rhythm"]))
+        contact = str(rng.choice(archetype["contact"]))
+        interest_pool = list(dict.fromkeys(list(archetype["interests"]) + rng.sample(INTERESTS, 2)))
+        interests = rng.sample(interest_pool, rng.randint(2, min(4, len(interest_pool))))
         rows.append(
             {
-                "user_id": f"user_{i:04d}",
+                "user_id": f"user_{i:05d}",
                 "age": rng.randint(19, 39),
                 "district": rng.choice(DISTRICTS),
-                "free_text": rng.choice(FREE_TEXT_TEMPLATES),
+                "free_text": rng.choice(list(archetype["free_text"]) + FREE_TEXT_TEMPLATES),
                 "future_anxiety": anxiety,
                 "employment_burden": employment,
                 "outside_burden": outside,
@@ -95,10 +211,10 @@ def generate_profiles(n: int = 180, seed: int = 42) -> pd.DataFrame:
                 "daily_rhythm_level": rhythm,
                 "preferred_contact_mode": contact,
                 "interests": _json_list(interests),
-                "max_outdoor_minutes": rng.choice([0, 10, 15, 20, 30, 45, 60, 90]),
-                "budget_limit": rng.choice([0, 0, 5000, 10000, 20000]),
-                "has_support_person": rng.random() < 0.35,
-                "current_stage_label": "",
+                "max_outdoor_minutes": int(rng.choice(archetype["minutes"])),
+                "budget_limit": int(rng.choice(archetype["budget"])),
+                "has_support_person": rng.random() < float(archetype["support_prob"]),
+                "current_stage_label": str(archetype["name"]),
                 "created_at": _now(),
             }
         )
@@ -617,8 +733,102 @@ def generate_progress(profiles: pd.DataFrame, missions: pd.DataFrame, seed: int 
     return pd.DataFrame(rows)
 
 
-def generate_outcomes() -> pd.DataFrame:
-    return pd.DataFrame(columns=OUTCOME_COLUMNS)
+def generate_outcomes(profiles: pd.DataFrame, resources: pd.DataFrame, missions: pd.DataFrame, seed: int = 42) -> pd.DataFrame:
+    rng = random.Random(seed + 17)
+    if profiles.empty or resources.empty or missions.empty:
+        return pd.DataFrame(columns=OUTCOME_COLUMNS)
+
+    resource_ids = resources["resource_id"].dropna().astype(str).tolist()
+    mission_ids = missions["mission_id"].dropna().astype(str).tolist()
+    resource_by_type = {
+        resource_type: group["resource_id"].dropna().astype(str).tolist()
+        for resource_type, group in resources.groupby("resource_type")
+    }
+    mission_by_stage = {
+        int(stage): group["mission_id"].dropna().astype(str).tolist()
+        for stage, group in missions.groupby("stage")
+    }
+    status_by_type = {
+        "program_participation": ["planned", "participated", "needs_follow_up"],
+        "support_application": ["planned", "applied", "not_eligible", "needs_follow_up"],
+        "support_result": ["accepted", "rejected", "unknown", "needs_follow_up"],
+        "mini_project_submission": ["submitted", "verified", "rework_requested"],
+        "operator_review": ["verified", "needs_follow_up", "rework_requested"],
+    }
+    resource_type_by_outcome = {
+        "program_participation": ["youth_program", "culture_event", "culture_facility"],
+        "support_application": ["support_program"],
+        "support_result": ["support_program"],
+        "mini_project_submission": ["culture_event", "culture_facility", "youth_program"],
+        "operator_review": ["support_program", "youth_program", "culture_event", "culture_facility"],
+    }
+    rows: list[dict[str, Any]] = []
+    for _, profile in profiles.iterrows():
+        readiness = (
+            int(profile["energy_level"])
+            + int(profile["daily_rhythm_level"])
+            + (1 if bool(profile["has_support_person"]) else 0)
+            + (6 - int(profile["outside_burden"]))
+            + (6 - int(profile["social_burden"]))
+        ) / 24
+        event_count = 1 + int(rng.random() < 0.28)
+        if readiness > 0.62 and rng.random() < 0.18:
+            event_count += 1
+        for _ in range(event_count):
+            interests = set(json.loads(profile["interests"]))
+            if "public_policy" in interests:
+                outcome_type = rng.choices(
+                    ["support_application", "support_result", "program_participation", "operator_review"],
+                    weights=[0.42, 0.22, 0.24, 0.12],
+                    k=1,
+                )[0]
+            elif {"design", "writing", "media", "culture"} & interests:
+                outcome_type = rng.choices(
+                    ["program_participation", "mini_project_submission", "support_application", "operator_review"],
+                    weights=[0.46, 0.26, 0.18, 0.10],
+                    k=1,
+                )[0]
+            else:
+                outcome_type = rng.choices(
+                    ["program_participation", "support_application", "mini_project_submission", "operator_review"],
+                    weights=[0.38, 0.32, 0.18, 0.12],
+                    k=1,
+                )[0]
+
+            candidate_resources: list[str] = []
+            for resource_type in resource_type_by_outcome[outcome_type]:
+                candidate_resources.extend(resource_by_type.get(resource_type, []))
+            resource_id = rng.choice(candidate_resources or resource_ids)
+            stage_hint = 6 if outcome_type == "mini_project_submission" else 7 if outcome_type in {"support_application", "support_result"} else rng.randint(3, 5)
+            mission_id = rng.choice(mission_by_stage.get(stage_hint, mission_ids))
+            readiness_rating = int(np.clip(round(readiness * 5 + rng.choice([-1, 0, 0, 1])), 1, 5))
+            burden_after = int(np.clip(int(profile["outside_burden"]) + rng.choice([-1, 0, 0, 1]), 1, 5))
+            status = rng.choice(status_by_type[outcome_type])
+            created_at = (SAMPLE_GENERATED_AT_DT - timedelta(days=rng.randint(0, 90), hours=rng.randint(0, 23))).isoformat()
+            operator_review_status = ""
+            operator_note = ""
+            if outcome_type == "operator_review" or rng.random() < 0.18:
+                operator_review_status = rng.choice(["verified", "needs_follow_up", "rework_requested"])
+                operator_note = "synthetic operator review seed"
+            rows.append(
+                {
+                    "outcome_id": f"outcome_{len(rows):05d}",
+                    "user_id": profile["user_id"],
+                    "outcome_type": outcome_type,
+                    "outcome_status": status,
+                    "mission_id": mission_id,
+                    "resource_id": resource_id,
+                    "readiness_rating": readiness_rating,
+                    "burden_after": burden_after,
+                    "result_note": "synthetic mock outcome for MVP training and dashboard QA",
+                    "operator_review_status": operator_review_status,
+                    "operator_note": operator_note,
+                    "evidence_url": "",
+                    "policy_version": "synthetic_mock_v2",
+                    "created_at": created_at,
+                }
+            )
+    return pd.DataFrame(rows, columns=OUTCOME_COLUMNS)
 
 
 def save_mock_data(
@@ -645,7 +855,7 @@ def save_mock_data(
     else:
         resources = generate_resources(seed=seed, use_official_fetch=use_official_fetch)
     progress = generate_progress(profiles, missions, seed=seed)
-    outcomes = generate_outcomes()
+    outcomes = generate_outcomes(profiles, resources, missions, seed=seed)
     _write_csv_atomic(profiles, paths["profiles"])
     _write_csv_atomic(missions, paths["missions"])
     _write_csv_atomic(resources, paths["resources"])

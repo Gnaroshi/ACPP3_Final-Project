@@ -12,11 +12,10 @@ from rebootroute.data.mock_data import save_mock_data
 
 def main() -> None:
     cfg = load_config()
-    paths = save_mock_data(cfg.raw_data_dir, cfg.random_seed)
+    paths = save_mock_data(cfg.raw_data_dir, cfg.random_seed, preserve_resources=True)
     for name, path in paths.items():
         print(f"{name}: {path}")
 
 
 if __name__ == "__main__":
     main()
-

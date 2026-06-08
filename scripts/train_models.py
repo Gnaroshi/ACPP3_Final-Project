@@ -181,13 +181,27 @@ Stage 번호는 API/검증 화면의 내부 단계입니다. 사용자 화면에
 def _write_reports(metadata: dict, row_count: int) -> None:
     cfg = load_config()
     cfg.reports_dir.mkdir(parents=True, exist_ok=True)
+
+    def raw_count(filename: str) -> int:
+        path = cfg.raw_data_dir / filename
+        if not path.exists():
+            return 0
+        return len(pd.read_csv(path))
+
+    profile_count = raw_count("sample_profiles.csv")
+    progress_count = raw_count("sample_progress.csv")
+    outcome_count = raw_count("sample_outcomes.csv")
+    resource_count = raw_count("sample_resources.csv")
     data_card = f"""# RebootRoute 데이터 카드
 
 ## 데이터셋
-- Synthetic MVP 프로필/진행 로그: {row_count}건
-- 공식 출처 기반 인천 자원: 인천청년포털 청년정책/프로그램/공간대관, 인천문화재단 문화행사
+- Synthetic MVP profile: {profile_count}건
+- Synthetic MVP progress log: {progress_count}건
+- Synthetic MVP outcome event: {outcome_count}건
+- 학습 feature row: {row_count}건
+- 공식 출처 기반 인천 자원: {resource_count}건, 인천청년포털 청년정책/프로그램/공간대관, 인천문화재단 문화행사
 - 데이터 폴더는 DVC-compatible 형태인 `data/raw`, `data/processed`, `data/features`를 따릅니다.
-- 사용자 profile과 label은 실제 사용자가 아니라 학습·테스트용 synthetic sample입니다.
+- 사용자 profile/progress/outcome과 label은 실제 사용자가 아니라 학습·테스트용 synthetic mock sample입니다.
 - 자원 검색 화면의 정책·문화 자원은 `make official-data`로 수집한 공개 공식 HTML 데이터입니다. 네트워크 없는 테스트에서는 `fallback_seed`가 사용될 수 있습니다.
 
 ## Label 상태

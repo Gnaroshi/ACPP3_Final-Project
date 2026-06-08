@@ -1,18 +1,18 @@
 # RebootRoute 모델 카드
 
 ## 모델
-- Stage classifier: `gradient_boosting`
+- Stage classifier: `random_forest`
 - Mission success predictor: `logistic_regression`
 
 ## 학습 데이터
-- Data version: `03084bbbcc1e8b4f`
-- 학습 시각: `2026-06-08T14:24:44.449367+00:00`
+- Data version: `d2a7440a96209a42`
+- 학습 시각: `2026-06-08T15:54:08.504847+00:00`
 
 ## 지표
-- Stage macro F1: `0.6538690476190476`
-- Stage accuracy: `0.7111111111111111`
-- Mission success macro F1: `0.8221343873517787`
-- Mission success ROC-AUC: `0.9407114624505929`
+- Stage macro F1: `0.8086926454634507`
+- Stage accuracy: `0.856`
+- Mission success macro F1: `0.839166237776634`
+- Mission success ROC-AUC: `0.9222415011888696`
 
 ## 안전성과 해석 가능성
 추천의 1차 기준은 rule-based stage classifier입니다. ML 모델은 MLOps 시연과 보조 설명 요인 제공을 위해 포함합니다.
