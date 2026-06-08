@@ -108,6 +108,19 @@ make capstone-check
 reports/capstone_requirements_check.md
 ```
 
+Week 15 MLOps master notebook 기준 점검표 생성:
+
+```bash
+make mlops-check
+```
+
+생성 파일:
+
+```text
+reports/mlops_readiness_check.md
+docs/mlops_project_brief.md
+```
+
 ## 3. 대시보드에서 보는 순서
 
 ### 3.1 오늘 루트
@@ -450,6 +463,27 @@ Baseline과 tracking:
 - Baseline 계획: `docs/baseline_plan.md`
 - 오류분석/해석 리포트: `reports/error_analysis.md`
 - 데이터 버전 전략: `docs/data_version_strategy.md`
+
+Week 15 MLOps master notebook 기준 검증:
+
+```bash
+make mlops-check
+```
+
+이 명령은 현재 CSV, model metadata, metric JSON, MLflow SQLite DB를 직접 읽어서 다음 두 파일을 생성합니다.
+
+```text
+reports/mlops_readiness_check.md
+docs/mlops_project_brief.md
+```
+
+검증 대상:
+
+- 문제정의, 데이터/label/split, baseline, metric, versioning, tracking, XAI/error, serving, monitoring, safety, demo
+- 공식 자원 73건, synthetic profile 1000건, synthetic progress 1948건, synthetic outcome 1302건, feature row 1000건
+- Stage model champion: `random_forest`
+- Mission success champion: `logistic_regression`
+- Stack: FastAPI, Streamlit, pandas, NumPy, Pandera, scikit-learn, MLflow SQLite, SQLite, TF-IDF local RAG, pytest, ruff, Docker Compose
 
 Human evaluation:
 
