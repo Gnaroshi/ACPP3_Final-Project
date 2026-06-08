@@ -239,7 +239,7 @@ def build_doc() -> None:
     add_bullets(
         doc,
         [
-            "현재 핵심 축은 공식 출처 기반 resource seed, local TF-IDF RAG, 부담도 기반 다음 행동 제안입니다.",
+            "현재 핵심 축은 공식 출처 HTML 수집 resource, local TF-IDF RAG, 부담도 기반 다음 행동 제안입니다.",
             "서비스 문구는 진단/치료/상담이 아니라 정보 탐색과 낮은 부담 행동 제안으로 제한합니다.",
             "자해·타해·즉시 위험 표현이 들어오면 일반 추천을 중단하고 안전 자원 연결로 분기합니다.",
             "Synthetic profile과 synthetic label은 모델 학습, API 호환성, 운영자 점검, MLOps 시연 용도로만 유지합니다.",
@@ -250,7 +250,7 @@ def build_doc() -> None:
     add_heading(doc, "2. 사용자 화면 사용 순서", 1)
     add_paragraph(
         doc,
-        "대시보드의 첫 탭은 실제 사용자가 무엇을 먼저 보고 무엇을 얻는지 명확히 알 수 있도록 네 단계로 재구성했습니다. 조건을 변경하면 추천 루트, 미션, 자원 후보, 지도 위치가 즉시 갱신되며, 별도 업데이트 버튼이나 추천 루트 버튼을 누르지 않습니다.",
+        "대시보드의 첫 탭은 실제 사용자가 무엇을 먼저 보고 무엇을 얻는지 명확히 알 수 있도록 네 단계로 재구성했습니다. 조건을 변경하면 추천 미션, 자원 후보, 지도 위치가 즉시 갱신되며, 별도 업데이트 버튼이나 추천 루트 버튼을 누르지 않습니다.",
     )
     add_table(
         doc,
@@ -276,8 +276,8 @@ def build_doc() -> None:
         doc,
         ["순서", "구성 요소", "구현 위치", "역할"],
         [
-            ["1", "Sample data + official resource seed", "src/rebootroute/data/mock_data.py, data/raw/*.csv", "Synthetic profile/progress와 공식 출처 기반 인천 자원 seed 생성"],
-            ["2", "Data Validation", "src/rebootroute/data/validation.py", "필수 column, 타입, 범위 검증. pandera 미설치 시 fallback"],
+            ["1", "Sample data + official resources", "scripts/fetch_official_resources.py, src/rebootroute/data/official_sources.py", "인천청년포털/인천문화재단 공개 HTML 수집"],
+            ["2", "Data Validation", "src/rebootroute/data/validation.py", "필수 column, 타입, 범위, 출처 provenance, 의심 문구 검증"],
             ["3", "Feature Build", "src/rebootroute/features/build_features.py", "부담도, readiness, progress, interest feature와 synthetic label 생성"],
             ["4", "RAG Resource Index", "src/rebootroute/rag/retriever.py", "TF-IDF 기반 공식 자원 검색"],
             ["5", "Safety Guardrail", "src/rebootroute/recommender/safety_guardrails.py", "위험 표현 감지 시 안전 자원 분기"],
@@ -300,8 +300,8 @@ def build_doc() -> None:
             ["src/rebootroute/schemas.py", "Pydantic schema: UserProfile, Mission, Resource, ProgressLog, FeedbackEvent, OutcomeEvent, RAGSearchRequest"],
             ["src/rebootroute/database.py", "SQLite 연결, DB 초기화, progress/feedback/outcome 저장, reboot point 조회"],
             ["src/rebootroute/api/main.py", "FastAPI endpoint 정의"],
-            ["src/rebootroute/dashboard/app.py", "Streamlit 대시보드. 오늘 루트, 자원·지도, 기록, 검증 탭"],
-            ["src/rebootroute/data/*.py", "Synthetic sample 생성, 공식 resource seed 생성, validation"],
+            ["src/rebootroute/dashboard/app.py", "Streamlit 대시보드. 기본 사용자 탭은 내 루트, 정책·문화 찾기, 내 기록이며 URL 쿼리 ?operator=1에서만 운영자 검증 탭 표시"],
+            ["src/rebootroute/data/*.py", "Synthetic sample 생성, 공식 HTML 수집, fallback seed, validation"],
             ["src/rebootroute/features/build_features.py", "feature table과 synthetic label 생성"],
             ["src/rebootroute/modeling/*.py", "모델 학습, 평가, registry, prediction, explanation"],
             ["src/rebootroute/rag/retriever.py", "TF-IDF local retrieval"],
@@ -320,7 +320,7 @@ def build_doc() -> None:
         [
             ["data/raw/sample_profiles.csv", "180개 synthetic profile", "실제 사용자가 아님"],
             ["data/raw/sample_missions.csv", "Stage 0-7 미션 42개", "발표용 seed data"],
-            ["data/raw/sample_resources.csv", "공식 출처 기반 인천 자원 seed", "인천청년포털, 인천문화재단, 인천아트플랫폼, 트라이보울 등"],
+            ["data/raw/sample_resources.csv", "공식 출처 기반 인천 자원", "인천청년포털 청년정책/프로그램/공간대관, 인천문화재단 문화행사"],
             ["data/raw/sample_progress.csv", "synthetic 진행 로그", "실제 완료 이력이 아님"],
             ["data/raw/sample_outcomes.csv", "outcome import template", "실제 outcome row는 사용자 또는 기관 관측 후 입력"],
             ["data/features/training_features.csv", "학습 feature + synthetic labels", "production 전 교체 필요"],
@@ -394,7 +394,7 @@ def build_doc() -> None:
     add_bullets(
         doc,
         [
-            "기본 검색 대상은 youth_program, culture_event, culture_facility, support_program, contest, mini_project입니다.",
+            "기본 검색 대상은 youth_program, culture_event, culture_facility, support_program입니다.",
             "district가 주어지면 같은 구/군 자원을 앞쪽에 재정렬합니다.",
             "max_burden_level이 있으면 해당 부담도 이하만 남깁니다.",
             "반환 answer에는 진단/치료가 아니라 정보 탐색 참고 자료라는 안전 문구를 포함합니다.",
@@ -445,7 +445,7 @@ def build_doc() -> None:
             ["오늘 루트", "실제 사용자", "내 조건 입력 → 추천 루트 → 지도 → 미션/결과 기록. ID, score, point 숨김"],
             ["자원·지도", "실제 사용자", "RAG 검색 결과를 자원 카드, 공식 출처 링크, 내 위치/활동 장소 지도 중심으로 표시"],
             ["기록", "실제 사용자/발표자", "데모 세션의 progress/outcome/feedback 개수와 최근 로그 확인"],
-            ["검증", "발표자/운영자", "Rule stage, ML 보조 stage, contributing factors, IDs, score, raw payload, feedback/progress/outcome log, 운영자 review 입력, 모델 metric 확인"],
+            ["운영자 검증", "발표자/운영자", "URL 쿼리 ?operator=1에서만 Rule stage, ML 보조 stage, contributing factors, IDs, score, raw payload, feedback/progress/outcome log, 운영자 review 입력, 모델 metric 확인"],
         ],
         [1700, 1900, 5760],
     )
@@ -455,7 +455,7 @@ def build_doc() -> None:
             "첫 화면은 내 조건, 추천 루트, 지도, 결과 기록 순서로 보이도록 재구성했습니다.",
             "조건 변경 즉시 추천 루트, 미션, 자원 후보, 지도 위치가 갱신됩니다.",
             "사용자 화면의 행동은 시작, 완료, 너무 어려움, 참여/지원 결과처럼 실제 학습 loop에 필요한 기록으로 정리했습니다.",
-            "사용자 화면에는 내부 ranking score, 식별자, point를 숨기고, 검증 탭에서만 표로 공개합니다.",
+            "사용자 화면에는 내부 ranking score, 식별자, point를 숨기고, URL 쿼리 ?operator=1 운영자 검증 탭에서만 표로 공개합니다.",
             "위도/경도 기반 미니맵으로 내 위치와 활동 장소를 함께 표시합니다.",
             "미션 시작/완료/too-hard, 프로그램 참여, 지원 신청/결과, 미니 프로젝트 제출, 운영자 review를 SQLite에 저장합니다.",
             "모바일 폭에서는 단계 안내와 필터/카드가 한 열로 쌓이도록 반응형 CSS를 적용했습니다.",
@@ -521,7 +521,8 @@ def build_doc() -> None:
         ["명령", "설명"],
         [
             ["make setup", "requirements.txt 의존성 설치"],
-            ["make pipeline", "synthetic sample과 공식 resource seed 생성, validation, feature build, model training, DB init, reports 생성"],
+            ["make official-data", "인천청년포털/인천문화재단 공식 HTML 수집, sample_resources.csv와 resource_audit.md 갱신"],
+            ["make pipeline", "synthetic sample 생성, 기존 공식 resource 보존, validation, feature build, model training, DB init, reports 생성"],
             ["make dashboard", "Streamlit dashboard 실행. 기본 http://localhost:8501, 포트 사용 중이면 터미널 Local URL 사용"],
             ["make api", "FastAPI 실행, http://localhost:8000/docs"],
             ["make test", "pytest 실행"],
@@ -544,7 +545,7 @@ def build_doc() -> None:
             "활동/지원 결과 기록 폼에서 프로그램 참여 또는 지원 신청 outcome을 저장한다.",
             "자원·지도 탭에서 RAG 검색 결과, 공식 출처 링크, 지도 표시를 보여준다.",
             "기록 탭에서 progress/outcome/feedback 로그가 쌓인 것을 확인한다.",
-            "검증 탭에서 mission_id, resource_id, score, raw payload, feedback/outcome log가 내부 검증용으로만 보이는 것을 확인한다.",
+            "URL 쿼리 ?operator=1 운영자 검증 탭에서 mission_id, resource_id, score, raw payload, feedback/outcome log가 내부 검증용으로만 보이는 것을 확인한다.",
             "API 문서에서 safety guardrail, feedback, progress, outcomes endpoint가 구현되어 있음을 보여준다.",
         ],
     )
@@ -554,7 +555,7 @@ def build_doc() -> None:
         doc,
         ["항목", "현재 상태", "운영 전 필요한 작업"],
         [
-            ["공공데이터", "공식 출처 기반 curated seed", "자동 동기화 또는 운영자 검수형 갱신 프로세스 설계"],
+            ["공공데이터", "공개 HTML 수집기 구현", "DOM 변경 감지, API key 운영, 주기 수집 및 운영자 검수 설계"],
             ["Outcome label 구조", "schema/API/dashboard 기록 구현", "실제 사용자 또는 기관 관측 label 수집·import"],
             ["Safety resource", "example YAML", "기관 검토 후 지역/전국 위기 대응 연락처 확정"],
             ["개인정보", "MVP 미구현", "동의, 보존 기간, 삭제 요청, 접근 권한 설계"],
@@ -571,7 +572,7 @@ def build_doc() -> None:
         doc,
         [
             "현재 사용자 profile과 학습 label은 synthetic placeholder입니다. feedback/progress schema와 pipeline은 구현되어 있으나, 실제 mission completion, too-hard 피드백, 프로그램 참여, 지원 결과 label은 사용자 또는 기관 관측 후 수집·import해야 합니다.",
-            "현재 resource는 공식 출처 기반 seed이지만 자동 크롤링/공공 API 동기화는 아직 없습니다.",
+            "현재 resource는 공개 공식 HTML 수집 결과입니다. 다만 사이트 DOM이 바뀌면 파서를 갱신해야 하며, 운영 전에는 주기 수집/검수 프로세스가 필요합니다.",
             "지도 거리는 위도/경도 기반 직선거리 근사이며 실제 대중교통 이동시간은 아닙니다.",
             "ML 모델은 임상 위험 모델이 아니며 그렇게 해석하면 안 됩니다.",
             "RAG는 TF-IDF retrieval이므로 생성형 답변 품질이나 semantic matching에는 한계가 있습니다.",
@@ -585,7 +586,7 @@ def build_doc() -> None:
         doc,
         ["검증", "현재 결과"],
         [
-            ["make test", "11 passed"],
+            ["make test", "16 passed"],
             ["make eval-sheet", "reports/human_eval_review_sheet.csv 생성 성공"],
             ["make capstone-check", "reports/capstone_requirements_check.md 생성 성공"],
             ["make pipeline", "성공. metadata, model card, data card, error analysis 갱신"],

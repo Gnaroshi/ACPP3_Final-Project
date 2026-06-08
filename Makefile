@@ -1,13 +1,16 @@
 PYTHON ?= python
 export PYTHONPATH := src
 
-.PHONY: setup sample-data validate train pipeline api dashboard eval-sheet capstone-check test docker-up
+.PHONY: setup sample-data official-data validate train pipeline api dashboard eval-sheet capstone-check test docker-up
 
 setup:
 	$(PYTHON) -m pip install -r requirements.txt
 
 sample-data:
 	$(PYTHON) scripts/make_sample_data.py
+
+official-data:
+	$(PYTHON) scripts/fetch_official_resources.py
 
 validate:
 	$(PYTHON) -m rebootroute.data.validation

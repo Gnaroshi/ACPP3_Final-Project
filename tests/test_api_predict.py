@@ -10,7 +10,7 @@ from rebootroute.data.mock_data import save_mock_data
 
 
 def test_sample_profile_and_analyze_intake():
-    save_mock_data()
+    save_mock_data(preserve_resources=True)
     client = TestClient(app)
     sample = client.get("/sample_profile")
     assert sample.status_code == 200

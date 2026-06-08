@@ -29,7 +29,7 @@ REQUIREMENTS = [
     Requirement(
         "데이터 소스와 접근 전략",
         ["data/raw/sample_resources.csv", "reports/data_card.md", "docs/data_version_strategy.md"],
-        "공식 출처 기반 resource seed와 synthetic MVP label의 경계를 분리했습니다.",
+        "공식 HTML 수집 resource와 synthetic MVP label의 경계를 분리했습니다.",
     ),
     Requirement(
         "Repo 기본 구조",
@@ -134,7 +134,7 @@ def build_report() -> str:
 {missing_block}
 
 ## 최종 판단
-누락 항목이 `없음`이면 PDF가 요구한 발표/구현/검증 산출물은 repo 안에서 확인 가능합니다. 단, 실제 사용자 데이터와 기관 outcome 데이터는 과제 환경에서 확보할 수 없으므로 synthetic MVP label과 공식 출처 resource seed의 경계를 README와 report에 명시했습니다.
+누락 항목이 `없음`이면 PDF가 요구한 발표/구현/검증 산출물은 repo 안에서 확인 가능합니다. 단, 실제 사용자 데이터와 기관 outcome 데이터는 과제 환경에서 확보할 수 없으므로 synthetic MVP label과 공식 HTML 수집 resource의 경계를 README와 report에 명시했습니다.
 """
 
 

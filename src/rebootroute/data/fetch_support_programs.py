@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import os
-
 import pandas as pd
+
+from rebootroute.data.official_sources import fetch_youth_policy_resources
 
 
 def fetch_support_programs() -> pd.DataFrame:
-    if not os.getenv("INCHEON_SUPPORT_API_KEY"):
-        return pd.DataFrame()
-    # TODO: Connect isolated-youth, one-person-household, and social relationship support data.
-    return pd.DataFrame()
-
+    """Fetch currently open youth policy/support rows from Incheon Youth Portal."""
+    return fetch_youth_policy_resources()

@@ -5,7 +5,7 @@ from rebootroute.recommender.mission_recommender import rank_missions
 
 
 def test_rank_missions_returns_stage_aligned_results():
-    save_mock_data()
+    save_mock_data(preserve_resources=True)
     data = load_raw_data()
     profile = {
         "age": 27,
@@ -26,4 +26,3 @@ def test_rank_missions_returns_stage_aligned_results():
     assert len(missions) == 3
     assert missions[0]["score"] >= missions[-1]["score"]
     assert all("오늘" in mission["description"] or mission["stage"] <= 2 for mission in missions)
-

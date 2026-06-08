@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import os
-
 import pandas as pd
+
+from rebootroute.data.official_sources import fetch_youth_rental_resources
 
 
 def fetch_culture_facilities() -> pd.DataFrame:
-    if not os.getenv("INCHEON_FACILITY_API_KEY"):
-        return pd.DataFrame()
-    # TODO: Connect museum, gallery, library, and culture facility datasets.
-    return pd.DataFrame()
-
+    """Fetch official youth-space rental/facility cards from Incheon Youth Portal."""
+    return fetch_youth_rental_resources()

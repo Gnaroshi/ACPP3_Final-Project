@@ -2,23 +2,23 @@
 
 **인천 청년정책·문화활동 RAG + 저부담 다음 행동 추천 MVP**
 
-RebootRoute는 인천 청년정책·문화공간·문화행사 공식 페이지를 기반으로 만든 seed 데이터를 보여주고, 사용자가 오늘 바로 끝낼 수 있는 작은 다음 행동을 제안하는 한국어 AI/MLOps MVP입니다.
+RebootRoute는 인천 청년정책·청년공간·문화행사 공식 페이지에서 수집한 공개 데이터를 보여주고, 사용자가 오늘 바로 끝낼 수 있는 작은 다음 행동을 제안하는 한국어 AI/MLOps MVP입니다.
 
 이 프로젝트는 정신건강 진단, 치료, 상담 챗봇, 위험도 판정, 단순 취업 추천 앱이 아닙니다. 발표용 MVP의 초점은 다음 두 가지입니다.
 
-- 인천청년포털, 인천문화재단, 인천아트플랫폼, 트라이보울 등 공식 출처 기반 자원 검색
+- 인천청년포털과 인천문화재단 공식 페이지 기반 자원 검색
 - 비용, 대면 부담, 온라인 확인 가능 여부, 소요시간을 고려한 낮은 부담의 다음 행동 제안
 
 ## 1. 현재 결론
 
-사용자 데이터를 실제로 확보할 수 없으므로, 현재 대시보드의 입력은 저장되지 않는 데모 세션 상태입니다. 대시보드 첫 화면은 다음 순서로 동작합니다.
+사용자 데이터를 실제로 확보할 수 없으므로, 현재 대시보드의 입력은 데모 세션 상태입니다. 대시보드 첫 화면은 다음 순서로 동작합니다.
 
 1. 내 위치, 외출 가능 시간, 비용, 대면 부담, 관심 분야 입력
 2. 현재 부담도에 맞는 추천 루트와 오늘 할 미션 확인
 3. 지도에서 내 위치와 활동 장소를 함께 확인
 4. 미션 시작/완료/too-hard 및 프로그램 참여, 지원 신청, 지원 결과, 미니 프로젝트 제출 기록
 
-Synthetic profile과 synthetic label은 모델 학습, API 호환성, 검증, MLOps 시연을 위해서만 남아 있습니다. 사용자 화면의 주 데이터는 공식 URL을 포함한 resource seed입니다. 단, 카드 설명은 공식 원문 인용이 아니라 RebootRoute에서 사용자가 이해하기 쉽게 작성한 요약이며, 데모 중 남기는 progress/outcome은 SQLite에 기록됩니다.
+Synthetic profile과 synthetic label은 모델 학습, API 호환성, 검증, MLOps 시연을 위해서만 남아 있습니다. 사용자 화면의 주 데이터는 `make official-data`로 수집한 공식 페이지 기반 resource입니다. 카드 설명, 부담도, 태그, 예상 소요시간은 공식 원문 그대로가 아니라 RebootRoute 추천 UX를 위한 파생 메타데이터이며, 데모 중 남기는 progress/outcome은 SQLite에 기록됩니다.
 
 ## 2. 실행 방법
 
@@ -40,6 +40,14 @@ make setup
 make pipeline
 ```
 
+공식 자원 데이터 갱신:
+
+```bash
+make official-data
+```
+
+이 명령은 인천청년포털 청년정책/프로그램/공간대관 페이지와 인천문화재단 문화행사 페이지를 수집해 `data/raw/sample_resources.csv`를 갱신하고, `reports/resource_audit.md`를 생성합니다. 네트워크가 막힌 환경에서는 실행되지 않으므로, 발표 전 한 번 실행해서 CSV를 고정해 둡니다.
+
 Streamlit 대시보드 실행:
 
 ```bash
@@ -50,6 +58,12 @@ make dashboard
 
 ```text
 http://localhost:8501
+```
+
+운영자 검증 탭은 기본 사용자 화면에 보이지 않습니다. 내부 ID, score, raw payload, 모델 보조 결과를 확인해야 할 때만 아래처럼 쿼리 파라미터를 붙여 엽니다.
+
+```text
+http://localhost:8501?operator=1
 ```
 
 FastAPI 실행:
@@ -103,16 +117,17 @@ reports/capstone_requirements_check.md
 보이는 것:
 
 - 현재 위치 또는 직접 입력한 위도/경도
-- 외출 부담, 대면 부담, 에너지, 생활 리듬, 관심 분야
-- 추천 루트 이름과 설명
+- 외출 부담, 대면 부담, 에너지, 생활 리듬
+- 자료 범위, 비용 범위, 확인 방식, 최대 부담도
 - 오늘 할 미션 카드
-- 공식 출처 기반 인천 자원 카드
+- 공식 출처 기반 인천 자원 카드와 이미지
 - 자원명, 설명, 구/군, 비용, 부담도
 - 내 위치 기준 대략 거리
 - 온라인 확인 가능 여부
 - 예상 확인 시간
 - 운영 기간 또는 공식 페이지 확인 필요 안내
 - 주소, 문의처, 공식 출처 링크
+- 공식 출처명, 상세 URL, 수집 시각
 - 오늘의 가장 작은 행동
 - 지도 위 내 위치와 활동 장소
 - 미션 시작, 완료, 나중에, 너무 어려움 버튼
@@ -128,20 +143,19 @@ reports/capstone_requirements_check.md
 - model metric
 - raw payload
 
-사용자는 먼저 내 조건을 고릅니다. 조건을 바꾸면 추천 루트, 미션, 자원 후보, 지도 위치가 즉시 다시 계산됩니다. 별도의 업데이트 버튼이나 추천 루트 버튼을 누르지 않습니다.
+사용자는 먼저 내 조건을 고릅니다. 조건을 바꾸면 추천 미션, 자원 후보, 지도 위치가 즉시 다시 계산됩니다. 별도의 업데이트 버튼이나 추천 루트 버튼을 누르지 않습니다.
 
 그 다음 자원 종류를 고릅니다. 예시는 다음과 같습니다.
 
 - 청년 프로그램
 - 문화 행사
-- 문화 시설
 - 지원 정보
-- 공모전
-- 미니 일경험
+- 문화 행사
+- 공간·장소
 
 자원 후보는 구/군, 비용, 최대 부담도, 온라인 확인 가능 여부, 내 위치와의 거리 기준으로 정렬됩니다.
 
-### 3.2 자원·지도
+### 3.2 정책·문화 찾기
 
 TF-IDF 기반 local RAG 검색 화면입니다.
 
@@ -223,7 +237,7 @@ models/latest/metadata.json
 
 이미 구현된 구조:
 
-- 공식 출처 기반 resource seed
+- 공식 출처 HTML 수집 resource와 provenance validation
 - feedback/progress schema와 SQLite table
 - outcome schema와 SQLite table
 - `/feedback/log` API
@@ -245,32 +259,48 @@ models/latest/metadata.json
 
 ### 4.2 실제 자원 데이터
 
-`sample_resources.csv`는 공식 URL, 기관명, 위치, 문의처를 포함한 curated seed입니다. 각 항목의 `name`, `source_name`, `source_url`, `address`, `contact`는 공식 페이지 확인을 기준으로 관리하지만, `description`, `burden_level`, `estimated_duration_minutes`, `career_tags`, `recovery_tags`는 RebootRoute에서 추천과 UX를 위해 작성한 요약/메타데이터입니다. 따라서 공식 원문 그대로의 데이터베이스나 자동 동기화된 최신 공공 API 결과라고 표현하면 안 됩니다.
+`sample_resources.csv`는 사용자 데이터가 아니라 공개 공식 페이지에서 수집한 정책/프로그램/공간/행사 데이터입니다. 현재 수집기는 다음을 사용합니다.
 
-현재 포함된 출처 예:
+- 인천청년포털 청년정책: `https://youth.incheon.go.kr/youthpolicy/youthPolicyInfoList.do?acptrun=ing`
+- 인천청년포털 프로그램: `https://youth.incheon.go.kr/program/programInfoList.do?prgmdiv=all`
+- 인천청년포털 공간대관: `https://youth.incheon.go.kr/rental/rentalInfoList.do?inst_cd=...`
+- 인천문화재단 문화행사: `https://www.ifac.or.kr/culturalInfo/cuturalEvents/performanceSrch/list.do?key=m2501152621396`
 
-- 인천청년포털
-- 인천광역시 청년지원센터 유유기지
-- 유유기지 부평
-- 동구청년21
-- 계양청년마당
-- 청년도전 지원사업
-- 드림체크카드
-- 인천 청년도약기지
-- 인천문화재단
-- 인천아트플랫폼
-- 트라이보울
-- 인천생활문화센터 칠통마당
-- 인천청년문화창작소 시작공간 일부
-- 한국근대문학관
+공식 필드:
 
-생성 로직:
+- `official_title`
+- `official_summary`
+- `official_period`
+- `official_place`
+- `source_name`
+- `source_url`
+- `detail_url`
+- `thumbnail_url`
+- `source_kind`
+- `crawl_status`
+- `source_checked_at`
+
+RebootRoute 파생 필드:
+
+- `description`
+- `burden_level`
+- `estimated_duration_minutes`
+- `career_tags`
+- `recovery_tags`
+- `derived_reason`
+
+수집/파서 로직:
 
 ```text
-src/rebootroute/data/mock_data.py
+src/rebootroute/data/official_sources.py
+src/rebootroute/data/fetch_youth_programs.py
+src/rebootroute/data/fetch_support_programs.py
+src/rebootroute/data/fetch_culture_facilities.py
+src/rebootroute/data/fetch_culture_events.py
+scripts/fetch_official_resources.py
 ```
 
-함수명은 기존 호환성 때문에 `save_mock_data`, `ensure_mock_data`를 유지하지만, resource seed는 더 이상 `example.com` 기반 mock이 아닙니다.
+`src/rebootroute/data/mock_data.py`의 `save_mock_data`, `ensure_mock_data` 함수명은 기존 호환성 때문에 유지합니다. 네트워크 없는 테스트에서는 `fallback_seed`를 만들 수 있지만, 발표/데모 전에 `make official-data`를 실행하면 실제 HTML 수집 결과가 CSV에 기록됩니다.
 
 ## 5. API
 
@@ -416,7 +446,7 @@ make pipeline
 
 수행 단계:
 
-1. synthetic profile/progress, outcome import template, 공식 출처 기반 resource seed 생성
+1. synthetic profile/progress, outcome import template 생성 및 기존 공식 resource CSV 보존
 2. 데이터 검증
 3. feature table 생성
 4. stage model 학습
@@ -472,43 +502,39 @@ reports/error_analysis.md
 
 ### 실제 자원 업데이트
 
+실행 명령:
+
+```bash
+make official-data
+```
+
+생성/갱신 파일:
+
+```text
+data/raw/sample_resources.csv
+reports/resource_audit.md
+```
+
 수정 파일:
 
 ```text
-src/rebootroute/data/mock_data.py
+src/rebootroute/data/official_sources.py
+src/rebootroute/data/fetch_youth_programs.py
+src/rebootroute/data/fetch_support_programs.py
+src/rebootroute/data/fetch_culture_facilities.py
+src/rebootroute/data/fetch_culture_events.py
 ```
 
-수정 대상:
+검증 기준:
 
-```text
-REAL_RESOURCE_SEEDS
-```
-
-추가 또는 갱신해야 하는 필드:
-
-- `name`
-- `description`
-- `district`
-- `address`
-- `latitude`
-- `longitude`
-- `start_date`
-- `end_date`
-- `cost_type`
-- `online_available`
-- `social_contact_level`
-- `outdoor_required`
-- `estimated_duration_minutes`
-- `burden_level`
-- `career_tags`
-- `recovery_tags`
-- `source_name`
-- `source_url`
-- `contact`
+- 모든 사용자 노출 자원은 `source_url`, `detail_url`, `source_checked_at`을 가져야 합니다.
+- 공식 자원 목록에는 `mini_project`나 `RebootRoute curated...` 출처가 들어가면 안 됩니다.
+- `入口`, `公式`, `curated`, `example.com`, `RebootRoute official` 같은 의심 문구가 공식/사용자 노출 필드에 있으면 validation이 실패합니다.
 
 수정 후 실행:
 
 ```bash
+make official-data
 make pipeline
 make test
 ```
@@ -531,7 +557,7 @@ src/rebootroute/dashboard/app.py
 - ML metric
 - synthetic profile 설명
 
-검증 탭에는 내부 확인을 위해 위 정보가 남아 있을 수 있습니다.
+운영자 검증 탭은 `?operator=1`로 접근했을 때만 생성됩니다. 기본 사용자 화면에는 사이드바, 내부 ID, score, point, raw payload가 보이지 않아야 합니다.
 
 ### RAG 검색 업데이트
 
@@ -602,6 +628,7 @@ src/rebootroute/
 scripts/
   run_pipeline.py
   train_models.py
+  fetch_official_resources.py
   build_human_eval_sheet.py
   build_capstone_checklist.py
   build_project_report_docx.py
@@ -611,6 +638,7 @@ evaluation/
 reports/
   data_card.md
   model_card.md
+  resource_audit.md
   error_analysis.md
   capstone_requirements_check.md
   human_eval_review_sheet.csv
@@ -651,7 +679,8 @@ notebooks/
 
 - 실제 사용자 행동 데이터 없음
 - 실제 사용자 또는 기관 관측 기반 mission completion/outcome label 없음
-- 공식 자원 seed는 curated list이며 자동 크롤링/공공 API 동기화는 아직 없음
+- 공식 자원은 공개 HTML 수집 기반이며, 사이트 DOM 변경 시 파서를 갱신해야 함
+- 인천문화재단 Open API는 `IFAC_OPEN_API_KEY`가 있을 때만 사용하고, 기본은 공개 HTML fallback
 - RAG는 TF-IDF 기반 검색이며 grounded generation은 없음
 - 운영기관 연계, 개인정보 처리, 삭제 요청 처리, 접근성 검증 프로세스는 production 전 별도 설계 필요
 

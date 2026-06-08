@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | 문제 정의와 사용자 시나리오 | 충족 | `README.md`<br>`docs/capstone_project_brief.md` | 인천 청년정책/문화활동 탐색 부담을 낮추는 MVP로 범위를 고정했습니다. |
 | 입력/출력/성공 기준 | 충족 | `README.md`<br>`docs/capstone_project_brief.md`<br>`evaluation/rubric.md` | 데모 입력, 추천 출력, human rubric, 모델 지표, 실행 검증 기준을 문서화했습니다. |
-| 데이터 소스와 접근 전략 | 충족 | `data/raw/sample_resources.csv`<br>`reports/data_card.md`<br>`docs/data_version_strategy.md` | 공식 출처 기반 resource seed와 synthetic MVP label의 경계를 분리했습니다. |
+| 데이터 소스와 접근 전략 | 충족 | `data/raw/sample_resources.csv`<br>`reports/data_card.md`<br>`docs/data_version_strategy.md` | 공식 HTML 수집 resource와 synthetic MVP label의 경계를 분리했습니다. |
 | Repo 기본 구조 | 충족 | `data/raw`<br>`data/processed`<br>`notebooks`<br>`src`<br>`configs`<br>`reports`<br>`artifacts`<br>`README.md` | PDF 예시 구조를 추적 가능한 디렉터리와 실제 산출물로 맞췄습니다. |
 | Baseline과 모델 학습 | 충족 | `scripts/train_models.py`<br>`reports/stage_metrics.json`<br>`reports/mission_success_metrics.json`<br>`docs/baseline_plan.md` | Dummy baseline과 후보 모델을 같은 split에서 비교합니다. |
 | Experiment tracking | 충족 | `src/rebootroute/modeling/mlflow_utils.py`<br>`mlruns/.gitkeep`<br>`data/mlflow.db` | MLflow tracking URI를 SQLite로 설정하고 후보 모델 metric을 기록합니다. |
@@ -22,4 +22,4 @@
 - 없음
 
 ## 최종 판단
-누락 항목이 `없음`이면 PDF가 요구한 발표/구현/검증 산출물은 repo 안에서 확인 가능합니다. 단, 실제 사용자 데이터와 기관 outcome 데이터는 과제 환경에서 확보할 수 없으므로 synthetic MVP label과 공식 출처 resource seed의 경계를 README와 report에 명시했습니다.
+누락 항목이 `없음`이면 PDF가 요구한 발표/구현/검증 산출물은 repo 안에서 확인 가능합니다. 단, 실제 사용자 데이터와 기관 outcome 데이터는 과제 환경에서 확보할 수 없으므로 synthetic MVP label과 공식 HTML 수집 resource의 경계를 README와 report에 명시했습니다.

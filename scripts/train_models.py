@@ -165,8 +165,8 @@ Stage 번호는 API/검증 화면의 내부 단계입니다. 사용자 화면에
 ## 주요 실패 조건
 - 현재 stage label과 mission success label은 실제 사용자 관측값이 아니라 synthetic MVP label입니다.
 - support가 작은 stage는 macro F1 변동이 큽니다. 특히 상위 단계는 표본이 적어 confusion matrix에서 오분류가 크게 보입니다.
-- TF-IDF RAG는 공식 출처 seed 안에서만 검색합니다. seed에 없는 프로그램은 추천하지 못합니다.
-- 거리 계산은 seed의 위도/경도와 사용자의 데모 위치 입력을 기반으로 한 근사값입니다.
+- TF-IDF RAG는 `sample_resources.csv`에 수집된 공식 자원 안에서만 검색합니다. 수집되지 않았거나 DOM 변경으로 빠진 프로그램은 추천하지 못합니다.
+- 거리 계산은 수집 자원의 위도/경도 또는 구/군 중심 좌표와 사용자의 데모 위치 입력을 기반으로 한 근사값입니다.
 - 안전 표현이 감지되면 일반 추천이 아니라 안전 안내로 분기해야 하며, 이 흐름은 성능 지표가 아니라 정책/안전 요구사항입니다.
 
 ## 발표 시 해석 문장
@@ -185,10 +185,10 @@ def _write_reports(metadata: dict, row_count: int) -> None:
 
 ## 데이터셋
 - Synthetic MVP 프로필/진행 로그: {row_count}건
-- 공식 출처 기반 인천 자원 seed: 인천청년포털, 인천문화재단, 인천아트플랫폼, 트라이보울 등
+- 공식 출처 기반 인천 자원: 인천청년포털 청년정책/프로그램/공간대관, 인천문화재단 문화행사
 - 데이터 폴더는 DVC-compatible 형태인 `data/raw`, `data/processed`, `data/features`를 따릅니다.
 - 사용자 profile과 label은 실제 사용자가 아니라 학습·테스트용 synthetic sample입니다.
-- 자원 검색 화면의 정책·문화 자원은 공식 페이지 URL을 포함한 curated seed data입니다.
+- 자원 검색 화면의 정책·문화 자원은 `make official-data`로 수집한 공개 공식 HTML 데이터입니다. 네트워크 없는 테스트에서는 `fallback_seed`가 사용될 수 있습니다.
 
 ## Label 상태
 {SYNTHETIC_WARNING_KO}
@@ -203,7 +203,7 @@ def _write_reports(metadata: dict, row_count: int) -> None:
 의학적 진단, 치료, 배제 목적의 위험 점수화, 운영 환경의 개입 의사결정에는 사용할 수 없습니다.
 
 ## 구현된 것과 실제 관측이 필요한 것
-- 구현됨: 공식 출처 기반 resource seed, feedback/progress/outcome schema, `/feedback/log`, `/progress/log`, `/outcomes/log`, 검증 view, 운영자 review 입력, human eval sheet, batch retraining pipeline
+- 구현됨: 공식 출처 HTML 수집기, resource provenance validation, feedback/progress/outcome schema, `/feedback/log`, `/progress/log`, `/outcomes/log`, 검증 view, 운영자 review 입력, human eval sheet, batch retraining pipeline
 - 실제 관측 필요: 미션 시작/완료/건너뜀/too-hard, 프로그램 참여, 지원 결과, 운영자 review, 검증된 미니 프로젝트 제출 outcome
 """
     model_card = f"""# RebootRoute 모델 카드

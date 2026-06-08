@@ -145,7 +145,17 @@ class Resource(BaseModel):
     recovery_tags: list[str] = Field(default_factory=list)
     source_name: str
     source_url: str | None = None
+    detail_url: str | None = None
+    thumbnail_url: str | None = None
     contact: str | None = None
+    official_title: str | None = None
+    official_summary: str | None = None
+    official_period: str | None = None
+    official_place: str | None = None
+    source_kind: str | None = None
+    crawl_status: str | None = None
+    source_checked_at: datetime | None = None
+    derived_reason: str | None = None
     updated_at: datetime = Field(default_factory=now_utc)
 
 

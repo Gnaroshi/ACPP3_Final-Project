@@ -19,8 +19,8 @@ from scripts.train_models import train_all
 def main() -> None:
     cfg = load_config()
     ensure_directories(cfg)
-    print("1/7 generating sample profiles and official resource seed data")
-    paths = save_mock_data(cfg.raw_data_dir, cfg.random_seed)
+    print("1/7 generating sample profiles and preserving fetched official resources")
+    paths = save_mock_data(cfg.raw_data_dir, cfg.random_seed, preserve_resources=True)
     print({name: str(path) for name, path in paths.items()})
 
     print("2/7 validating data")

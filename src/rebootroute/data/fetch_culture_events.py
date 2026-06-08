@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import os
-
 import pandas as pd
+
+from rebootroute.data.official_sources import fetch_ifac_event_resources
 
 
 def fetch_culture_events() -> pd.DataFrame:
-    if not os.getenv("INCHEON_CULTURE_API_KEY"):
-        return pd.DataFrame()
-    # TODO: Connect Incheon culture/art event or festival public API.
-    return pd.DataFrame()
-
+    """Fetch current culture events from Incheon Foundation for Arts and Culture."""
+    return fetch_ifac_event_resources()

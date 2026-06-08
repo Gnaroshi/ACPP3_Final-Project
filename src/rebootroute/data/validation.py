@@ -55,6 +55,52 @@ def _in_values(values: set[str]) -> Callable[[pd.Series], pd.Series]:
     return lambda s: s.astype(str).isin(values)
 
 
+def _validate_resource_provenance(df: pd.DataFrame) -> pd.DataFrame:
+    required = {
+        "source_url",
+        "detail_url",
+        "source_kind",
+        "source_checked_at",
+        "official_title",
+        "official_summary",
+        "crawl_status",
+        "derived_reason",
+    }
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise ValueError(f"resources missing provenance columns: {missing}")
+
+    url_invalid = ~df["source_url"].astype(str).str.startswith("https://")
+    detail_invalid = ~df["detail_url"].astype(str).str.startswith("https://")
+    checked_invalid = df["source_checked_at"].astype(str).str.strip().eq("")
+    source_kind_invalid = ~df["source_kind"].astype(str).isin({"open_api", "html_scrape", "fallback_seed", "manual_verified"})
+    crawl_status_invalid = ~df["crawl_status"].astype(str).isin({"ok", "fallback_seed", "partial", "failed"})
+    official_resource_invalid = df["resource_type"].astype(str).eq("mini_project")
+    rebootroute_source_invalid = df["source_name"].astype(str).str.contains("RebootRoute", case=False, na=False)
+
+    suspicious_pattern = r"入口|公式|curated|example\.com|RebootRoute official"
+    visible_columns = ["name", "description", "source_name", "official_title", "official_summary"]
+    suspicious = pd.Series(False, index=df.index)
+    for column in visible_columns:
+        suspicious = suspicious | df[column].astype(str).str.contains(suspicious_pattern, case=False, regex=True, na=False)
+
+    checks = {
+        "source_url": url_invalid,
+        "detail_url": detail_invalid,
+        "source_checked_at": checked_invalid,
+        "source_kind": source_kind_invalid,
+        "crawl_status": crawl_status_invalid,
+        "official_resource_type": official_resource_invalid,
+        "source_name": rebootroute_source_invalid,
+        "visible_text": suspicious,
+    }
+    for name, invalid in checks.items():
+        if invalid.any():
+            bad_rows = invalid[invalid].index.tolist()[:5]
+            raise ValueError(f"resources.{name} provenance validation failed at rows {bad_rows}")
+    return df
+
+
 def validate_profiles(df: pd.DataFrame) -> pd.DataFrame:
     if pa is not None:
         schema = DataFrameSchema(
@@ -118,12 +164,20 @@ def validate_resources(df: pd.DataFrame) -> pd.DataFrame:
                 "career_tags": Column(str),
                 "recovery_tags": Column(str),
                 "source_name": Column(str),
+                "source_url": Column(str),
+                "detail_url": Column(str),
+                "source_kind": Column(str, Check.isin(["open_api", "html_scrape", "fallback_seed", "manual_verified"])),
+                "crawl_status": Column(str, Check.isin(["ok", "fallback_seed", "partial", "failed"])),
+                "source_checked_at": Column(str),
+                "official_title": Column(str),
+                "official_summary": Column(str),
+                "derived_reason": Column(str),
                 "updated_at": Column(str),
             },
             coerce=True,
         )
-        return schema.validate(df)
-    return _manual_validate(
+        return _validate_resource_provenance(schema.validate(df))
+    validated = _manual_validate(
         df,
         {
             "resource_id": lambda s: s.notna(),
@@ -135,6 +189,7 @@ def validate_resources(df: pd.DataFrame) -> pd.DataFrame:
         },
         "resources",
     )
+    return _validate_resource_provenance(validated)
 
 
 def validate_missions(df: pd.DataFrame) -> pd.DataFrame:

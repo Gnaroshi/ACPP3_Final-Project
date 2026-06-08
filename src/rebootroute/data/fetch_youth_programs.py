@@ -1,18 +1,10 @@
 from __future__ import annotations
 
-import os
-
 import pandas as pd
+
+from rebootroute.data.official_sources import fetch_youth_program_resources
 
 
 def fetch_youth_programs() -> pd.DataFrame:
-    """Future adapter for Incheon youth policy/program APIs.
-
-    The MVP intentionally returns an empty frame when no API key is configured,
-    so local demos never depend on external services.
-    """
-    if not os.getenv("INCHEON_YOUTH_API_KEY"):
-        return pd.DataFrame()
-    # TODO: Connect official Incheon youth program public-data endpoint.
-    return pd.DataFrame()
-
+    """Fetch current public youth program cards from Incheon Youth Portal."""
+    return fetch_youth_program_resources()

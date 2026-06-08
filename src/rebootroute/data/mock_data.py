@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import random
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -11,6 +12,7 @@ import numpy as np
 import pandas as pd
 
 from rebootroute.config import ensure_directories, load_config
+from rebootroute.data.official_sources import RESOURCE_COLUMNS, fetch_all_official_resources
 
 
 DISTRICTS = ["중구", "동구", "미추홀구", "연수구", "남동구", "부평구", "계양구", "서구", "강화군", "옹진군"]
@@ -518,7 +520,7 @@ REAL_RESOURCE_SEEDS: list[dict[str, Any]] = [
     },
     {
         "resource_id": "resource_014",
-        "resource_type": "contest",
+        "resource_type": "support_program",
         "name": "인천청년포털 청년정책검색",
         "description": "인천 청년정책을 분야별로 검색하는 공식 화면입니다. 공모전·지원사업·교육문화·일자리 정책을 비교할 때 사용합니다.",
         "district": "인천 전역",
@@ -539,42 +541,54 @@ REAL_RESOURCE_SEEDS: list[dict[str, Any]] = [
         "source_url": "https://youth.incheon.go.kr/",
         "contact": "온라인 확인",
     },
-    {
-        "resource_id": "resource_015",
-        "resource_type": "mini_project",
-        "name": "문화공간 접근성 점검 미니 프로젝트",
-        "description": "인천 공식 문화공간 정보를 바탕으로 첫 방문자가 확인해야 할 비용, 동선, 운영시간, 문의 방식을 1쪽 체크리스트로 정리하는 미니 프로젝트입니다.",
-        "district": "인천 전역",
-        "address": "인천 공식 문화공간",
-        "latitude": 37.4563,
-        "longitude": 126.7052,
-        "start_date": "",
-        "end_date": "",
-        "cost_type": "free",
-        "online_available": True,
-        "social_contact_level": 0,
-        "outdoor_required": False,
-        "estimated_duration_minutes": 45,
-        "burden_level": 2,
-        "career_tags": ["design", "writing", "planning", "data"],
-        "recovery_tags": ["culture", "low_contact"],
-        "source_name": "RebootRoute curated from official source links",
-        "source_url": "https://ifac.or.kr/index.do",
-        "contact": "온라인 확인",
-    },
 ]
 
 
-def generate_resources(n: int | None = None, seed: int = 42) -> pd.DataFrame:
+def _with_resource_provenance(row: dict[str, Any]) -> dict[str, Any]:
+    row = row.copy()
+    row["detail_url"] = row.get("detail_url") or row.get("source_url", "")
+    row["thumbnail_url"] = row.get("thumbnail_url", "")
+    row["official_title"] = row.get("official_title") or row["name"]
+    row["official_summary"] = row.get("official_summary") or row["description"]
+    row["official_period"] = row.get("official_period") or "상시/공식 페이지 확인"
+    row["official_place"] = row.get("official_place") or row.get("address", "")
+    row["source_kind"] = row.get("source_kind") or "fallback_seed"
+    row["crawl_status"] = row.get("crawl_status") or "fallback_seed"
+    row["source_checked_at"] = row.get("source_checked_at") or SAMPLE_GENERATED_AT
+    row["derived_reason"] = row.get("derived_reason") or (
+        "공식 URL/기관/위치/문의처를 기준으로 유지하는 fallback seed이며, "
+        "부담도·태그·예상 소요시간은 RebootRoute 추천 UX를 위한 파생 메타데이터입니다."
+    )
+    row["updated_at"] = row.get("updated_at") or _now()
+    return {column: row.get(column, "") for column in RESOURCE_COLUMNS}
+
+
+def generate_resources(n: int | None = None, seed: int = 42, use_official_fetch: bool | None = None) -> pd.DataFrame:
     del n, seed
+    if use_official_fetch is None:
+        use_official_fetch = os.getenv("REBOOTROUTE_FETCH_OFFICIAL", "").strip() in {"1", "true", "TRUE", "yes"}
+    if use_official_fetch:
+        try:
+            official = fetch_all_official_resources()
+            if len(official) >= 10:
+                official = official.copy()
+                official["career_tags"] = official["career_tags"].apply(lambda values: _json_list(values) if isinstance(values, list) else values)
+                official["recovery_tags"] = official["recovery_tags"].apply(lambda values: _json_list(values) if isinstance(values, list) else values)
+                return official[RESOURCE_COLUMNS]
+        except Exception:
+            pass
+
     rows: list[dict[str, Any]] = []
     for item in REAL_RESOURCE_SEEDS:
+        if item["resource_type"] == "mini_project":
+            continue
+        if "RebootRoute" in str(item.get("source_name", "")):
+            continue
         row = item.copy()
         row["career_tags"] = _json_list(list(row["career_tags"]))
         row["recovery_tags"] = _json_list(list(row["recovery_tags"]))
-        row["updated_at"] = _now()
-        rows.append(row)
-    return pd.DataFrame(rows)
+        rows.append(_with_resource_provenance(row))
+    return pd.DataFrame(rows, columns=RESOURCE_COLUMNS)
 
 
 def generate_progress(profiles: pd.DataFrame, missions: pd.DataFrame, seed: int = 42) -> pd.DataFrame:
@@ -607,16 +621,16 @@ def generate_outcomes() -> pd.DataFrame:
     return pd.DataFrame(columns=OUTCOME_COLUMNS)
 
 
-def save_mock_data(output_dir: Path | None = None, seed: int = 42) -> dict[str, Path]:
+def save_mock_data(
+    output_dir: Path | None = None,
+    seed: int = 42,
+    use_official_fetch: bool | None = None,
+    preserve_resources: bool = False,
+) -> dict[str, Path]:
     cfg = load_config()
     ensure_directories(cfg)
     out_dir = output_dir or cfg.raw_data_dir
     out_dir.mkdir(parents=True, exist_ok=True)
-    profiles = generate_profiles(seed=seed)
-    missions = generate_missions(seed=seed)
-    resources = generate_resources(seed=seed)
-    progress = generate_progress(profiles, missions, seed=seed)
-    outcomes = generate_outcomes()
     paths = {
         "profiles": out_dir / "sample_profiles.csv",
         "missions": out_dir / "sample_missions.csv",
@@ -624,6 +638,14 @@ def save_mock_data(output_dir: Path | None = None, seed: int = 42) -> dict[str, 
         "progress": out_dir / "sample_progress.csv",
         "outcomes": out_dir / "sample_outcomes.csv",
     }
+    profiles = generate_profiles(seed=seed)
+    missions = generate_missions(seed=seed)
+    if preserve_resources and paths["resources"].exists():
+        resources = pd.read_csv(paths["resources"])
+    else:
+        resources = generate_resources(seed=seed, use_official_fetch=use_official_fetch)
+    progress = generate_progress(profiles, missions, seed=seed)
+    outcomes = generate_outcomes()
     _write_csv_atomic(profiles, paths["profiles"])
     _write_csv_atomic(missions, paths["missions"])
     _write_csv_atomic(resources, paths["resources"])

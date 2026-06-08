@@ -5,7 +5,7 @@ from rebootroute.recommender.resource_recommender import rank_resources
 
 
 def test_rank_resources_prefers_compatible_resources():
-    save_mock_data()
+    save_mock_data(preserve_resources=True)
     data = load_raw_data()
     profile = {
         "age": 27,
@@ -26,4 +26,3 @@ def test_rank_resources_prefers_compatible_resources():
     assert len(resources) == 5
     assert resources[0]["score"] >= resources[-1]["score"]
     assert all(resource["burden_level"] <= 5 for resource in resources)
-
