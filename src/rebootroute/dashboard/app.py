@@ -37,7 +37,7 @@ from rebootroute.schemas import (
 )
 
 
-st.set_page_config(page_title="RebootRoute", page_icon="RR", layout="wide")
+st.set_page_config(page_title="RebootRoute", page_icon="RR", layout="wide", initial_sidebar_state="collapsed")
 
 
 DISTRICTS = ["중구", "동구", "미추홀구", "연수구", "남동구", "부평구", "계양구", "서구", "강화군", "옹진군"]
@@ -210,6 +210,33 @@ st.markdown(
         display: none !important;
       }
 
+      [data-testid="stSidebar"],
+      [data-testid="stSidebarContent"],
+      section[data-testid="stSidebar"] {
+        background: var(--rr-surface) !important;
+        color: var(--rr-ink) !important;
+        border-right: 1px solid var(--rr-line) !important;
+      }
+
+      [data-testid="stSidebar"] *,
+      [data-testid="stSidebarContent"] * {
+        color: var(--rr-ink) !important;
+      }
+
+      [data-testid="stSidebar"] p,
+      [data-testid="stSidebar"] .stCaption,
+      [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+        color: var(--rr-muted) !important;
+      }
+
+      [data-testid="stSidebarCollapsedControl"],
+      [data-testid="collapsedControl"] {
+        background: var(--rr-surface) !important;
+        border: 1px solid var(--rr-line) !important;
+        border-radius: 8px !important;
+        color: var(--rr-ink) !important;
+      }
+
       a, a:visited { color: var(--rr-primary) !important; }
 
       svg {
@@ -256,6 +283,36 @@ st.markdown(
 
       [data-baseweb="slider"] div, [data-testid="stThumbValue"] {
         color: var(--rr-ink) !important;
+      }
+
+      [data-baseweb="slider"] [role="slider"] {
+        background: var(--rr-primary) !important;
+        border-color: var(--rr-primary) !important;
+        box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(7, 86, 165, 0.2) !important;
+      }
+
+      [data-baseweb="slider"] [aria-valuenow] {
+        background: var(--rr-primary) !important;
+      }
+
+      [data-baseweb="slider"] > div > div {
+        background-color: #d8dee8 !important;
+      }
+
+      [data-baseweb="slider"] > div > div > div {
+        background-color: var(--rr-primary) !important;
+      }
+
+      [data-testid="stNumberInput"] button,
+      [data-testid="stNumberInput"] button:hover,
+      [data-testid="stNumberInput"] button:focus {
+        background: #f8fafc !important;
+        color: var(--rr-primary) !important;
+        border-color: var(--rr-line) !important;
+      }
+
+      [data-testid="stNumberInput"] button * {
+        color: var(--rr-primary) !important;
       }
 
       [data-testid="stVerticalBlockBorderWrapper"] {

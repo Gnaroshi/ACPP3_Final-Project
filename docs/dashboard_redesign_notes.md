@@ -19,9 +19,12 @@
 - 정책/문화 자원 카드는 지역, 비용, 운영 기간, 확인 방식, 예상 시간, 거리, 문의, 출처를 같은 위치에 반복 표시합니다.
 - 조건 입력은 핵심 조건을 먼저 보여주고, 세부 상태는 접어서 필요할 때만 열도록 했습니다.
 - Streamlit theme primary color를 RebootRoute blue(`#0756A5`)로 고정해 slider, tab highlight, button 색상을 통일했습니다.
+- Streamlit theme `base = "light"`를 명시하고 sidebar를 기본 접힘으로 설정했습니다.
+- sidebar를 열어도 흰 배경과 진한 글자로 보이도록 dark/light 충돌을 CSS에서 차단했습니다.
 - 모바일 폭에서 한 열로 쌓이도록 반응형 CSS를 보강했습니다.
 
 ## 검증
 - Desktop 1440px: horizontal overflow 없음, low contrast 없음, 기본 탭 3개만 노출
 - Mobile 390px: horizontal overflow 없음, 기본 탭 3개만 노출, 지도/다음 행동/자원 카드 렌더링 확인
 - Slider와 tab highlight: `rgb(7, 86, 165)`로 통일
+- Sidebar: 기본 접힘, open 상태에서도 `#FFFFFF` 배경과 `#172033` 텍스트 적용
