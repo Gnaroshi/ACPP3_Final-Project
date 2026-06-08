@@ -1,0 +1,19 @@
+message: 지금은 미션 추천보다 안전 확인과 즉시 도움 연결이 우선입니다.
+resources:
+  - name: 자살예방상담전화
+    contact: "109"
+    available: "24시간"
+    description: 긴급한 자해 위험이나 위기감이 있을 때 연결할 수 있는 전국 상담 전화입니다.
+  - name: 정신건강위기상담전화
+    contact: "1577-0199"
+    available: "24시간"
+    description: 정신건강 위기 상황에서 상담과 지역 자원 안내를 받을 수 있습니다.
+  - name: 긴급신고
+    contact: "112 또는 119"
+    available: "24시간"
+    description: 즉각적인 위험이 있거나 혼자 안전을 확보하기 어려울 때 이용합니다.
+  - name: 보건복지상담센터
+    contact: "129"
+    available: "평일 중심"
+    description: 복지 지원과 지역 공공서비스 정보를 안내받을 수 있습니다.
+

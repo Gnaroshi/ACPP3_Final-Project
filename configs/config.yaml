@@ -1,0 +1,18 @@
+project_name: RebootRoute
+subtitle: 인천 청년정책·문화활동 RAG와 부담도 기반 미션 추천 MVP
+random_seed: 42
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  feature_data: data/features
+  models: models/latest
+  reports: reports
+  mlruns: mlruns
+  mlflow_tracking_uri: sqlite:///data/mlflow.db
+  database: data/rebootroute.db
+recommendation:
+  default_top_missions: 3
+  default_top_resources: 5
+  max_stage_jump: 1
+safety:
+  resources_path: configs/safety_resources.example.yaml

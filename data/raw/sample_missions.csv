@@ -1,0 +1,43 @@
+mission_id,stage,title,description,mission_type,expected_minutes,outdoor_required,social_contact_required,evidence_type,burden_level,reward_points,career_tags,recovery_tags
+mission_000,0,오늘 가능한 시간대 하나 고르기,10분만 쓸 수 있는 시간대를 하나 정합니다. 신청이나 방문은 하지 않습니다.,micro_action,5,False,False,text_note,0,5,"[""planning""]","[""routine""]"
+mission_001,0,덜 부담스러운 조건 2개 고르기,"무료, 집에서 가능, 대면 없음, 20분 이하 중 오늘 덜 부담스러운 조건 2개를 고릅니다.",micro_action,6,False,False,text_note,0,5,"[""planning""]","[""support""]"
+mission_002,0,오늘 피할 조건 하나 적기,"긴 이동, 갑작스러운 대면, 비용 지출처럼 오늘 피해야 할 조건 하나를 적습니다.",micro_action,4,False,False,text_note,0,7,"[""planning""]","[""routine""]"
+mission_003,1,문의 문장 초안 작성하기,보내지 않아도 됩니다. 운영시간이나 참여 조건을 물어보는 한 문장을 적습니다.,micro_action,8,False,False,text_note,1,9,"[""planning"", ""writing""]","[""support""]"
+mission_004,1,방문 전 체크리스트 3개 만들기,"시간, 비용, 혼자 가능 여부처럼 방문 전 확인할 항목 3개를 적습니다.",micro_action,8,False,False,text_note,1,9,"[""planning""]","[""culture"", ""library""]"
+mission_005,1,온라인 신청 전 필요한 정보 정리하기,"신청 버튼을 누르기 전 필요한 준비물, 마감일, 문의 방식을 한 줄로 정리합니다.",micro_action,10,False,False,text_note,1,9,"[""public_policy"", ""planning""]","[""support""]"
+mission_006,2,운영시간과 마감시간 한 줄로 적기,"관심 있는 장소나 프로그램의 운영시간, 마감시간, 쉬는 날을 한 줄로 정리합니다.",micro_action,8,False,False,text_note,1,11,"[""planning""]",[]
+mission_007,2,가장 짧은 이동 동선 하나 고르기,실제로 나가지 않아도 됩니다. 집 근처에서 가능한 짧은 동선을 하나 정합니다.,micro_action,10,False,False,text_note,1,11,"[""planning""]","[""routine""]"
+mission_008,2,오늘 가능해 보이는 것 한 문장 쓰기,완벽한 계획이 아니라 지금 덜 부담스러운 행동을 한 문장으로 남깁니다.,micro_action,5,False,False,text_note,0,14,"[""writing""]","[""routine""]"
+mission_009,3,도서관 근처까지 가보기,입장하지 않아도 충분합니다. 장소가 실제로 있다는 것만 확인합니다.,short_outing,15,True,False,checkin_optional,2,14,[],"[""library"", ""culture""]"
+mission_010,3,청년공간 주변 산책하기,사람을 만나지 않아도 됩니다. 근처에서 10분만 머물러봅니다.,short_outing,20,True,False,photo_optional,2,14,[],"[""youth_space"", ""routine""]"
+mission_011,3,무료 전시 장소 입구까지 가보기,오늘은 관람보다 입구까지 가보고 돌아오는 것이 목표입니다.,short_outing,20,True,False,checkin_optional,2,14,"[""design""]","[""culture""]"
+mission_012,4,무료 전시 20분 관람,대화하지 않아도 되는 전시를 짧게 둘러봅니다.,low_contact_participation,25,True,False,text_note,3,18,"[""design""]","[""culture""]"
+mission_013,4,도서관 자료실 방문,책을 빌리지 않아도 됩니다. 자료실 분위기만 확인합니다.,low_contact_participation,20,True,False,checkin_optional,2,18,[],"[""library"", ""routine""]"
+mission_014,4,소규모 청년 프로그램 맛보기,참여 시간이 짧고 대화 부담이 낮은 프로그램을 살펴봅니다.,program_participation,40,True,True,text_note,3,17,"[""planning""]","[""youth_program""]"
+mission_015,5,전시 후기 5줄 작성,관람 경험이나 온라인 자료를 바탕으로 짧은 후기를 작성합니다.,career_exploration,20,False,False,text_note,2,21,"[""writing""]","[""culture""]"
+mission_016,5,홍보 문구 3개 만들기,청년 프로그램을 더 쉽게 알릴 수 있는 짧은 문구를 3개 적습니다.,career_exploration,20,False,False,text_note,2,23,"[""writing"", ""media""]",[]
+mission_017,5,청년 프로그램 2개 비교하기,"대상, 시간, 신청 부담을 비교하며 나에게 덜 부담스러운 선택지를 찾습니다.",career_exploration,25,False,False,text_note,2,21,"[""planning"", ""public_policy""]",[]
+mission_018,5,문화공간 접근성 체크리스트 작성,"처음 방문하는 청년 관점에서 안내, 동선, 비용, 분위기를 체크합니다.",career_exploration,25,False,False,text_note,2,23,"[""planning"", ""design""]",[]
+mission_019,6,지역 축제 카드뉴스 초안 만들기,"이미지 없이 제목, 핵심 문구, 순서만 구성해도 됩니다.",mini_work_experience,45,False,False,file_upload,3,25,"[""design"", ""media""]",[]
+mission_020,6,청년공간 개선 제안 1쪽 작성,처음 이용하는 사람의 부담을 낮추는 아이디어를 정리합니다.,mini_work_experience,40,False,False,file_upload,3,23,"[""planning"", ""public_policy""]",[]
+mission_021,6,문화행사 짧은 리뷰 콘텐츠 만들기,5문장 리뷰와 추천 대상을 함께 적어 포트폴리오 씨앗으로 남깁니다.,mini_work_experience,35,False,False,file_upload,3,24,"[""writing""]","[""culture""]"
+mission_022,6,간단한 이용자 경험 점검표 만들기,"접근성, 안내문, 비용, 첫 방문 부담을 기준으로 점검표를 만듭니다.",mini_work_experience,35,False,False,file_upload,3,26,"[""design"", ""data""]",[]
+mission_023,7,직무훈련 상담 질문 3개 정리,"신청하지 않아도 됩니다. 대상, 시간, 문의 방식에 대해 물어볼 질문을 3개 적습니다.",self_reliance_link,15,False,False,text_note,2,28,"[""career""]","[""support""]"
+mission_024,7,상담 전 질문 하나 준비,상담을 예약하지 않아도 됩니다. 언젠가 물어볼 질문 하나만 적습니다.,self_reliance_link,10,False,False,text_note,2,28,"[""career"", ""planning""]",[]
+mission_025,7,지역 일경험 기회 하나 살펴보기,지원 여부보다 부담 수준과 관심 직무가 맞는지 확인합니다.,self_reliance_link,15,False,False,link_click,2,27,"[""career""]","[""mini_project""]"
+mission_026,0,오늘 가능한 조건 2개 체크하기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,micro_action,8,False,False,text_note,0,4,"[""planning""]","[""support""]"
+mission_027,1,문의 문장 한 줄 적기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,micro_action,13,False,False,text_note,1,7,"[""planning"", ""writing""]",[]
+mission_028,2,방문 가능한 요일 하나 정하기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,micro_action,18,False,False,text_note,1,10,[],"[""routine""]"
+mission_029,3,집 근처 공원 입구 확인하기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,short_outing,23,True,False,checkin_optional,2,13,[],"[""routine""]"
+mission_030,4,짧은 문화 프로그램 후기 읽기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,low_contact_participation,28,False,False,text_note,2,16,[],"[""culture""]"
+mission_031,5,청년정책 개선 아이디어 3개 적기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,career_exploration,33,False,False,text_note,2,19,"[""public_policy"", ""writing""]",[]
+mission_032,6,지역 문제 해결 미니 제안서 만들기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,mini_work_experience,38,False,False,file_upload,3,22,"[""planning"", ""public_policy""]",[]
+mission_033,7,취업지원센터 이용 방법 확인하기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,self_reliance_link,43,False,False,link_click,2,25,"[""career""]",[]
+mission_034,0,오늘 가능한 조건 2개 체크하기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,micro_action,8,False,False,text_note,0,4,"[""planning""]","[""support""]"
+mission_035,1,문의 문장 한 줄 적기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,micro_action,13,False,False,text_note,1,7,"[""planning"", ""writing""]",[]
+mission_036,2,방문 가능한 요일 하나 정하기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,micro_action,18,False,False,text_note,1,10,[],"[""routine""]"
+mission_037,3,집 근처 공원 입구 확인하기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,short_outing,23,True,False,checkin_optional,2,13,[],"[""routine""]"
+mission_038,4,짧은 문화 프로그램 후기 읽기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,low_contact_participation,28,False,False,text_note,2,16,[],"[""culture""]"
+mission_039,5,청년정책 개선 아이디어 3개 적기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,career_exploration,33,False,False,text_note,2,19,"[""public_policy"", ""writing""]",[]
+mission_040,6,지역 문제 해결 미니 제안서 만들기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,mini_work_experience,38,False,False,file_upload,3,22,"[""planning"", ""public_policy""]",[]
+mission_041,7,취업지원센터 이용 방법 확인하기,부담을 낮춘 단계형 미션입니다. 오늘은 가능한 만큼만 진행해도 충분합니다.,self_reliance_link,43,False,False,link_click,2,25,"[""career""]",[]

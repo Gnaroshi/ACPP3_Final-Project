@@ -1,0 +1,24 @@
+services:
+  api:
+    build: .
+    command: uvicorn rebootroute.api.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONPATH=/app/src
+      - MLFLOW_TRACKING_URI=sqlite:////app/data/mlflow.db
+
+  dashboard:
+    build: .
+    command: streamlit run src/rebootroute/dashboard/app.py --server.address 0.0.0.0 --server.port 8501
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONPATH=/app/src
+      - API_BASE_URL=http://api:8000
+    depends_on:
+      - api
