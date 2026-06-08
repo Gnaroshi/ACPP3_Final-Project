@@ -8,10 +8,10 @@
 - 자원 검색 화면의 정책·문화 자원은 공식 페이지 URL을 포함한 curated seed data입니다.
 
 ## Label 상태
-현재 label은 MVP 시연을 위한 synthetic label입니다. 운영 환경에서는 실제 프로그램 참여, 미션 완료, too-hard 피드백, 상담 준비도, 지원 결과 데이터로 반드시 교체해야 합니다.
+현재 학습 label은 사용자 행동과 기관 결과를 대신한 synthetic placeholder입니다. 로그 수집, 운영자 검토, 재학습 구조는 구현되어 있지만, 실제 미션 완료, too-hard 피드백, 프로그램 참여, 지원 결과처럼 관측이 필요한 outcome label은 운영 또는 기관 연계 후 수집·import해야 합니다.
 
 필수 원문 고지:
-These labels are synthetic MVP labels and must be replaced with real program participation / mission completion / support outcome data before production use.
+The current training labels are synthetic placeholders for user behavior and institution outcome labels. The logging, review, and retraining pipeline is implemented, but real observed mission completion, too-hard feedback, program participation, and support outcome labels must be collected or imported before production use.
 
 ## 사용 목적
 대학원 과제 MVP, 공공데이터·문화데이터 공모전 프로토타입, 오프라인 데모에 사용합니다.
@@ -19,5 +19,6 @@ These labels are synthetic MVP labels and must be replaced with real program par
 ## 사용하면 안 되는 목적
 의학적 진단, 치료, 배제 목적의 위험 점수화, 운영 환경의 개입 의사결정에는 사용할 수 없습니다.
 
-## 실제 데이터 교체 경로
-synthetic label은 미션 시작/완료/건너뜀/too-hard 피드백, 프로그램 참여, 상담 준비도, 운영자 review, 검증된 미니 프로젝트 제출 같은 관측 결과로 교체해야 합니다.
+## 구현된 것과 실제 관측이 필요한 것
+- 구현됨: 공식 출처 기반 resource seed, feedback/progress schema, `/feedback/log`, 운영자 debug view, human eval sheet, batch retraining pipeline
+- 실제 관측 필요: 미션 시작/완료/건너뜀/too-hard, 프로그램 참여, 지원 결과, 운영자 review, 검증된 미니 프로젝트 제출 outcome

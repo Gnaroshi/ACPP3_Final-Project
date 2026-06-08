@@ -16,6 +16,7 @@ from rebootroute.config import ensure_directories, load_config
 DISTRICTS = ["중구", "동구", "미추홀구", "연수구", "남동구", "부평구", "계양구", "서구", "강화군", "옹진군"]
 CONTACT_MODES = ["online", "low_contact", "small_group", "in_person"]
 INTERESTS = ["culture", "design", "writing", "IT", "public_policy", "planning", "library", "media", "craft", "data"]
+SAMPLE_GENERATED_AT = "2026-06-08T00:00:00+00:00"
 
 FREE_TEXT_TEMPLATES = [
     "취업해야 하는데 자신이 없고 사람 만나는 것도 부담돼요. 요즘은 거의 집에만 있어요.",
@@ -34,7 +35,7 @@ def _json_list(values: list[str]) -> str:
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return SAMPLE_GENERATED_AT
 
 
 def _write_csv_atomic(df: pd.DataFrame, path: Path) -> None:

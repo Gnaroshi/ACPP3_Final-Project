@@ -193,13 +193,24 @@ models/latest/metadata.json
 
 `sample_profiles.csv`와 `sample_progress.csv`는 synthetic MVP sample입니다. 모델 학습, API 테스트, 운영자 점검을 위한 더미 데이터이며 실제 사용자 상태나 실제 완료 이력이 아닙니다.
 
-운영 전 교체해야 하는 데이터:
+이미 구현된 구조:
 
+- 공식 출처 기반 resource seed
+- feedback/progress schema와 SQLite table
+- `/feedback/log` API
+- 운영자 debug view
+- human eval sheet
+- batch retraining pipeline
+
+실제 관측이 필요한 label:
+
+- 실제 미션 시작/완료/건너뜀/too-hard
 - 실제 프로그램 참여 여부
-- 실제 미션 시작/완료/건너뜀/too-hard 피드백
-- 운영자 review
 - 실제 지원 결과
+- 실제 운영자 review
 - 검증된 미니 프로젝트 제출 여부
+
+위 항목은 기능 구현 문제가 아니라 관측 데이터 문제입니다. 사용자 데이터와 기관 연계 데이터 없이 임의로 만들면 다시 synthetic label이 됩니다.
 
 ### 4.2 실제 자원 데이터
 
@@ -513,13 +524,14 @@ docs/
 - 실제 사용자 데이터가 없으므로 사용자-facing 데모는 개인정보 입력을 요구하지 않는다.
 - 현재 사용자 화면은 공식 출처 기반 인천 정책·문화 자원을 보여주고, 오늘 할 수 있는 최소 행동을 제안한다.
 - Synthetic profile/label은 MLOps 파이프라인과 API 검증을 위한 내부 샘플이다.
-- 운영 전에는 실제 참여, 완료, too-hard, 운영자 review, 지원 결과 데이터로 label을 교체해야 한다.
+- feedback/logging/retraining 구조는 구현되어 있다.
+- 실제 참여, 완료, too-hard, 운영자 review, 지원 결과는 사용자 또는 기관 관측이 있어야 실제 label이 된다.
 - 초기 검증은 closed-loop A/B가 아니라 human rubric evaluation과 batch retraining이 맞다.
 
 ## 13. 현재 한계
 
 - 실제 사용자 행동 데이터 없음
-- 실제 mission completion/outcome label 없음
+- 실제 사용자 또는 기관 관측 기반 mission completion/outcome label 없음
 - 공식 자원 seed는 curated list이며 자동 크롤링/공공 API 동기화는 아직 없음
 - RAG는 TF-IDF 기반 검색이며 grounded generation은 없음
 - 운영기관 연계, 개인정보 처리, 삭제 요청 처리, 접근성 검증 프로세스는 production 전 별도 설계 필요

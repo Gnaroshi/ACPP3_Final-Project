@@ -1054,4 +1054,9 @@ with tabs[3]:
         st.dataframe(pd.read_csv(eval_path).head(10), width="stretch", hide_index=True)
 
     st.markdown("#### Synthetic label 경고")
-    st.warning(metadata.get("synthetic_label_warning_ko", "현재 label은 MVP 시연용 synthetic label입니다."))
+    st.warning(
+        metadata.get(
+            "synthetic_label_warning_ko",
+            "현재 학습 label은 synthetic placeholder입니다. 실제 관측 outcome label은 운영 또는 기관 연계 후 수집·import해야 합니다.",
+        )
+    )

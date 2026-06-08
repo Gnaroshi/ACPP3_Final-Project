@@ -498,7 +498,7 @@ def build_doc() -> None:
     add_callout(
         doc,
         "Synthetic label warning",
-        "현재 label은 실제 참여 결과가 아니라 MVP 시연용 synthetic label입니다. 운영 환경에서는 real program participation, mission completion, support outcome, operator review, user feedback 데이터로 반드시 교체해야 합니다.",
+        "현재 학습 label은 사용자 행동과 기관 결과를 대신한 synthetic placeholder입니다. 로그 수집, 운영자 검토, 재학습 구조는 구현되어 있지만, 실제 미션 완료, too-hard 피드백, 프로그램 참여, 지원 결과처럼 관측이 필요한 outcome label은 운영 또는 기관 연계 후 수집·import해야 합니다.",
         fill="FFF3D8",
     )
 
@@ -539,7 +539,7 @@ def build_doc() -> None:
         ["항목", "현재 상태", "운영 전 필요한 작업"],
         [
             ["공공데이터", "공식 출처 기반 curated seed", "자동 동기화 또는 운영자 검수형 갱신 프로세스 설계"],
-            ["Outcome label", "synthetic label", "실제 미션 완료, too-hard, 참여, 제출, 운영자 review label로 교체"],
+            ["Outcome label 구조", "schema/API/pipeline 구현", "실제 사용자 또는 기관 관측 label 수집·import"],
             ["Safety resource", "example YAML", "기관 검토 후 지역/전국 위기 대응 연락처 확정"],
             ["개인정보", "MVP 미구현", "동의, 보존 기간, 삭제 요청, 접근 권한 설계"],
             ["운영자 workflow", "debug view 중심", "review queue, escalation protocol, audit log 설계"],
@@ -553,7 +553,7 @@ def build_doc() -> None:
     add_bullets(
         doc,
         [
-            "현재 사용자 profile과 label은 MVP 시연용 synthetic data입니다.",
+            "현재 사용자 profile과 학습 label은 synthetic placeholder입니다. feedback/progress schema와 pipeline은 구현되어 있으나, 실제 mission completion, too-hard 피드백, 프로그램 참여, 지원 결과 label은 사용자 또는 기관 관측 후 수집·import해야 합니다.",
             "현재 resource는 공식 출처 기반 seed이지만 자동 크롤링/공공 API 동기화는 아직 없습니다.",
             "거리 계산은 실제 이동거리가 아니라 구/군 일치 proxy에 가깝습니다.",
             "ML 모델은 임상 위험 모델이 아니며 그렇게 해석하면 안 됩니다.",
@@ -578,7 +578,7 @@ def build_doc() -> None:
 
     add_paragraph(
         doc,
-        "Required original notice: These labels are synthetic MVP labels and must be replaced with real program participation / mission completion / support outcome data before production use.",
+        "Required notice: The current training labels are synthetic placeholders for user behavior and institution outcome labels. The pipeline is implemented, but real observed outcome labels must be collected or imported before production use.",
         bold=True,
     )
 
