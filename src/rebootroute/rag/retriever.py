@@ -45,7 +45,7 @@ def search_policy_culture_resources(
 ) -> dict[str, Any]:
     data = load_raw_data()
     resources = data["resources"].copy()
-    allowed_default = {"youth_program", "culture_event", "culture_facility", "support_program"}
+    allowed_default = {"youth_program", "culture_event", "culture_facility", "support_program", "contest", "mini_project"}
     if resource_types:
         resources = resources[resources["resource_type"].isin(resource_types)]
     else:
@@ -76,8 +76,14 @@ def search_policy_culture_resources(
                 "name": row["name"],
                 "district": row["district"],
                 "description": row["description"],
+                "address": row.get("address"),
+                "start_date": row.get("start_date"),
+                "end_date": row.get("end_date"),
                 "burden_level": int(row["burden_level"]),
                 "cost_type": row["cost_type"],
+                "online_available": row.get("online_available"),
+                "estimated_duration_minutes": row.get("estimated_duration_minutes"),
+                "contact": row.get("contact"),
                 "source_name": row.get("source_name"),
                 "source_url": row.get("source_url"),
                 "rag_score": round(float(row["rag_score"]), 4),

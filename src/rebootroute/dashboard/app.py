@@ -16,10 +16,10 @@ if str(SRC_ROOT) not in sys.path:
 
 from rebootroute.config import load_config
 from rebootroute.data.mock_data import load_raw_data
+from rebootroute.data.validation import parse_list
 from rebootroute.database import get_feedback_df, get_progress_df, log_feedback, log_progress
 from rebootroute.modeling.registry import load_metadata
 from rebootroute.rag.retriever import search_policy_culture_resources
-from rebootroute.recommender.mini_project_generator import generate_mini_projects
 from rebootroute.recommender.mission_recommender import rank_missions
 from rebootroute.recommender.resource_recommender import rank_resources
 from rebootroute.recommender.route_builder import analyze_profile
@@ -89,6 +89,8 @@ DEFAULT_STATE = {
     "max_outdoor_minutes": 20,
     "free_text": "취업해야 하는데 자신이 없고 사람 만나는 것도 부담돼요. 요즘은 거의 집에만 있어요.",
 }
+DEFAULT_RESOURCE_TYPES = ["youth_program", "support_program", "culture_event", "culture_facility"]
+DEFAULT_COSTS = ["free", "low_cost", "unknown"]
 
 
 st.markdown(
@@ -301,6 +303,44 @@ st.markdown(
         margin: 0.65rem 0;
       }
 
+      .rr-step-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin: 0.75rem 0 1rem;
+      }
+
+      .rr-step {
+        background: var(--rr-surface);
+        border: 1px solid var(--rr-line);
+        border-radius: 8px;
+        padding: 0.85rem;
+      }
+
+      .rr-step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.55rem;
+        height: 1.55rem;
+        border-radius: 999px;
+        background: var(--rr-primary);
+        color: #ffffff !important;
+        font-weight: 800;
+        margin-right: 0.35rem;
+      }
+
+      .rr-step strong {
+        color: var(--rr-ink) !important;
+      }
+
+      .rr-step p {
+        color: var(--rr-muted) !important;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        margin: 0.45rem 0 0;
+      }
+
       .rr-stage-panel {
         background: var(--rr-surface);
         border-color: #b6c8f3;
@@ -358,6 +398,23 @@ st.markdown(
       }
 
       .rr-divider { height: 1px; background: var(--rr-line); margin: 1rem 0; }
+
+      .rr-action-list {
+        margin: 0.55rem 0 0;
+        padding-left: 1.15rem;
+      }
+
+      .rr-action-list li {
+        color: var(--rr-ink) !important;
+        margin: 0.35rem 0;
+        line-height: 1.55;
+      }
+
+      .rr-source-link {
+        display: inline-block;
+        margin-top: 0.45rem;
+        font-weight: 800;
+      }
 
       .rr-warning {
         background: #fff7ed;
@@ -424,6 +481,10 @@ st.markdown(
         div[data-testid="stMetric"] {
           padding: 0.7rem 0.8rem;
         }
+
+        .rr-step-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
     """,
@@ -440,6 +501,12 @@ def init_session_state() -> None:
     for key, value in DEFAULT_STATE.items():
         st.session_state.setdefault(key, value)
     st.session_state.setdefault("demo_user_id", "demo_user_rebootroute")
+    st.session_state.setdefault("resource_query", "")
+    st.session_state.setdefault("resource_district", "전체")
+    st.session_state.setdefault("resource_types", DEFAULT_RESOURCE_TYPES)
+    st.session_state.setdefault("resource_costs", DEFAULT_COSTS)
+    st.session_state.setdefault("resource_max_burden", 3)
+    st.session_state.setdefault("resource_online_only", False)
     st.session_state.setdefault("rag_query", "연수구 무료 전시 청년 문화활동")
     st.session_state.setdefault("rag_result", None)
 
@@ -473,12 +540,123 @@ def display_minutes(value: Any) -> int:
         return 0
 
 
+def as_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"true", "1", "yes", "y"}
+
+
 def burden_text(level: int | float | str) -> str:
     labels = ["매우 낮음", "낮음", "낮음", "보통", "높음", "매우 높음"]
     try:
         return labels[max(0, min(5, int(level)))]
     except Exception:
         return "확인 필요"
+
+
+def available_districts(resources: pd.DataFrame) -> list[str]:
+    values = [display_text(value) for value in resources.get("district", pd.Series(dtype=str)).dropna().unique()]
+    ordered = [district for district in ["전체", *DISTRICTS, "인천 전역"] if district == "전체" or district in values]
+    extras = sorted(value for value in values if value and value not in ordered)
+    return ordered + extras
+
+
+def filter_resources_for_user(
+    resources: pd.DataFrame,
+    *,
+    query: str,
+    district: str,
+    resource_types: list[str],
+    costs: list[str],
+    max_burden: int,
+    online_only: bool,
+) -> pd.DataFrame:
+    filtered = resources.copy()
+    if resource_types:
+        filtered = filtered[filtered["resource_type"].astype(str).isin(resource_types)]
+    if costs:
+        filtered = filtered[filtered["cost_type"].astype(str).isin(costs)]
+    if district != "전체":
+        filtered = filtered[filtered["district"].astype(str).isin([district, "인천 전역"])]
+    filtered = filtered[filtered["burden_level"].astype(int) <= int(max_burden)]
+    if online_only:
+        online_mask = filtered["online_available"].map(as_bool)
+        filtered = filtered[online_mask]
+    query = query.strip().lower()
+    if query:
+        def row_text(row: pd.Series) -> str:
+            tags = parse_list(row.get("career_tags", "")) + parse_list(row.get("recovery_tags", ""))
+            fields = [
+                row.get("name", ""),
+                row.get("description", ""),
+                row.get("district", ""),
+                row.get("resource_type", ""),
+                row.get("source_name", ""),
+                " ".join(tags),
+            ]
+            return " ".join(display_text(value) for value in fields).lower()
+
+        filtered = filtered[filtered.apply(lambda row: query in row_text(row), axis=1)]
+    if filtered.empty:
+        return filtered
+    cost_rank = {"free": 0, "low_cost": 1, "unknown": 2, "paid": 3}
+    filtered = filtered.assign(
+        _cost_rank=filtered["cost_type"].map(lambda value: cost_rank.get(str(value), 4)),
+        _online_rank=filtered["online_available"].map(lambda value: 0 if as_bool(value) else 1),
+    )
+    return filtered.sort_values(["burden_level", "_cost_rank", "_online_rank", "estimated_duration_minutes", "name"]).drop(
+        columns=["_cost_rank", "_online_rank"]
+    )
+
+
+def format_period(resource: dict[str, Any]) -> str:
+    start = display_text(resource.get("start_date"))
+    end = display_text(resource.get("end_date"))
+    if start and end:
+        return f"{start} ~ {end}"
+    if start:
+        return f"{start}부터"
+    if end:
+        return f"{end}까지"
+    return "상시/공식 페이지 확인"
+
+
+def next_action_items(resource: dict[str, Any]) -> list[str]:
+    name = display_text(resource.get("name")) or "선택한 자원"
+    if as_bool(resource.get("online_available")):
+        second = "신청하지 말고, 대상·비용·운영시간·마감 여부만 한 줄로 확인합니다."
+    else:
+        second = "방문하지 말고, 가장 짧은 이동 방법과 운영시간만 먼저 확인합니다."
+    contact = display_text(resource.get("contact"))
+    contact_action = f"문의가 필요하면 {contact} 정보를 메모합니다." if contact else "문의가 필요하면 공식 페이지의 문의처만 찾아둡니다."
+    return [
+        f"{name} 공식 페이지를 열어 현재 운영 여부를 확인합니다.",
+        second,
+        contact_action,
+        "오늘 끝낼 결과물은 '내가 확인한 조건 1줄'이면 충분합니다.",
+    ]
+
+
+def render_step_guide() -> None:
+    st.markdown(
+        """
+        <div class="rr-step-grid">
+          <div class="rr-step">
+            <span class="rr-step-number">1</span><strong>실제 자원 확인</strong>
+            <p>인천청년포털과 인천문화재단 등 공식 출처의 정책·공간·문화 자원을 먼저 봅니다.</p>
+          </div>
+          <div class="rr-step">
+            <span class="rr-step-number">2</span><strong>조건 줄이기</strong>
+            <p>지역, 비용, 대면 부담, 온라인 가능 여부로 오늘 볼 수 있는 후보만 남깁니다.</p>
+          </div>
+          <div class="rr-step">
+            <span class="rr-step-number">3</span><strong>다음 행동 정하기</strong>
+            <p>신청이나 방문을 강요하지 않고, 공식 페이지 확인 같은 가장 작은 행동으로 끝냅니다.</p>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def profile_payload_from_state() -> dict[str, Any]:
@@ -593,6 +771,16 @@ def render_user_mission(profile: UserProfile, mission: dict[str, Any], recommend
 def render_user_resource(resource: dict[str, Any], key_prefix: str) -> None:
     contact = display_text(resource.get("contact"))
     duration = display_minutes(resource.get("estimated_duration_minutes"))
+    source_url = display_text(resource.get("source_url"))
+    source_name = display_text(resource.get("source_name")) or "공식 출처"
+    address = display_text(resource.get("address"))
+    period = format_period(resource)
+    online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "현장 정보 확인 필요"
+    source_link = (
+        f'<a class="rr-source-link" href="{e(source_url)}" target="_blank" rel="noopener noreferrer">{e(source_name)} 열기</a>'
+        if source_url
+        else ""
+    )
     with st.container(border=True):
         st.markdown(
             f"""
@@ -603,10 +791,13 @@ def render_user_resource(resource: dict[str, Any], key_prefix: str) -> None:
             {chip(COST_LABELS.get(str(resource["cost_type"]), str(resource["cost_type"])), "gold")}
             {chip("부담도 " + burden_text(resource["burden_level"]), "gray")}
             <div class="rr-resource-meta">
-              {e("온라인 가능" if bool(resource.get("online_available")) else "현장 확인 필요")}
+              {e(online_text)}
               · 예상 {e(str(duration))}분
+              · {e(period)}
               {(" · " + e(contact)) if contact else ""}
+              {("<br/>" + e(address)) if address else ""}
             </div>
+            {source_link}
             """,
             unsafe_allow_html=True,
         )
@@ -649,7 +840,7 @@ st.markdown(
     """
     <div class="rr-app-header">
       <div class="rr-app-title">RebootRoute</div>
-      <p class="rr-app-subtitle">오늘 가능한 작은 다음 행동을 고릅니다.</p>
+      <p class="rr-app-subtitle">인천의 실제 정책·문화 자원을 확인하고, 오늘 끝낼 수 있는 다음 행동을 고릅니다.</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -658,80 +849,91 @@ st.markdown(
 if st.session_state.get("last_action_message"):
     st.success(st.session_state.pop("last_action_message"))
 
-tabs = st.tabs(["오늘 루트", "인천 자원", "운영자", "평가"])
+tabs = st.tabs(["오늘 순서", "인천 자원 검색", "운영자", "평가"])
 
 with tabs[0]:
-    input_col, result_col = st.columns([0.92, 1.28], gap="large")
+    data = cached_data()
+    resources_df = data["resources"]
+    st.subheader("오늘 볼 순서")
+    render_step_guide()
 
-    with input_col:
-        st.subheader("내 상태")
-        st.number_input("나이", min_value=19, max_value=39, key="age")
-        st.selectbox("거주 구/군", DISTRICTS, key="district")
-        st.selectbox("선호 접촉 방식", list(CONTACT_LABELS.keys()), format_func=lambda x: CONTACT_LABELS[x], key="preferred_contact_mode")
-        st.multiselect("관심 태그", INTERESTS, format_func=lambda x: INTEREST_LABELS[x], key="interests")
-        st.number_input("예산 한도", min_value=0, max_value=100000, step=5000, key="budget_limit")
-        st.checkbox("도움을 줄 수 있는 사람이 있음", key="has_support_person")
+    filter_col, result_col = st.columns([0.86, 1.34], gap="large")
+    with filter_col:
+        st.markdown('<div class="rr-section-title">1. 실제 자원 선택</div>', unsafe_allow_html=True)
+        st.multiselect(
+            "자원 종류",
+            list(RESOURCE_TYPE_LABELS.keys()),
+            format_func=lambda x: RESOURCE_TYPE_LABELS[x],
+            key="resource_types",
+        )
+        st.selectbox("구/군", available_districts(resources_df), key="resource_district")
+        st.text_input("검색어", placeholder="예: 유유기지, 전시, 구직활동비, 청년공간", key="resource_query")
 
         st.markdown('<div class="rr-divider"></div>', unsafe_allow_html=True)
-        st.slider("미래 불안", 1, 5, key="future_anxiety")
-        st.slider("취업 부담", 1, 5, key="employment_burden")
-        st.slider("외출 부담", 1, 5, key="outside_burden")
-        st.slider("대면 부담", 1, 5, key="social_burden")
-        st.slider("에너지 수준", 1, 5, key="energy_level")
-        st.slider("생활 리듬", 1, 5, key="daily_rhythm_level")
-        st.slider("가능한 외출 시간", 0, 180, step=5, key="max_outdoor_minutes")
-        st.text_area("자유 입력", key="free_text", height=130)
-        st.button("샘플 상태로 초기화", width="stretch", on_click=reset_demo_state)
+        st.markdown('<div class="rr-section-title">2. 오늘 조건</div>', unsafe_allow_html=True)
+        st.multiselect("비용", list(COST_LABELS.keys()), format_func=lambda x: COST_LABELS[x], key="resource_costs")
+        st.slider("최대 부담도", 0, 5, key="resource_max_burden")
+        st.checkbox("온라인으로 먼저 확인 가능한 자원만 보기", key="resource_online_only")
+
+        st.markdown(
+            """
+            <div class="rr-panel">
+              <div class="rr-section-title">이 화면에서 얻는 것</div>
+              <div class="rr-muted">공식 출처 링크, 비용·대면 부담, 오늘 끝낼 수 있는 확인 행동을 한 번에 봅니다.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     with result_col:
-        profile, analysis = current_profile_and_analysis()
-        if analysis["safety_flag"]:
-            render_safety_branch(analysis)
-        else:
-            stage = int(analysis["recommended_stage"])
+        filtered_resources = filter_resources_for_user(
+            resources_df,
+            query=st.session_state["resource_query"],
+            district=st.session_state["resource_district"],
+            resource_types=list(st.session_state["resource_types"]),
+            costs=list(st.session_state["resource_costs"]),
+            max_burden=int(st.session_state["resource_max_burden"]),
+            online_only=bool(st.session_state["resource_online_only"]),
+        )
+        st.markdown('<div class="rr-section-title">3. 오늘 확인할 후보</div>', unsafe_allow_html=True)
+        if filtered_resources.empty:
             st.markdown(
-                f"""
-                <div class="rr-panel rr-stage-panel">
-                  <div class="rr-section-title">지금 시작점: {e(STAGE_LABELS.get(stage, "확인 필요"))}</div>
-                  <div class="rr-muted"><strong>{e(analysis["recommended_route_name"])}</strong><br/>{e(analysis["burden_summary"])}</div>
+                """
+                <div class="rr-empty-note">
+                  조건에 맞는 공식 자원이 없습니다. 구/군을 전체로 바꾸거나 최대 부담도를 한 단계 높여 확인하세요.
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
-
-            st.subheader("오늘 할 일")
-            for idx, mission in enumerate(analysis["next_3_missions"]):
-                render_user_mission(profile, mission, stage, f"primary_{idx}")
-
-            st.subheader("함께 볼 인천 자원")
-            for idx, resource in enumerate(analysis["recommended_resources"][:3]):
-                render_user_resource(resource, f"primary_{idx}")
-
-            mini_projects = analysis.get("mini_project_candidates", [])
-            if mini_projects:
-                st.subheader("미니 일경험 후보")
-                for idx, candidate in enumerate(mini_projects[:3]):
-                    with st.container(border=True):
-                        st.markdown(
-                            f"""
-                            <div class="rr-card-title">{e(candidate["title"])}</div>
-                            <div class="rr-card-body">{e(candidate["description"])}</div>
-                            {chip("관심 기반", "teal")}
-                            {chip("포트폴리오 씨앗", "gold")}
-                            """,
-                            unsafe_allow_html=True,
-                        )
+        else:
+            st.caption(f"조건에 맞는 공식 자원 {len(filtered_resources)}개")
+            top_resource = filtered_resources.iloc[0].to_dict()
+            st.markdown(
+                f"""
+                <div class="rr-panel rr-stage-panel">
+                  <div class="rr-section-title">오늘의 가장 작은 행동</div>
+                  <div class="rr-muted"><strong>{e(display_text(top_resource.get("name")))}</strong>의 공식 페이지에서 현재 운영 여부와 조건 1줄만 확인합니다.</div>
+                  <ol class="rr-action-list">
+                    {''.join(f"<li>{e(item)}</li>" for item in next_action_items(top_resource))}
+                  </ol>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            for idx, resource in enumerate(filtered_resources.head(6).to_dict("records")):
+                render_user_resource(resource, f"official_{idx}")
 
 with tabs[1]:
-    st.subheader("인천 자원 찾기")
+    st.subheader("인천 자원 검색")
+    data = cached_data()
     search_col, filter_col = st.columns([1.2, 0.8], gap="large")
     with search_col:
         st.text_input("검색 질문", key="rag_query")
     with filter_col:
-        rag_district = st.selectbox("구/군 필터", ["현재 거주지", "전체"] + DISTRICTS, key="rag_district")
+        rag_district = st.selectbox("구/군 필터", available_districts(data["resources"]), key="rag_district")
         rag_burden = st.slider("최대 부담도", 0, 5, 3, key="rag_max_burden")
     if st.button("근거 자료 검색", width="stretch"):
-        district_value = profile.district if rag_district == "현재 거주지" else None if rag_district == "전체" else rag_district
+        district_value = None if rag_district == "전체" else rag_district
         st.session_state["rag_result"] = search_policy_culture_resources(
             st.session_state["rag_query"],
             district=district_value,
@@ -754,7 +956,7 @@ with tabs[1]:
             render_user_resource(resource, f"rag_{idx}")
 
 with tabs[2]:
-    st.subheader("운영자·연구자")
+    st.subheader("운영자 점검")
     profile, analysis = current_profile_and_analysis()
     data = cached_data()
     stage = int(analysis["recommended_stage"])

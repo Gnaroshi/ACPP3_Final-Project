@@ -38,9 +38,11 @@ def _write_reports(metadata: dict, row_count: int) -> None:
     data_card = f"""# RebootRoute 데이터 카드
 
 ## 데이터셋
-- Mock MVP 프로필: {row_count}건
+- Synthetic MVP 프로필/진행 로그: {row_count}건
+- 공식 출처 기반 인천 자원 seed: 인천청년포털, 인천문화재단, 인천아트플랫폼, 트라이보울 등
 - 데이터 폴더는 DVC-compatible 형태인 `data/raw`, `data/processed`, `data/features`를 따릅니다.
-- 데이터는 인천 청년, 문화, 지원, 공모전 범주를 가정한 synthetic local sample입니다.
+- 사용자 profile과 label은 실제 사용자가 아니라 학습·테스트용 synthetic sample입니다.
+- 자원 검색 화면의 정책·문화 자원은 공식 페이지 URL을 포함한 curated seed data입니다.
 
 ## Label 상태
 {SYNTHETIC_WARNING_KO}

@@ -19,7 +19,7 @@ from scripts.train_models import train_all
 def main() -> None:
     cfg = load_config()
     ensure_directories(cfg)
-    print("1/7 generating mock data")
+    print("1/7 generating sample profiles and official resource seed data")
     paths = save_mock_data(cfg.raw_data_dir, cfg.random_seed)
     print({name: str(path) for name, path in paths.items()})
 

@@ -1,9 +1,11 @@
 # RebootRoute 데이터 카드
 
 ## 데이터셋
-- Mock MVP 프로필: 180건
+- Synthetic MVP 프로필/진행 로그: 180건
+- 공식 출처 기반 인천 자원 seed: 인천청년포털, 인천문화재단, 인천아트플랫폼, 트라이보울 등
 - 데이터 폴더는 DVC-compatible 형태인 `data/raw`, `data/processed`, `data/features`를 따릅니다.
-- 데이터는 인천 청년, 문화, 지원, 공모전 범주를 가정한 synthetic local sample입니다.
+- 사용자 profile과 label은 실제 사용자가 아니라 학습·테스트용 synthetic sample입니다.
+- 자원 검색 화면의 정책·문화 자원은 공식 페이지 URL을 포함한 curated seed data입니다.
 
 ## Label 상태
 현재 label은 MVP 시연을 위한 synthetic label입니다. 운영 환경에서는 실제 프로그램 참여, 미션 완료, too-hard 피드백, 상담 준비도, 지원 결과 데이터로 반드시 교체해야 합니다.
