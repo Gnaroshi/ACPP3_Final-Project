@@ -2084,6 +2084,468 @@ st.markdown(
           padding: 0.16rem 0.2rem !important;
         }
       }
+
+      /* final readability and flow correction */
+      :root {
+        --rr-bg: #f6f8fc;
+        --rr-surface: #ffffff;
+        --rr-surface-raised: #ffffff;
+        --rr-ink: #111827;
+        --rr-muted: #4b5563;
+        --rr-soft: #64748b;
+        --rr-line: #d7deea;
+        --rr-primary: #1d4ed8;
+        --rr-primary-strong: #1e40af;
+        --rr-primary-soft: #e8f0ff;
+        --rr-info: #0f766e;
+        --rr-info-soft: #e7f7f4;
+        --rr-action: #c2410c;
+        --rr-action-soft: #fff1e7;
+        --rr-glass: #ffffff;
+        --rr-shadow: 0 14px 34px rgba(15, 23, 42, 0.10);
+        --rr-shadow-soft: 0 6px 18px rgba(15, 23, 42, 0.08);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --rr-bg: #0f172a;
+          --rr-surface: #182235;
+          --rr-surface-raised: #1f2937;
+          --rr-ink: #f8fafc;
+          --rr-muted: #d1d5db;
+          --rr-soft: #b6c2d3;
+          --rr-line: #3b4a60;
+          --rr-primary: #7dd3fc;
+          --rr-primary-strong: #bae6fd;
+          --rr-primary-soft: rgba(125, 211, 252, 0.18);
+          --rr-info: #5eead4;
+          --rr-info-soft: rgba(94, 234, 212, 0.16);
+          --rr-action: #fb923c;
+          --rr-action-soft: rgba(251, 146, 60, 0.18);
+          --rr-glass: #182235;
+          --rr-shadow: 0 16px 38px rgba(0, 0, 0, 0.32);
+          --rr-shadow-soft: 0 8px 22px rgba(0, 0, 0, 0.24);
+        }
+      }
+
+      .stApp,
+      [data-testid="stAppViewContainer"],
+      [data-testid="stMain"],
+      [data-testid="stMainBlockContainer"],
+      section.main {
+        background: var(--rr-bg) !important;
+      }
+
+      .block-container {
+        max-width: 1100px !important;
+        padding: 0.72rem 1rem 1.4rem !important;
+      }
+
+      [data-testid="stVerticalBlock"] {
+        gap: 0.48rem !important;
+      }
+
+      .rr-app-shell {
+        margin: 0 0 0.46rem !important;
+      }
+
+      .rr-brand-name {
+        font-size: 1.18rem !important;
+      }
+
+      .rr-brand-sub,
+      .rr-session-pill {
+        color: var(--rr-muted) !important;
+      }
+
+      [data-baseweb="tab-list"] {
+        background: var(--rr-surface) !important;
+        border: 1px solid var(--rr-line) !important;
+        box-shadow: var(--rr-shadow-soft) !important;
+        padding: 0.22rem !important;
+        margin-bottom: 0.58rem !important;
+      }
+
+      [data-baseweb="tab"] {
+        color: var(--rr-muted) !important;
+        font-size: 0.92rem !important;
+      }
+
+      [data-baseweb="tab"][aria-selected="true"] {
+        background: var(--rr-primary) !important;
+        color: #ffffff !important;
+        box-shadow: none !important;
+      }
+
+      .rr-route-hero {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.9fr) !important;
+        column-gap: 0.8rem !important;
+        align-items: center !important;
+        border-radius: 18px !important;
+        background: var(--rr-surface) !important;
+        border: 1px solid var(--rr-line) !important;
+        box-shadow: var(--rr-shadow-soft) !important;
+        padding: 0.68rem 0.82rem !important;
+        margin-bottom: 0.58rem !important;
+      }
+
+      .rr-hero-kicker,
+      .rr-hero-title,
+      .rr-hero-copy {
+        grid-column: 1 !important;
+        word-break: keep-all !important;
+      }
+
+      .rr-use-guide {
+        grid-column: 2 !important;
+        grid-row: 1 / span 3 !important;
+      }
+
+      .rr-route-hero::after {
+        display: none !important;
+      }
+
+      .rr-hero-kicker {
+        color: var(--rr-primary-strong) !important;
+      }
+
+      .rr-hero-title {
+        color: var(--rr-ink) !important;
+        font-size: 1.32rem !important;
+      }
+
+      .rr-hero-copy {
+        color: var(--rr-muted) !important;
+        font-size: 0.9rem !important;
+      }
+
+      .rr-use-guide {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.42rem;
+        margin-top: 0;
+      }
+
+      .rr-use-guide span {
+        display: flex;
+        align-items: center;
+        gap: 0.38rem;
+        border: 1px solid var(--rr-line);
+        border-radius: 999px;
+        background: var(--rr-surface-raised);
+        color: var(--rr-ink) !important;
+        padding: 0.36rem 0.52rem;
+        font-size: 0.8rem;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .rr-use-guide b {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.35rem;
+        height: 1.35rem;
+        border-radius: 999px;
+        background: var(--rr-primary);
+        color: #ffffff !important;
+        font-size: 0.75rem;
+      }
+
+      .rr-choice-row {
+        margin-top: 0 !important;
+      }
+
+      .rr-choice-row [data-testid="stVerticalBlockBorderWrapper"],
+      .rr-bento-card,
+      .rr-progressive-panel,
+      .rr-history-card,
+      .rr-resource-card,
+      .rr-panel {
+        background: var(--rr-surface) !important;
+        border: 1px solid var(--rr-line) !important;
+        border-radius: 16px !important;
+        box-shadow: var(--rr-shadow-soft) !important;
+      }
+
+      .rr-choice-row [data-testid="stVerticalBlockBorderWrapper"] {
+        padding: 0.28rem !important;
+      }
+
+      .rr-choice-label {
+        color: var(--rr-ink) !important;
+        font-size: 0.84rem !important;
+        margin-bottom: 0.32rem !important;
+      }
+
+      [data-testid="stBaseButton-segmented_control"],
+      [data-testid="stBaseButton-segmented_controlActive"],
+      .stButton > button {
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        min-height: 2.18rem !important;
+        border-radius: 999px !important;
+        font-size: 0.88rem !important;
+      }
+
+      [data-testid="stBaseButton-segmented_control"] {
+        color: var(--rr-ink) !important;
+        background: var(--rr-surface-raised) !important;
+        border-color: var(--rr-line) !important;
+      }
+
+      [data-testid="stBaseButton-segmented_control"] *,
+      [data-testid="stBaseButton-segmented_control"] p,
+      [data-testid="stBaseButton-segmented_control"] span {
+        color: var(--rr-ink) !important;
+      }
+
+      [data-testid="stBaseButton-segmented_controlActive"] {
+        background: var(--rr-primary) !important;
+        color: #ffffff !important;
+        border-color: var(--rr-primary) !important;
+        box-shadow: none !important;
+      }
+
+      [data-testid="stBaseButton-segmented_controlActive"] *,
+      [data-testid="stBaseButton-segmented_controlActive"] p,
+      [data-testid="stBaseButton-segmented_controlActive"] span {
+        color: #ffffff !important;
+      }
+
+      .rr-bento-row {
+        margin-top: 0.56rem !important;
+      }
+
+      .rr-bento-card {
+        padding: 0.82rem !important;
+      }
+
+      .rr-bento-card.mission,
+      .rr-bento-card.resource,
+      .rr-bento-card.map {
+        min-height: 0 !important;
+      }
+
+      .rr-bento-title {
+        color: var(--rr-ink) !important;
+      }
+
+      .rr-bento-body {
+        color: var(--rr-muted) !important;
+        margin-bottom: 0.4rem !important;
+      }
+
+      .rr-mini-fact,
+      .rr-chip {
+        color: var(--rr-ink) !important;
+        background: var(--rr-surface-raised) !important;
+        border-color: var(--rr-line) !important;
+      }
+
+      .rr-official-line,
+      .rr-card-eyebrow {
+        color: var(--rr-soft) !important;
+      }
+
+      .rr-resource-art {
+        height: 6.2rem !important;
+        min-height: 6.2rem !important;
+      }
+
+      .rr-resource-layout {
+        grid-template-columns: 7.2rem minmax(0, 1fr) !important;
+        gap: 0.64rem !important;
+        align-items: center !important;
+      }
+
+      .rr-source-link {
+        background: var(--rr-primary) !important;
+        border-color: var(--rr-primary) !important;
+        color: #ffffff !important;
+        padding: 0.42rem 0.7rem !important;
+      }
+
+      .rr-map {
+        border-color: var(--rr-line) !important;
+        background:
+          linear-gradient(90deg, rgba(29, 78, 216, 0.09) 1px, transparent 1px),
+          linear-gradient(rgba(29, 78, 216, 0.09) 1px, transparent 1px),
+          linear-gradient(135deg, #eef6ff 0%, #f8fafc 55%, #ecfdf5 100%) !important;
+      }
+
+      .rr-map.compact {
+        height: 6.9rem !important;
+      }
+
+      .rr-map-label {
+        background: rgba(255, 255, 255, 0.96) !important;
+        color: #111827 !important;
+      }
+
+      .rr-map-label small {
+        color: #475569 !important;
+      }
+
+      .st-key-route_action_bar {
+        position: static !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0.58rem 0 0 !important;
+        padding: 0.58rem !important;
+        border-radius: 20px !important;
+        background: var(--rr-surface) !important;
+        border: 1px solid var(--rr-line) !important;
+        box-shadow: var(--rr-shadow-soft) !important;
+      }
+
+      .st-key-route_action_bar [data-testid="stHorizontalBlock"] {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.42rem !important;
+      }
+
+      .st-key-route_action_bar [data-testid="column"] {
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      .st-key-route_action_bar .stButton > button {
+        min-height: 2.44rem !important;
+        padding: 0.48rem 0.72rem !important;
+        font-size: 0.9rem !important;
+        line-height: 1.15 !important;
+      }
+
+      .st-key-route_action_bar [data-testid="stBaseButton-primary"] {
+        background: var(--rr-action) !important;
+        border-color: var(--rr-action) !important;
+        color: #ffffff !important;
+      }
+
+      .rr-progressive-panel {
+        margin-top: 0.58rem !important;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        [data-baseweb="tab"][aria-selected="true"],
+        [data-testid="stBaseButton-segmented_controlActive"] {
+          background: #e0f2fe !important;
+          color: #082f49 !important;
+        }
+
+        [data-baseweb="tab"][aria-selected="true"] *,
+        [data-testid="stBaseButton-segmented_controlActive"] *,
+        [data-testid="stBaseButton-segmented_controlActive"] p,
+        [data-testid="stBaseButton-segmented_controlActive"] span {
+          color: #082f49 !important;
+        }
+
+        .rr-use-guide b {
+          background: #e0f2fe !important;
+          color: #082f49 !important;
+        }
+
+        .rr-source-link,
+        .st-key-route_action_bar [data-testid="stBaseButton-primary"] {
+          background: #f97316 !important;
+          border-color: #f97316 !important;
+          color: #111827 !important;
+        }
+
+        .rr-source-link *,
+        .st-key-route_action_bar [data-testid="stBaseButton-primary"] * {
+          color: #111827 !important;
+        }
+
+        .rr-map {
+          background:
+            linear-gradient(90deg, rgba(125, 211, 252, 0.10) 1px, transparent 1px),
+            linear-gradient(rgba(125, 211, 252, 0.10) 1px, transparent 1px),
+            linear-gradient(135deg, #1e293b 0%, #111827 58%, #0f172a 100%) !important;
+        }
+      }
+
+      @media (max-width: 860px) {
+        .block-container {
+          padding: 0.62rem 0.72rem 1.2rem !important;
+        }
+
+        .rr-use-guide {
+          grid-template-columns: 1fr !important;
+          grid-column: 1 !important;
+          grid-row: auto !important;
+        }
+
+        .rr-route-hero {
+          grid-template-columns: 1fr !important;
+        }
+
+        .rr-use-guide span {
+          white-space: normal !important;
+        }
+
+        .rr-choice-row [data-testid="stVerticalBlockBorderWrapper"] {
+          margin-bottom: 0.34rem !important;
+        }
+
+        .st-key-route_action_bar [data-testid="stHorizontalBlock"] {
+          grid-template-columns: 1fr 1fr !important;
+          gap: 0.42rem !important;
+        }
+      }
+
+      @media (max-width: 430px) {
+        .block-container {
+          padding: 0.52rem 0.62rem 1.1rem !important;
+        }
+
+        .rr-hero-title {
+          font-size: 1.08rem !important;
+        }
+
+        .rr-hero-copy {
+          font-size: 0.8rem !important;
+        }
+
+        [data-baseweb="tab-list"] {
+          overflow-x: auto !important;
+          border-radius: 18px !important;
+        }
+
+        [data-testid="stBaseButton-segmented_control"],
+        [data-testid="stBaseButton-segmented_controlActive"],
+        .stButton > button {
+          font-size: 0.78rem !important;
+          min-height: 2.12rem !important;
+        }
+
+        .rr-bento-card {
+          padding: 0.72rem !important;
+        }
+
+        .rr-map.compact {
+          height: 6.8rem !important;
+        }
+
+        .st-key-route_action_bar {
+          border-radius: 18px !important;
+        }
+
+        .st-key-route_action_bar [data-testid="stHorizontalBlock"] {
+          grid-template-columns: 1fr 1fr !important;
+        }
+
+        .st-key-route_action_bar .stButton > button {
+          font-size: 0.78rem !important;
+          min-height: 2.34rem !important;
+          padding: 0.38rem 0.4rem !important;
+        }
+      }
     </style>
     """,
     unsafe_allow_html=True,
@@ -3040,8 +3502,13 @@ def render_route_builder() -> None:
         """
         <div class="rr-route-hero">
           <div class="rr-hero-kicker">오늘의 루트 만들기</div>
-          <div class="rr-hero-title">오늘 어디까지 가능해?</div>
-          <p class="rr-hero-copy">아래 네 가지만 고르면 지금 할 수 있는 미션과 공식 자원을 바로 정리합니다.</p>
+          <div class="rr-hero-title">1분 안에 오늘 할 일 정하기</div>
+          <p class="rr-hero-copy">조건을 고르면 추천이 바로 바뀝니다. 아래 카드에서 미션과 공식 자원을 확인하고 바로 시작하세요.</p>
+          <div class="rr-use-guide">
+            <span><b>1</b>조건 선택</span>
+            <span><b>2</b>추천 확인</span>
+            <span><b>3</b>시작 또는 기록</span>
+          </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -3186,9 +3653,10 @@ def render_today_bento(profile: UserProfile, analysis: dict[str, Any], filtered_
     top_mission = missions[0] if missions else None
     top_resource = filtered_resources.iloc[0].to_dict() if not filtered_resources.empty else None
     st.markdown('<div class="rr-bento-row">', unsafe_allow_html=True)
-    mission_col, resource_col, map_col = st.columns([1.1, 0.74, 0.66], gap="small")
+    mission_col, resource_col, map_col = st.columns([1.0, 0.82, 0.72], gap="small")
     with mission_col:
         render_today_mission_card(profile, top_mission, recommended_stage)
+        render_bottom_action_bar(profile, top_mission, recommended_stage)
     with resource_col:
         render_resource_spotlight(top_resource)
     with map_col:
@@ -3215,11 +3683,12 @@ def render_bottom_action_bar(profile: UserProfile, mission: dict[str, Any] | Non
     if not mission:
         return
     with st.container(key="route_action_bar"):
-        c1, c2, c3, c4 = st.columns([1.35, 0.85, 0.85, 0.85], gap="small")
-        if c1.button("오늘 이걸로 시작", key="route_start_primary", width="stretch", type="primary"):
+        c1, c2 = st.columns([1.25, 0.75], gap="small")
+        if c1.button("이걸로 시작", key="route_start_primary", width="stretch", type="primary"):
             record_mission_action(profile, mission, ProgressStatus.started, recommended_stage)
         if c2.button("완료", key="route_complete", width="stretch"):
             record_mission_action(profile, mission, ProgressStatus.completed, recommended_stage)
+        c3, c4 = st.columns(2, gap="small")
         if c3.button("나중에", key="route_skip", width="stretch"):
             record_mission_action(profile, mission, ProgressStatus.skipped, recommended_stage)
         if c4.button("어려움", key="route_too_hard", width="stretch"):
@@ -3426,7 +3895,6 @@ with tabs[0]:
     if not analysis.get("safety_flag"):
         render_more_candidates(filtered_resources)
         render_hidden_record_panel(profile, filtered_resources, missions)
-        render_bottom_action_bar(profile, top_mission, recommended_stage)
 
 with tabs[1]:
     st.markdown(
