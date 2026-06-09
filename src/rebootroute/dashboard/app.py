@@ -2598,6 +2598,18 @@ def e(value: Any) -> str:
     return html.escape(str(value))
 
 
+def widget_key(value: str) -> str:
+    safe = "".join(ch if ch.isalnum() else "_" for ch in value)
+    return safe[:90] or "item"
+
+
+def render_secondary_link(label: str, url: str, key: str) -> None:
+    if not url:
+        return
+    with st.container(key=widget_key(key)):
+        st.link_button(label, url, type="secondary", width="stretch")
+
+
 def chip(text: str, tone: str = "gray") -> str:
     return f'<span class="rr-chip {tone}">{e(text)}</span>'
 
@@ -2980,6 +2992,37 @@ def apply_explicit_theme_css() -> None:
           [data-testid="stBaseButton-primary"] *,
           .st-key-route_action_bar [data-testid="stBaseButton-primary"] * {{
             color: {palette["action_fg"]} !important;
+          }}
+
+          .st-key-route_start_primary .stButton > button {{
+            background: var(--rr-action) !important;
+            border-color: var(--rr-action) !important;
+            color: {palette["action_fg"]} !important;
+            font-weight: 920 !important;
+          }}
+
+          .st-key-route_complete .stButton > button,
+          [class*="st-key-resource_source_"] a,
+          [class*="st-key-featured_source_"] a,
+          .st-key-map_directions a {{
+            background: var(--rr-primary) !important;
+            border-color: var(--rr-primary) !important;
+            color: {palette["active_fg"]} !important;
+            border-radius: 999px !important;
+            font-weight: 850 !important;
+            text-decoration: none !important;
+          }}
+
+          .st-key-route_skip .stButton > button,
+          .st-key-route_too_hard .stButton > button,
+          .st-key-toggle_advanced_controls .stButton > button,
+          .st-key-toggle_more_candidates .stButton > button,
+          .st-key-toggle_record_panel .stButton > button,
+          .st-key-reset_conditions .stButton > button {{
+            background: transparent !important;
+            border-color: var(--rr-line) !important;
+            color: var(--rr-muted) !important;
+            box-shadow: none !important;
           }}
 
           [data-baseweb="tab-list"],
@@ -3544,10 +3587,10 @@ def record_mission_action(profile: UserProfile, mission: dict[str, Any], status:
         )
     )
     st.session_state["last_action_message"] = {
-        ProgressStatus.started: "미션을 시작 상태로 기록했습니다.",
-        ProgressStatus.completed: "미션 완료를 기록했습니다.",
-        ProgressStatus.skipped: "이번 미션은 나중에 보도록 기록했습니다.",
-        ProgressStatus.too_hard: "너무 어려움 피드백을 기록했습니다.",
+        ProgressStatus.started: "시작으로 기록했어요.",
+        ProgressStatus.completed: "완료로 저장했어요.",
+        ProgressStatus.skipped: "나중에로 저장했어요.",
+        ProgressStatus.too_hard: "어려움으로 기록했어요.",
     }[status]
     st.rerun()
 
@@ -3593,7 +3636,10 @@ def record_outcome(
             policy_version="streamlit_demo",
         )
     )
-    st.session_state["last_action_message"] = "활동/지원 결과를 기록했습니다."
+    if outcome_type == "operator_review":
+        st.session_state["last_action_message"] = "운영자 검토를 저장했어요."
+    else:
+        st.session_state["last_action_message"] = "결과를 저장했어요."
     st.rerun()
 
 
@@ -3670,8 +3716,9 @@ def render_compact_route_controls() -> None:
         detail2.selectbox("취업 부담", LEVEL_OPTIONS, format_func=level_option_label, key="employment_burden")
         detail3.selectbox("미래 불안", LEVEL_OPTIONS, format_func=level_option_label, key="future_anxiety")
         st.text_area("오늘 상태 메모", height=68, key="free_text", placeholder="예: 오늘은 집에서 먼저 확인할 수 있는 활동만 보고 싶어요.")
-        if st.button("조건 초기화", width="stretch"):
+        if st.button("조건 초기화", key="reset_conditions", width="stretch", type="tertiary"):
             reset_demo_state()
+            st.session_state["last_action_message"] = "조건을 초기화했어요."
             st.rerun()
 
 
@@ -3702,7 +3749,7 @@ def render_outcome_form(profile: UserProfile, resources: pd.DataFrame, missions:
         readiness = st.selectbox("진행 준비도", LEVEL_OPTIONS, index=2, format_func=level_option_label)
         burden_after = st.selectbox("진행 후 부담도", LEVEL_OPTIONS, index=2, format_func=level_option_label)
         note = st.text_area("메모", placeholder="예: 공식 페이지 확인 후 신청 대상 조건을 확인함 / 프로그램에 참여함 / 결과 대기 중")
-        submitted = st.form_submit_button("결과 저장", use_container_width=True)
+        submitted = st.form_submit_button("결과 저장", key=f"{key_prefix}_outcome_submit", use_container_width=True)
     if submitted:
         record_outcome(
             profile,
@@ -3720,11 +3767,11 @@ def render_mission_action_buttons(profile: UserProfile, mission: dict[str, Any],
     c1, c2, c3, c4 = st.columns(4)
     if c1.button("시작", key=f"start_{mission_key}", width="stretch"):
         record_mission_action(profile, mission, ProgressStatus.started, recommended_stage)
-    if c2.button("완료", key=f"complete_{mission_key}", width="stretch", type="primary"):
+    if c2.button("완료", key=f"complete_{mission_key}", width="stretch"):
         record_mission_action(profile, mission, ProgressStatus.completed, recommended_stage)
-    if c3.button("나중에", key=f"skip_{mission_key}", width="stretch"):
+    if c3.button("나중에", key=f"skip_{mission_key}", width="stretch", type="tertiary"):
         record_mission_action(profile, mission, ProgressStatus.skipped, recommended_stage)
-    if c4.button("어려움", key=f"hard_{mission_key}", width="stretch"):
+    if c4.button("어려움", key=f"hard_{mission_key}", width="stretch", type="tertiary"):
         record_mission_action(profile, mission, ProgressStatus.too_hard, recommended_stage)
 
 
@@ -3769,7 +3816,6 @@ def render_user_mission(profile: UserProfile, mission: dict[str, Any], recommend
 
 
 def render_user_resource(resource: dict[str, Any], key_prefix: str) -> None:
-    del key_prefix
     contact = display_text(resource.get("contact"))
     duration = display_minutes(resource.get("estimated_duration_minutes"))
     source_url = resource_source_url(resource)
@@ -3782,7 +3828,6 @@ def render_user_resource(resource: dict[str, Any], key_prefix: str) -> None:
     image_src = resource_image_src(resource)
     fallback_src = fallback_image_for_resource(str(resource.get("resource_type", "")))
     official_place = display_text(resource.get("official_place")) or address
-    source_link = f'<a class="rr-source-link" href="{e(source_url)}" target="_blank" rel="noopener noreferrer">공식 페이지 열기</a>' if source_url else ""
     st.markdown(
         f"""
         <div class="rr-resource-card">
@@ -3803,13 +3848,13 @@ def render_user_resource(resource: dict[str, Any], key_prefix: str) -> None:
               </div>
               <div class="rr-resource-meta">{e(official_place) if official_place else "장소는 공식 페이지에서 확인하세요."}</div>
               <div class="rr-proof"><strong>공식 출처</strong> · {e(source_name)}</div>
-              {source_link}
             </div>
           </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+    render_secondary_link("공식 페이지 열기", source_url, f"resource_source_{key_prefix}")
 
 
 def render_featured_resource(resource: dict[str, Any]) -> None:
@@ -3821,7 +3866,6 @@ def render_featured_resource(resource: dict[str, Any]) -> None:
     fallback_src = fallback_image_for_resource(str(resource.get("resource_type", "")))
     official_place = display_text(resource.get("official_place")) or display_text(resource.get("address"))
     period = format_period(resource)
-    source_link = f'<a class="rr-source-link" href="{e(source_url)}" target="_blank" rel="noopener noreferrer">공식 페이지 열기</a>' if source_url else ""
     st.markdown(
         f"""
         <div class="rr-featured-resource">
@@ -3840,13 +3884,13 @@ def render_featured_resource(resource: dict[str, Any]) -> None:
                 <div class="rr-info-item"><span>장소</span><strong>{e(official_place or '공식 페이지 확인')}</strong></div>
               </div>
               <div class="rr-proof"><strong>공식 출처</strong> · {e(source_name)}</div>
-              {source_link}
             </div>
           </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+    render_secondary_link("공식 페이지 열기", source_url, f"featured_source_{display_text(resource.get('resource_id'))}")
 
 
 def render_next_action(top_resource: dict[str, Any]) -> None:
@@ -4020,8 +4064,9 @@ def render_choice_chips() -> None:
 
 def render_advanced_controls() -> None:
     toggle_label = "세부 조건 닫기" if st.session_state["show_advanced_controls"] else "더 조정하기"
-    if st.button(toggle_label, key="toggle_advanced_controls", width="stretch"):
+    if st.button(toggle_label, key="toggle_advanced_controls", width="stretch", type="tertiary"):
         st.session_state["show_advanced_controls"] = not st.session_state["show_advanced_controls"]
+        st.session_state["last_action_message"] = "세부 조건을 열었어요." if st.session_state["show_advanced_controls"] else "세부 조건을 닫았어요."
         st.rerun()
     if not st.session_state["show_advanced_controls"]:
         return
@@ -4125,7 +4170,6 @@ def render_resource_spotlight(resource: dict[str, Any] | None) -> None:
     fallback_src = fallback_image_for_resource(str(resource.get("resource_type", "")))
     source_name = display_text(resource.get("source_name")) or "공식 출처"
     source_url = resource_source_url(resource)
-    source_link = f'<a class="rr-source-link" href="{e(source_url)}" target="_blank" rel="noopener noreferrer">공식 페이지 보기</a>' if source_url else ""
     distance = resource.get("distance_km")
     distance_text = f"{float(distance):.1f}km" if distance is not None and pd.notna(distance) else "위치 확인"
     st.markdown(
@@ -4142,13 +4186,13 @@ def render_resource_spotlight(resource: dict[str, Any] | None) -> None:
                 {fact(distance_text)}
               </div>
               <div class="rr-official-line">공식 출처: {e(source_name)}</div>
-              {source_link}
             </div>
           </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+    render_secondary_link("공식 페이지 열기", source_url, f"resource_source_spotlight_{display_text(resource.get('resource_id'))}")
 
 
 def map_markers(resources: pd.DataFrame, max_items: int) -> str:
@@ -4181,14 +4225,11 @@ def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> No
     card_border = "#3B4A60" if dark else "#D6DEEA"
     ink = "#F8FAFC" if dark else "#111827"
     muted = "#D1D5DB" if dark else "#374151"
-    primary = "#7DD3FC" if dark else "#1D4ED8"
-    action_fg = "#082F49" if dark else "#FFFFFF"
     iframe_height = 280 if expanded else 118
     card_height = iframe_height + 92
     name = compact_description(resource.get("name"), 60)
     destination = resource_destination_query(resource)
     embed_url = google_maps_embed_url(resource)
-    directions_url = google_maps_directions_url(resource)
     st.markdown('<div class="rr-card-eyebrow">내 위치와 활동 장소</div>', unsafe_allow_html=True)
     components.html(
         f"""
@@ -4214,7 +4255,7 @@ def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> No
             referrerpolicy="no-referrer-when-downgrade"
             allowfullscreen>
           </iframe>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
             <span style="
               min-width:0;
               overflow:hidden;
@@ -4224,25 +4265,12 @@ def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> No
               font-size:12px;
               font-weight:700;
             ">{e(destination)}</span>
-            <a href="{e(directions_url)}" target="_blank" rel="noopener noreferrer" style="
-              flex:0 0 auto;
-              display:inline-flex;
-              align-items:center;
-              justify-content:center;
-              min-height:32px;
-              padding:0 12px;
-              border-radius:999px;
-              background:{primary};
-              color:{action_fg};
-              text-decoration:none;
-              font-size:12px;
-              font-weight:850;
-            ">Google Maps</a>
           </div>
         </div>
         """,
         height=card_height + 8,
     )
+    render_secondary_link("길찾기", google_maps_directions_url(resource), "map_directions")
 
 
 def render_map_preview(resources: pd.DataFrame, top_resource: dict[str, Any] | None = None) -> None:
@@ -4263,6 +4291,7 @@ def render_map_preview(resources: pd.DataFrame, top_resource: dict[str, Any] | N
         )
     if st.button("지도 접기" if expanded else "지도에서 보기", key="toggle_map_large", width="stretch"):
         st.session_state["show_map_large"] = not expanded
+        st.session_state["last_action_message"] = "지도를 크게 열었어요." if st.session_state["show_map_large"] else "지도 미리보기로 접었어요."
         st.rerun()
 
 
@@ -4299,8 +4328,9 @@ def render_today_bento(profile: UserProfile, analysis: dict[str, Any], filtered_
 def render_more_candidates(filtered_resources: pd.DataFrame) -> None:
     if len(filtered_resources) <= 1:
         return
-    if st.button("다른 후보 숨기기" if st.session_state["show_more_candidates"] else "다른 후보 보기", key="toggle_more_candidates", width="stretch"):
+    if st.button("다른 후보 숨기기" if st.session_state["show_more_candidates"] else "다른 후보 보기", key="toggle_more_candidates", width="stretch", type="tertiary"):
         st.session_state["show_more_candidates"] = not st.session_state["show_more_candidates"]
+        st.session_state["last_action_message"] = "다른 후보를 열었어요." if st.session_state["show_more_candidates"] else "다른 후보를 닫았어요."
         st.rerun()
     if not st.session_state["show_more_candidates"]:
         return
@@ -4320,15 +4350,16 @@ def render_bottom_action_bar(profile: UserProfile, mission: dict[str, Any] | Non
         if c2.button("완료", key="route_complete", width="stretch"):
             record_mission_action(profile, mission, ProgressStatus.completed, recommended_stage)
         c3, c4 = st.columns(2, gap="small")
-        if c3.button("나중에", key="route_skip", width="stretch"):
+        if c3.button("나중에", key="route_skip", width="stretch", type="tertiary"):
             record_mission_action(profile, mission, ProgressStatus.skipped, recommended_stage)
-        if c4.button("어려움", key="route_too_hard", width="stretch"):
+        if c4.button("어려움", key="route_too_hard", width="stretch", type="tertiary"):
             record_mission_action(profile, mission, ProgressStatus.too_hard, recommended_stage)
 
 
 def render_hidden_record_panel(profile: UserProfile, resources: pd.DataFrame, missions: list[dict[str, Any]]) -> None:
-    if st.button("활동 결과 기록", key="toggle_record_panel", width="stretch"):
+    if st.button("활동 결과 기록", key="toggle_record_panel", width="stretch", type="tertiary"):
         st.session_state["show_record_panel"] = not st.session_state["show_record_panel"]
+        st.session_state["last_action_message"] = "활동 결과 기록을 열었어요." if st.session_state["show_record_panel"] else "활동 결과 기록을 닫았어요."
         st.rerun()
     if st.session_state["show_record_panel"]:
         st.markdown('<div class="rr-progressive-panel">', unsafe_allow_html=True)
@@ -4459,7 +4490,7 @@ def render_operator_panel() -> None:
             format_func=lambda value: OUTCOME_STATUS_LABELS[value],
         )
         operator_note = st.text_area("운영자 메모", placeholder="예: 미션 난이도 적합, 다음에는 부담도 1 낮춘 미션 권장")
-        submitted_review = st.form_submit_button("검토 저장", width="stretch")
+        submitted_review = st.form_submit_button("검토 저장", key="operator_review_submit", width="stretch")
     if submitted_review:
         record_outcome(
             profile,
@@ -4548,7 +4579,7 @@ with tabs[1]:
     with filter_col:
         rag_district = st.selectbox("구/군 필터", available_districts(data["resources"]), key="rag_district")
         rag_burden = st.selectbox("최대 부담도", BURDEN_FILTER_OPTIONS, index=3, format_func=burden_filter_label, key="rag_max_burden")
-    if st.button("공식 자료 검색", width="stretch", type="primary"):
+    if st.button("공식 자료 검색", key="rag_search", width="stretch"):
         district_value = None if rag_district == "전체" else rag_district
         st.session_state["rag_result"] = search_policy_culture_resources(
             st.session_state["rag_query"],
@@ -4556,6 +4587,8 @@ with tabs[1]:
             max_burden_level=rag_burden,
             top_k=5,
         )
+        st.session_state["last_action_message"] = "공식 자료 검색 결과를 갱신했어요."
+        st.rerun()
 
     rag_result = st.session_state.get("rag_result")
     if rag_result:
