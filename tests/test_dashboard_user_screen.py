@@ -7,6 +7,7 @@ from streamlit.testing.v1 import AppTest
 
 
 APP_PATH = Path(__file__).resolve().parents[1] / "src" / "rebootroute" / "dashboard" / "app.py"
+DASHBOARD_DIR = APP_PATH.parent
 
 
 class _VisibleTextParser(HTMLParser):
@@ -104,7 +105,7 @@ def test_default_dashboard_hides_internal_fields() -> None:
 
 
 def test_dashboard_uses_streamlit_action_buttons_only() -> None:
-    source = APP_PATH.read_text()
+    source = "\n".join(path.read_text() for path in DASHBOARD_DIR.rglob("*.py"))
 
     assert "<button" not in source
     assert "<a " not in source
