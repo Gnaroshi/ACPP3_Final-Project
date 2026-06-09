@@ -2799,6 +2799,13 @@ def apply_explicit_theme_css() -> None:
             --rr-glass: {palette["surface"]};
             --rr-shadow: {palette["shadow"]};
             --rr-shadow-soft: {palette["shadow_soft"]};
+            --rr-space-xs: 4px;
+            --rr-space-sm: 8px;
+            --rr-space-md: 12px;
+            --rr-space-lg: 16px;
+            --rr-space-xl: 24px;
+            --rr-space-2xl: 32px;
+            --rr-space-3xl: 40px;
           }}
 
           html, body, .stApp {{
@@ -2816,20 +2823,21 @@ def apply_explicit_theme_css() -> None:
 
           .block-container {{
             max-width: 1120px !important;
-            padding: 1rem 1.15rem 2rem !important;
+            padding: var(--rr-space-lg) var(--rr-space-xl) var(--rr-space-2xl) !important;
           }}
 
           [data-testid="stVerticalBlock"] {{
-            gap: 0.74rem !important;
+            gap: var(--rr-space-lg) !important;
           }}
 
           .rr-app-shell {{
             display: grid !important;
             grid-template-columns: minmax(0, 1fr) auto !important;
-            gap: 0.85rem !important;
+            gap: var(--rr-space-md) !important;
             align-items: center !important;
-            margin: 0 0 0.65rem !important;
-            padding: 0.1rem 0 !important;
+            margin: 0 0 var(--rr-space-lg) !important;
+            padding: 0 !important;
+            max-height: 120px !important;
           }}
 
           .rr-brand-name {{
@@ -2848,21 +2856,22 @@ def apply_explicit_theme_css() -> None:
             font-size: 0.72rem !important;
             font-weight: 850 !important;
             text-align: right !important;
-            margin-bottom: 0.24rem !important;
+            margin-bottom: var(--rr-space-xs) !important;
           }}
 
           .rr-route-hero {{
             display: grid !important;
             grid-template-columns: minmax(0, 1fr) auto !important;
-            gap: 0.8rem !important;
+            gap: var(--rr-space-lg) !important;
             align-items: center !important;
-            padding: 0.78rem 0.9rem !important;
-            margin-bottom: 0.68rem !important;
+            padding: var(--rr-space-lg) !important;
+            margin-bottom: var(--rr-space-lg) !important;
             background: var(--rr-surface) !important;
             border: 1px solid var(--rr-line) !important;
-            border-radius: 18px !important;
+            border-radius: 16px !important;
             box-shadow: var(--rr-shadow-soft) !important;
             overflow: hidden !important;
+            max-height: 120px !important;
           }}
 
           .rr-hero-copyblock {{
@@ -2874,7 +2883,7 @@ def apply_explicit_theme_css() -> None:
             color: var(--rr-primary-strong) !important;
             font-size: 0.78rem !important;
             font-weight: 920 !important;
-            margin-bottom: 0.18rem !important;
+            margin-bottom: var(--rr-space-xs) !important;
           }}
 
           .rr-hero-title,
@@ -2893,11 +2902,19 @@ def apply_explicit_theme_css() -> None:
             color: var(--rr-muted) !important;
           }}
 
+          .rr-hero-title {{
+            margin: 0 0 var(--rr-space-sm) !important;
+          }}
+
+          .rr-hero-copy {{
+            margin: 0 !important;
+          }}
+
           .rr-use-guide {{
             display: flex !important;
             flex-wrap: wrap !important;
             justify-content: flex-end !important;
-            gap: 0.38rem !important;
+            gap: var(--rr-space-sm) !important;
             min-width: 18rem !important;
             margin: 0 !important;
           }}
@@ -2906,8 +2923,8 @@ def apply_explicit_theme_css() -> None:
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 0.3rem !important;
-            min-height: 2rem !important;
+            gap: var(--rr-space-xs) !important;
+            min-height: 32px !important;
             border-radius: 999px !important;
             border: 1px solid var(--rr-line) !important;
             background: var(--rr-surface-raised) !important;
@@ -2915,7 +2932,7 @@ def apply_explicit_theme_css() -> None:
             font-size: 0.76rem !important;
             font-weight: 880 !important;
             white-space: nowrap !important;
-            padding: 0.26rem 0.55rem !important;
+            padding: var(--rr-space-xs) var(--rr-space-sm) !important;
           }}
 
           .rr-use-guide b {{
@@ -2940,6 +2957,18 @@ def apply_explicit_theme_css() -> None:
             background: var(--rr-surface) !important;
             border-color: var(--rr-line) !important;
             box-shadow: var(--rr-shadow-soft) !important;
+          }}
+
+          .rr-choice-row {{
+            margin: 0 0 var(--rr-space-lg) !important;
+          }}
+
+          .rr-choice-row [data-testid="stVerticalBlockBorderWrapper"] {{
+            padding: var(--rr-space-md) !important;
+          }}
+
+          .rr-choice-label {{
+            margin-bottom: var(--rr-space-sm) !important;
           }}
 
           .rr-use-guide b,
@@ -3080,15 +3109,15 @@ def apply_explicit_theme_css() -> None:
           }}
 
           .rr-bento-row {{
-            margin-top: 0.82rem !important;
+            margin-top: var(--rr-space-lg) !important;
           }}
 
           .rr-results-header {{
             display: flex !important;
             align-items: end !important;
             justify-content: space-between !important;
-            gap: 0.7rem !important;
-            margin: 1rem 0 0.2rem !important;
+            gap: var(--rr-space-md) !important;
+            margin: var(--rr-space-lg) 0 var(--rr-space-sm) !important;
           }}
 
           .rr-results-header span {{
@@ -3105,22 +3134,39 @@ def apply_explicit_theme_css() -> None:
           }}
 
           .rr-bento-card {{
-            padding: 1rem !important;
-            border-radius: 18px !important;
+            padding: var(--rr-space-lg) !important;
+            border-radius: 16px !important;
+          }}
+
+          .rr-card-eyebrow {{
+            margin-bottom: var(--rr-space-sm) !important;
+          }}
+
+          .rr-bento-title {{
+            margin-bottom: var(--rr-space-sm) !important;
+          }}
+
+          .rr-bento-body {{
+            margin-bottom: var(--rr-space-md) !important;
+          }}
+
+          .rr-mini-facts {{
+            gap: var(--rr-space-sm) !important;
+            margin-top: var(--rr-space-md) !important;
           }}
 
           .rr-resource-layout {{
             display: grid !important;
             grid-template-columns: 7.2rem minmax(0, 1fr) !important;
-            gap: 0.68rem !important;
+            gap: var(--rr-space-md) !important;
             align-items: center !important;
           }}
 
           .rr-resource-art {{
             width: 100% !important;
-            height: 6.4rem !important;
-            min-height: 6.4rem !important;
-            border-radius: 14px !important;
+            height: 96px !important;
+            min-height: 96px !important;
+            border-radius: 12px !important;
             object-fit: cover !important;
             background: var(--rr-primary-soft) !important;
             border: 1px solid var(--rr-line) !important;
@@ -3142,7 +3188,7 @@ def apply_explicit_theme_css() -> None:
           }}
 
           .rr-map.compact {{
-            height: 7.4rem !important;
+            height: 120px !important;
           }}
 
           .rr-map.expanded {{
@@ -3163,21 +3209,22 @@ def apply_explicit_theme_css() -> None:
 
           .st-key-route_action_bar {{
             position: sticky !important;
-            bottom: 0.55rem !important;
+            bottom: var(--rr-space-sm) !important;
             z-index: 20 !important;
-            margin-top: 0.62rem !important;
-            padding: 0.58rem !important;
-            border-radius: 20px !important;
+            margin-top: var(--rr-space-md) !important;
+            padding: var(--rr-space-md) !important;
+            border-radius: 16px !important;
           }}
 
           @media (max-width: 860px) {{
             .block-container {{
-              padding: 0.82rem 0.82rem 1.3rem !important;
+              padding: var(--rr-space-md) var(--rr-space-md) var(--rr-space-xl) !important;
             }}
 
             .rr-app-shell {{
               grid-template-columns: 1fr !important;
-              gap: 0.55rem !important;
+              gap: var(--rr-space-sm) !important;
+              margin-bottom: var(--rr-space-md) !important;
             }}
 
             .rr-theme-toggle-label {{
@@ -3191,33 +3238,41 @@ def apply_explicit_theme_css() -> None:
             }}
 
             .rr-use-guide {{
-              justify-content: flex-start !important;
-              min-width: 0 !important;
+              display: none !important;
             }}
 
             .rr-resource-art {{
-              height: 6rem !important;
-              min-height: 6rem !important;
+              height: 88px !important;
+              min-height: 88px !important;
             }}
           }}
 
           @media (max-width: 430px) {{
             .block-container {{
-              padding: 0.72rem 0.68rem 1.15rem !important;
+              padding: var(--rr-space-sm) var(--rr-space-sm) var(--rr-space-lg) !important;
             }}
 
             .rr-route-hero {{
-              padding: 0.9rem !important;
+              padding: var(--rr-space-md) !important;
+              margin-bottom: var(--rr-space-lg) !important;
             }}
 
             .rr-hero-title {{
-              font-size: 1.24rem !important;
+              font-size: 1rem !important;
+              line-height: 1.25 !important;
+              margin-bottom: var(--rr-space-xs) !important;
+            }}
+
+            .rr-hero-copy {{
+              font-size: 0.78rem !important;
+              line-height: 1.35 !important;
             }}
 
             .rr-results-header {{
               align-items: start !important;
               flex-direction: column !important;
-              gap: 0.15rem !important;
+              gap: var(--rr-space-xs) !important;
+              margin: var(--rr-space-lg) 0 var(--rr-space-sm) !important;
             }}
 
             .rr-results-header strong {{
@@ -3226,12 +3281,12 @@ def apply_explicit_theme_css() -> None:
 
             .rr-resource-layout {{
               grid-template-columns: 5.8rem minmax(0, 1fr) !important;
-              gap: 0.58rem !important;
+              gap: var(--rr-space-sm) !important;
             }}
 
             .rr-resource-art {{
-              height: 5.3rem !important;
-              min-height: 5.3rem !important;
+              height: 80px !important;
+              min-height: 80px !important;
             }}
           }}
         </style>
@@ -4226,7 +4281,7 @@ def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> No
     ink = "#F8FAFC" if dark else "#111827"
     muted = "#D1D5DB" if dark else "#374151"
     iframe_height = 280 if expanded else 118
-    card_height = iframe_height + 92
+    card_height = iframe_height + 96
     name = compact_description(resource.get("name"), 60)
     destination = resource_destination_query(resource)
     embed_url = google_maps_embed_url(resource)
@@ -4237,9 +4292,9 @@ def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> No
           box-sizing:border-box;
           width:100%;
           min-height:{card_height}px;
-          padding:10px;
+          padding:12px;
           border:1px solid {card_border};
-          border-radius:18px;
+          border-radius:16px;
           background:{card_bg};
           color:{ink};
           font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -4250,12 +4305,12 @@ def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> No
             src="{e(embed_url)}"
             width="100%"
             height="{iframe_height}"
-            style="display:block;border:0;border-radius:15px;background:#eef2f7;"
+            style="display:block;border:0;border-radius:16px;background:#eef2f7;"
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
             allowfullscreen>
           </iframe>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
             <span style="
               min-width:0;
               overflow:hidden;
