@@ -54,6 +54,12 @@ Streamlit 대시보드 실행:
 make dashboard
 ```
 
+지도 카드:
+
+- 기본은 `http://localhost:8501`에서 light mode로 열립니다. 화면 우측 상단의 `화면 모드`에서만 dark mode로 전환됩니다.
+- `GOOGLE_MAPS_API_KEY`가 있으면 Google Maps Embed API로 내 위치 기준 도보 경로를 표시합니다.
+- 키가 비어 있으면 빈 지도나 임의 지도 대신 Google Maps 공개 embed로 추천 활동 장소를 표시하고, `Google Maps` 버튼은 내 위치 기준 경로 링크로 연결합니다.
+
 접속:
 
 ```text

@@ -4,13 +4,16 @@ import html
 import base64
 import json
 import math
+import os
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote_plus, urlencode
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 SRC_ROOT = Path(__file__).resolve().parents[2]
 if str(SRC_ROOT) not in sys.path:
@@ -2588,6 +2591,7 @@ def init_session_state() -> None:
     st.session_state.setdefault("outcome_type", "program_participation")
     st.session_state.setdefault("outcome_status", "planned")
     st.session_state.setdefault("outcome_note", "")
+    st.session_state.setdefault("ui_theme_choice", "밝게")
 
 
 def e(value: Any) -> str:
@@ -2618,11 +2622,78 @@ def fallback_image_for_resource(resource_type: str) -> str:
 
 
 def resource_image_src(resource: dict[str, Any]) -> str:
+    thumbnail_url = display_text(resource.get("thumbnail_url"))
+    if thumbnail_url.startswith("https://"):
+        return thumbnail_url
     return fallback_image_for_resource(str(resource.get("resource_type", "")))
 
 
 def resource_source_url(resource: dict[str, Any]) -> str:
     return display_text(resource.get("detail_url")) or display_text(resource.get("source_url"))
+
+
+def google_maps_api_key() -> str:
+    secret_key = ""
+    try:
+        secret_key = str(st.secrets.get("GOOGLE_MAPS_API_KEY", "") or st.secrets.get("google_maps_api_key", "")).strip()
+    except Exception:
+        secret_key = ""
+    return secret_key or os.getenv("GOOGLE_MAPS_API_KEY", "").strip()
+
+
+def float_or_none(value: Any) -> float | None:
+    try:
+        if value is None or pd.isna(value):
+            return None
+        return float(value)
+    except Exception:
+        return None
+
+
+def resource_destination_query(resource: dict[str, Any]) -> str:
+    lat = float_or_none(resource.get("latitude"))
+    lon = float_or_none(resource.get("longitude"))
+    if lat is not None and lon is not None:
+        return f"{lat:.6f},{lon:.6f}"
+    parts = [
+        display_text(resource.get("official_place")),
+        display_text(resource.get("address")),
+        display_text(resource.get("name")),
+        display_text(resource.get("district")),
+        "인천",
+    ]
+    deduped = list(dict.fromkeys(part for part in parts if part))
+    return " ".join(deduped)
+
+
+def google_maps_embed_url(resource: dict[str, Any]) -> str:
+    destination = resource_destination_query(resource)
+    api_key = google_maps_api_key()
+    if api_key:
+        user_lat, user_lon = current_user_location()
+        return "https://www.google.com/maps/embed/v1/directions?" + urlencode(
+            {
+                "key": api_key,
+                "origin": f"{user_lat:.6f},{user_lon:.6f}",
+                "destination": destination,
+                "mode": "walking",
+                "language": "ko",
+                "region": "KR",
+            }
+        )
+    return f"https://maps.google.com/maps?q={quote_plus(destination)}&z=14&output=embed"
+
+
+def google_maps_directions_url(resource: dict[str, Any]) -> str:
+    user_lat, user_lon = current_user_location()
+    return "https://www.google.com/maps/dir/?" + urlencode(
+        {
+            "api": "1",
+            "origin": f"{user_lat:.6f},{user_lon:.6f}",
+            "destination": resource_destination_query(resource),
+            "travelmode": "walking",
+        }
+    )
 
 
 def display_text(value: Any) -> str:
@@ -2660,6 +2731,388 @@ def operator_mode_enabled() -> bool:
     if isinstance(value, list):
         value = value[0] if value else ""
     return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def current_theme_mode() -> str:
+    return "dark" if st.session_state.get("ui_theme_choice") == "어둡게" else "light"
+
+
+def apply_explicit_theme_css() -> None:
+    dark = current_theme_mode() == "dark"
+    palette = {
+        "mode": "dark" if dark else "light",
+        "bg": "#0F172A" if dark else "#F6F8FC",
+        "page_top": "#111827" if dark else "#FFFFFF",
+        "surface": "#182235" if dark else "#FFFFFF",
+        "surface_raised": "#1F2937" if dark else "#F9FBFF",
+        "ink": "#F8FAFC" if dark else "#111827",
+        "muted": "#D1D5DB" if dark else "#374151",
+        "soft": "#B6C2D3" if dark else "#64748B",
+        "line": "#3B4A60" if dark else "#D6DEEA",
+        "primary": "#7DD3FC" if dark else "#1D4ED8",
+        "primary_strong": "#BAE6FD" if dark else "#1E40AF",
+        "primary_soft": "rgba(125, 211, 252, 0.16)" if dark else "#E8F0FF",
+        "info": "#5EEAD4" if dark else "#0F766E",
+        "info_soft": "rgba(94, 234, 212, 0.16)" if dark else "#E7F7F4",
+        "action": "#FB923C" if dark else "#C2410C",
+        "action_soft": "rgba(251, 146, 60, 0.18)" if dark else "#FFF1E7",
+        "active_fg": "#082F49" if dark else "#FFFFFF",
+        "action_fg": "#111827" if dark else "#FFFFFF",
+        "shadow": "0 16px 38px rgba(0, 0, 0, 0.32)" if dark else "0 14px 34px rgba(15, 23, 42, 0.10)",
+        "shadow_soft": "0 8px 22px rgba(0, 0, 0, 0.24)" if dark else "0 6px 18px rgba(15, 23, 42, 0.08)",
+        "map_bg": "#111827" if dark else "#FFFFFF",
+        "map_line": "#334155" if dark else "#D6DEEA",
+        "select_hover": "#24324A" if dark else "#EAF1FF",
+        "select_active": "#0B3551" if dark else "#DBEAFE",
+    }
+    st.markdown(
+        f"""
+        <style>
+          :root {{
+            --rr-bg: {palette["bg"]};
+            --rr-page-top: {palette["page_top"]};
+            --rr-surface: {palette["surface"]};
+            --rr-surface-raised: {palette["surface_raised"]};
+            --rr-ink: {palette["ink"]};
+            --rr-muted: {palette["muted"]};
+            --rr-soft: {palette["soft"]};
+            --rr-line: {palette["line"]};
+            --rr-primary: {palette["primary"]};
+            --rr-primary-strong: {palette["primary_strong"]};
+            --rr-primary-soft: {palette["primary_soft"]};
+            --rr-info: {palette["info"]};
+            --rr-info-soft: {palette["info_soft"]};
+            --rr-action: {palette["action"]};
+            --rr-action-soft: {palette["action_soft"]};
+            --rr-glass: {palette["surface"]};
+            --rr-shadow: {palette["shadow"]};
+            --rr-shadow-soft: {palette["shadow_soft"]};
+          }}
+
+          html, body, .stApp {{
+            color-scheme: {palette["mode"]} !important;
+          }}
+
+          .stApp,
+          [data-testid="stAppViewContainer"],
+          [data-testid="stMain"],
+          [data-testid="stMainBlockContainer"],
+          section.main {{
+            background:
+              linear-gradient(180deg, var(--rr-page-top) 0, var(--rr-bg) 15rem, var(--rr-bg) 100%) !important;
+            color: var(--rr-ink) !important;
+          }}
+
+          .block-container {{
+            max-width: 1120px !important;
+            padding: 1rem 1.15rem 2rem !important;
+          }}
+
+          [data-testid="stVerticalBlock"] {{
+            gap: 0.74rem !important;
+          }}
+
+          .rr-app-shell {{
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto !important;
+            gap: 0.85rem !important;
+            align-items: center !important;
+            margin: 0 0 0.65rem !important;
+            padding: 0.1rem 0 !important;
+          }}
+
+          .rr-brand-name {{
+            color: var(--rr-ink) !important;
+            font-size: 1.22rem !important;
+            line-height: 1.15 !important;
+          }}
+
+          .rr-brand-sub,
+          .rr-session-pill,
+          .rr-theme-toggle-label {{
+            color: var(--rr-muted) !important;
+          }}
+
+          .rr-theme-toggle-label {{
+            font-size: 0.72rem !important;
+            font-weight: 850 !important;
+            text-align: right !important;
+            margin-bottom: 0.24rem !important;
+          }}
+
+          .rr-route-hero {{
+            grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.86fr) !important;
+            gap: 0.95rem !important;
+            padding: 1rem 1.08rem !important;
+            margin-bottom: 0.86rem !important;
+            background: var(--rr-surface) !important;
+            border: 1px solid var(--rr-line) !important;
+            border-radius: 20px !important;
+            box-shadow: var(--rr-shadow-soft) !important;
+          }}
+
+          .rr-hero-kicker {{
+            color: var(--rr-primary-strong) !important;
+          }}
+
+          .rr-hero-title,
+          .rr-bento-title,
+          .rr-section-title,
+          h1, h2, h3, h4,
+          p, li, label,
+          [data-testid="stMarkdownContainer"],
+          [data-testid="stWidgetLabel"] {{
+            color: var(--rr-ink) !important;
+          }}
+
+          .rr-hero-copy,
+          .rr-bento-body,
+          .rr-muted {{
+            color: var(--rr-muted) !important;
+          }}
+
+          .rr-use-guide span,
+          .rr-choice-row [data-testid="stVerticalBlockBorderWrapper"],
+          .rr-bento-card,
+          .rr-progressive-panel,
+          .rr-history-card,
+          .rr-resource-card,
+          .rr-panel,
+          .st-key-route_action_bar {{
+            background: var(--rr-surface) !important;
+            border-color: var(--rr-line) !important;
+            box-shadow: var(--rr-shadow-soft) !important;
+          }}
+
+          .rr-use-guide b,
+          [data-baseweb="tab"][aria-selected="true"],
+          [data-testid="stBaseButton-segmented_controlActive"] {{
+            background: var(--rr-primary) !important;
+            border-color: var(--rr-primary) !important;
+            color: {palette["active_fg"]} !important;
+          }}
+
+          .rr-use-guide b *,
+          [data-baseweb="tab"][aria-selected="true"] *,
+          [data-testid="stBaseButton-segmented_controlActive"] *,
+          [data-testid="stBaseButton-segmented_controlActive"] p,
+          [data-testid="stBaseButton-segmented_controlActive"] span {{
+            color: {palette["active_fg"]} !important;
+          }}
+
+          [data-testid="stBaseButton-segmented_control"],
+          [data-testid="stBaseButton-secondary"],
+          .stButton > button {{
+            background: var(--rr-surface-raised) !important;
+            border-color: var(--rr-line) !important;
+            color: var(--rr-ink) !important;
+            transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
+          }}
+
+          [data-testid="stBaseButton-segmented_control"] *,
+          [data-testid="stBaseButton-secondary"] *,
+          .stButton > button * {{
+            color: inherit !important;
+          }}
+
+          [data-testid="stBaseButton-segmented_control"]:hover,
+          [data-testid="stBaseButton-secondary"]:hover,
+          .stButton > button:hover {{
+            border-color: var(--rr-primary) !important;
+            box-shadow: 0 0 0 3px var(--rr-primary-soft) !important;
+            transform: translateY(-1px) !important;
+          }}
+
+          [data-testid="stBaseButton-primary"],
+          .st-key-route_action_bar [data-testid="stBaseButton-primary"] {{
+            background: var(--rr-action) !important;
+            border-color: var(--rr-action) !important;
+            color: {palette["action_fg"]} !important;
+            box-shadow: 0 10px 22px color-mix(in srgb, var(--rr-action) 24%, transparent) !important;
+          }}
+
+          [data-testid="stBaseButton-primary"] *,
+          .st-key-route_action_bar [data-testid="stBaseButton-primary"] * {{
+            color: {palette["action_fg"]} !important;
+          }}
+
+          [data-baseweb="tab-list"],
+          [data-baseweb="input"],
+          [data-baseweb="select"] > div,
+          [data-baseweb="textarea"],
+          input, textarea {{
+            background: var(--rr-surface) !important;
+            border-color: var(--rr-line) !important;
+            color: var(--rr-ink) !important;
+          }}
+
+          [data-baseweb="select"] *,
+          [data-baseweb="input"] *,
+          [data-baseweb="textarea"] *,
+          input::placeholder,
+          textarea::placeholder {{
+            color: var(--rr-ink) !important;
+          }}
+
+          [data-baseweb="popover"],
+          [data-baseweb="popover"] > div,
+          [data-baseweb="menu"],
+          [role="listbox"] {{
+            background: var(--rr-surface) !important;
+            border: 1px solid var(--rr-line) !important;
+            color: var(--rr-ink) !important;
+            box-shadow: var(--rr-shadow) !important;
+          }}
+
+          [data-baseweb="popover"] *,
+          [data-baseweb="menu"] *,
+          [role="listbox"] *,
+          [role="option"],
+          [role="option"] * {{
+            color: var(--rr-ink) !important;
+          }}
+
+          [data-baseweb="menu"] li,
+          [role="option"] {{
+            background: var(--rr-surface) !important;
+            color: var(--rr-ink) !important;
+          }}
+
+          [data-baseweb="menu"] li:hover,
+          [role="option"]:hover,
+          [role="option"][aria-selected="true"] {{
+            background: {palette["select_hover"]} !important;
+            color: var(--rr-ink) !important;
+          }}
+
+          [data-baseweb="menu"] li[aria-selected="true"],
+          [role="option"][aria-selected="true"] {{
+            background: {palette["select_active"]} !important;
+          }}
+
+          .rr-bento-row {{
+            margin-top: 0.82rem !important;
+          }}
+
+          .rr-bento-card {{
+            padding: 1rem !important;
+            border-radius: 18px !important;
+          }}
+
+          .rr-resource-layout {{
+            grid-template-columns: 9.6rem minmax(0, 1fr) !important;
+            gap: 0.82rem !important;
+            align-items: stretch !important;
+          }}
+
+          .rr-resource-art {{
+            width: 100% !important;
+            height: 8.1rem !important;
+            min-height: 8.1rem !important;
+            border-radius: 16px !important;
+            object-fit: cover !important;
+            background: var(--rr-primary-soft) !important;
+            border: 1px solid var(--rr-line) !important;
+          }}
+
+          .rr-source-link {{
+            background: var(--rr-primary) !important;
+            border-color: var(--rr-primary) !important;
+            color: {palette["active_fg"]} !important;
+          }}
+
+          .rr-source-link * {{
+            color: {palette["active_fg"]} !important;
+          }}
+
+          .rr-map {{
+            background: {palette["map_bg"]} !important;
+            border-color: {palette["map_line"]} !important;
+          }}
+
+          .rr-map.compact {{
+            height: 9rem !important;
+          }}
+
+          .rr-map.expanded {{
+            height: 21rem !important;
+          }}
+
+          .rr-map-label {{
+            background: var(--rr-surface) !important;
+            color: var(--rr-ink) !important;
+            border: 1px solid var(--rr-line) !important;
+          }}
+
+          .rr-map-label small,
+          .rr-official-line,
+          .rr-card-eyebrow {{
+            color: var(--rr-soft) !important;
+          }}
+
+          .st-key-route_action_bar {{
+            margin-top: 0.78rem !important;
+            padding: 0.72rem !important;
+            border-radius: 22px !important;
+          }}
+
+          @media (max-width: 860px) {{
+            .block-container {{
+              padding: 0.82rem 0.82rem 1.3rem !important;
+            }}
+
+            .rr-app-shell {{
+              grid-template-columns: 1fr !important;
+              gap: 0.55rem !important;
+            }}
+
+            .rr-theme-toggle-label {{
+              text-align: left !important;
+            }}
+
+            .rr-route-hero,
+            .rr-use-guide,
+            .rr-choice-row,
+            .rr-bento-row {{
+              grid-template-columns: 1fr !important;
+            }}
+
+            .rr-resource-layout {{
+              grid-template-columns: 7.4rem minmax(0, 1fr) !important;
+            }}
+
+            .rr-resource-art {{
+              height: 7rem !important;
+              min-height: 7rem !important;
+            }}
+          }}
+
+          @media (max-width: 430px) {{
+            .block-container {{
+              padding: 0.72rem 0.68rem 1.15rem !important;
+            }}
+
+            .rr-route-hero {{
+              padding: 0.9rem !important;
+            }}
+
+            .rr-hero-title {{
+              font-size: 1.24rem !important;
+            }}
+
+            .rr-resource-layout {{
+              grid-template-columns: 1fr !important;
+            }}
+
+            .rr-resource-art {{
+              height: 9.6rem !important;
+              min-height: 9.6rem !important;
+            }}
+          }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def display_minutes(value: Any) -> int:
@@ -3397,18 +3850,29 @@ def user_outcome_frame(outcome_df: pd.DataFrame, resources_df: pd.DataFrame, mis
 
 
 def render_app_shell() -> None:
-    st.markdown(
-        """
-        <div class="rr-app-shell">
-          <div class="rr-brand-lockup">
-            <div class="rr-brand-name">RebootRoute</div>
-            <div class="rr-brand-sub">오늘 가능한 한 가지 행동과 공식 자원을 바로 찾습니다.</div>
-          </div>
-          <div class="rr-session-pill">진단·상담 서비스 아님</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    shell_col, theme_col = st.columns([1, 0.34], gap="medium")
+    with shell_col:
+        st.markdown(
+            """
+            <div class="rr-app-shell">
+              <div class="rr-brand-lockup">
+                <div class="rr-brand-name">RebootRoute</div>
+                <div class="rr-brand-sub">오늘 가능한 한 가지 행동과 공식 자원을 바로 찾습니다.</div>
+              </div>
+              <div class="rr-session-pill">진단·상담 서비스 아님</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with theme_col:
+        st.markdown('<div class="rr-theme-toggle-label">화면 모드</div>', unsafe_allow_html=True)
+        st.segmented_control(
+            "화면 모드",
+            ["밝게", "어둡게"],
+            key="ui_theme_choice",
+            label_visibility="collapsed",
+            width="stretch",
+        )
 
 
 def apply_route_choices_when_changed() -> None:
@@ -3626,19 +4090,92 @@ def map_markers(resources: pd.DataFrame, max_items: int) -> str:
     return "".join(markers)
 
 
-def render_map_preview(resources: pd.DataFrame) -> None:
-    expanded = bool(st.session_state["show_map_large"])
-    map_class = "expanded" if expanded else "compact"
-    max_items = 8 if expanded else 5
-    st.markdown(
+def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> None:
+    dark = current_theme_mode() == "dark"
+    card_bg = "#182235" if dark else "#FFFFFF"
+    card_border = "#3B4A60" if dark else "#D6DEEA"
+    ink = "#F8FAFC" if dark else "#111827"
+    muted = "#D1D5DB" if dark else "#374151"
+    primary = "#7DD3FC" if dark else "#1D4ED8"
+    action_fg = "#082F49" if dark else "#FFFFFF"
+    iframe_height = 280 if expanded else 150
+    card_height = iframe_height + 102
+    name = compact_description(resource.get("name"), 60)
+    destination = resource_destination_query(resource)
+    embed_url = google_maps_embed_url(resource)
+    directions_url = google_maps_directions_url(resource)
+    st.markdown('<div class="rr-card-eyebrow">내 위치와 활동 장소</div>', unsafe_allow_html=True)
+    components.html(
         f"""
-        <div class="rr-bento-card map">
-          <div class="rr-card-eyebrow">내 위치와 활동 장소</div>
-          <div class="rr-map {map_class}">{map_markers(resources, max_items)}</div>
+        <div style="
+          box-sizing:border-box;
+          width:100%;
+          min-height:{card_height}px;
+          padding:10px;
+          border:1px solid {card_border};
+          border-radius:18px;
+          background:{card_bg};
+          color:{ink};
+          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+        ">
+          <div style="font-size:14px;font-weight:850;line-height:1.35;margin:0 0 8px;color:{ink};">{e(name)}</div>
+          <iframe
+            title="Google Maps - {e(name)}"
+            src="{e(embed_url)}"
+            width="100%"
+            height="{iframe_height}"
+            style="display:block;border:0;border-radius:15px;background:#eef2f7;"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen>
+          </iframe>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;">
+            <span style="
+              min-width:0;
+              overflow:hidden;
+              text-overflow:ellipsis;
+              white-space:nowrap;
+              color:{muted};
+              font-size:12px;
+              font-weight:700;
+            ">{e(destination)}</span>
+            <a href="{e(directions_url)}" target="_blank" rel="noopener noreferrer" style="
+              flex:0 0 auto;
+              display:inline-flex;
+              align-items:center;
+              justify-content:center;
+              min-height:32px;
+              padding:0 12px;
+              border-radius:999px;
+              background:{primary};
+              color:{action_fg};
+              text-decoration:none;
+              font-size:12px;
+              font-weight:850;
+            ">Google Maps</a>
+          </div>
         </div>
         """,
-        unsafe_allow_html=True,
+        height=card_height + 8,
     )
+
+
+def render_map_preview(resources: pd.DataFrame, top_resource: dict[str, Any] | None = None) -> None:
+    expanded = bool(st.session_state["show_map_large"])
+    if top_resource:
+        render_google_map_preview(top_resource, expanded=expanded)
+    else:
+        map_class = "expanded" if expanded else "compact"
+        max_items = 8 if expanded else 5
+        st.markdown(
+            f"""
+            <div class="rr-bento-card map">
+              <div class="rr-card-eyebrow">내 위치와 활동 장소</div>
+              <div class="rr-map {map_class}">{map_markers(resources, max_items)}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     if st.button("지도 접기" if expanded else "지도에서 보기", key="toggle_map_large", width="stretch"):
         st.session_state["show_map_large"] = not expanded
         st.rerun()
@@ -3660,7 +4197,7 @@ def render_today_bento(profile: UserProfile, analysis: dict[str, Any], filtered_
     with resource_col:
         render_resource_spotlight(top_resource)
     with map_col:
-        render_map_preview(filtered_resources)
+        render_map_preview(filtered_resources, top_resource)
     st.markdown("</div>", unsafe_allow_html=True)
     return top_mission, top_resource, recommended_stage
 
@@ -3867,6 +4404,7 @@ def render_operator_panel() -> None:
 init_session_state()
 show_operator_tools = operator_mode_enabled()
 render_app_shell()
+apply_explicit_theme_css()
 
 if st.session_state.get("last_action_message"):
     st.success(st.session_state.pop("last_action_message"))
