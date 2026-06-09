@@ -2841,18 +2841,28 @@ def apply_explicit_theme_css() -> None:
           }}
 
           .rr-route-hero {{
-            grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.86fr) !important;
-            gap: 0.95rem !important;
-            padding: 1rem 1.08rem !important;
-            margin-bottom: 0.86rem !important;
-            background: var(--rr-surface) !important;
+            grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.9fr) !important;
+            gap: 1rem !important;
+            padding: 1rem !important;
+            margin-bottom: 0.9rem !important;
+            background:
+              linear-gradient(135deg, var(--rr-surface) 0%, var(--rr-surface-raised) 58%, var(--rr-primary-soft) 100%) !important;
             border: 1px solid var(--rr-line) !important;
-            border-radius: 20px !important;
+            border-radius: 24px !important;
             box-shadow: var(--rr-shadow-soft) !important;
+            overflow: hidden !important;
+          }}
+
+          .rr-hero-copyblock {{
+            min-width: 0 !important;
+            align-self: center !important;
           }}
 
           .rr-hero-kicker {{
             color: var(--rr-primary-strong) !important;
+            font-size: 0.78rem !important;
+            font-weight: 920 !important;
+            margin-bottom: 0.3rem !important;
           }}
 
           .rr-hero-title,
@@ -2869,6 +2879,63 @@ def apply_explicit_theme_css() -> None:
           .rr-bento-body,
           .rr-muted {{
             color: var(--rr-muted) !important;
+          }}
+
+          .rr-hero-visual {{
+            position: relative !important;
+            min-height: 8.7rem !important;
+            border-radius: 20px !important;
+            overflow: hidden !important;
+            border: 1px solid var(--rr-line) !important;
+            background: var(--rr-surface) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+          }}
+
+          .rr-hero-visual img {{
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            opacity: {0.54 if dark else 0.82} !important;
+          }}
+
+          .rr-hero-steps {{
+            position: absolute !important;
+            left: 0.74rem !important;
+            right: 0.74rem !important;
+            bottom: 0.74rem !important;
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 0.42rem !important;
+          }}
+
+          .rr-hero-steps span {{
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.28rem !important;
+            min-height: 2.14rem !important;
+            border-radius: 999px !important;
+            border: 1px solid color-mix(in srgb, var(--rr-line) 80%, transparent) !important;
+            background: color-mix(in srgb, var(--rr-surface) 78%, transparent) !important;
+            backdrop-filter: blur(10px) !important;
+            color: var(--rr-ink) !important;
+            font-size: 0.78rem !important;
+            font-weight: 880 !important;
+            white-space: nowrap !important;
+          }}
+
+          .rr-hero-steps b {{
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 1.24rem !important;
+            height: 1.24rem !important;
+            border-radius: 999px !important;
+            background: var(--rr-primary) !important;
+            color: {palette["active_fg"]} !important;
+            font-size: 0.7rem !important;
           }}
 
           .rr-use-guide span,
@@ -2994,21 +3061,42 @@ def apply_explicit_theme_css() -> None:
             margin-top: 0.82rem !important;
           }}
 
+          .rr-results-header {{
+            display: flex !important;
+            align-items: end !important;
+            justify-content: space-between !important;
+            gap: 0.7rem !important;
+            margin: 1rem 0 0.2rem !important;
+          }}
+
+          .rr-results-header span {{
+            color: var(--rr-primary-strong) !important;
+            font-size: 0.78rem !important;
+            font-weight: 920 !important;
+          }}
+
+          .rr-results-header strong {{
+            color: var(--rr-ink) !important;
+            font-size: 1rem !important;
+            font-weight: 930 !important;
+            text-align: right !important;
+          }}
+
           .rr-bento-card {{
             padding: 1rem !important;
             border-radius: 18px !important;
           }}
 
           .rr-resource-layout {{
-            grid-template-columns: 9.6rem minmax(0, 1fr) !important;
-            gap: 0.82rem !important;
+            grid-template-columns: 1fr !important;
+            gap: 0.76rem !important;
             align-items: stretch !important;
           }}
 
           .rr-resource-art {{
             width: 100% !important;
-            height: 8.1rem !important;
-            min-height: 8.1rem !important;
+            height: 10.25rem !important;
+            min-height: 10.25rem !important;
             border-radius: 16px !important;
             object-fit: cover !important;
             background: var(--rr-primary-soft) !important;
@@ -3077,13 +3165,13 @@ def apply_explicit_theme_css() -> None:
               grid-template-columns: 1fr !important;
             }}
 
-            .rr-resource-layout {{
-              grid-template-columns: 7.4rem minmax(0, 1fr) !important;
+            .rr-hero-visual {{
+              min-height: 8rem !important;
             }}
 
             .rr-resource-art {{
-              height: 7rem !important;
-              min-height: 7rem !important;
+              height: 9.2rem !important;
+              min-height: 9.2rem !important;
             }}
           }}
 
@@ -3098,6 +3186,16 @@ def apply_explicit_theme_css() -> None:
 
             .rr-hero-title {{
               font-size: 1.24rem !important;
+            }}
+
+            .rr-results-header {{
+              align-items: start !important;
+              flex-direction: column !important;
+              gap: 0.15rem !important;
+            }}
+
+            .rr-results-header strong {{
+              text-align: left !important;
             }}
 
             .rr-resource-layout {{
@@ -3962,16 +4060,22 @@ def render_advanced_controls() -> None:
 
 
 def render_route_builder() -> None:
+    hero_src = asset_data_uri("resource_route.png")
     st.markdown(
-        """
+        f"""
         <div class="rr-route-hero">
-          <div class="rr-hero-kicker">오늘의 루트 만들기</div>
-          <div class="rr-hero-title">1분 안에 오늘 할 일 정하기</div>
-          <p class="rr-hero-copy">조건을 고르면 추천이 바로 바뀝니다. 아래 카드에서 미션과 공식 자원을 확인하고 바로 시작하세요.</p>
-          <div class="rr-use-guide">
-            <span><b>1</b>조건 선택</span>
-            <span><b>2</b>추천 확인</span>
-            <span><b>3</b>시작 또는 기록</span>
+          <div class="rr-hero-copyblock">
+            <div class="rr-hero-kicker">오늘의 루트 만들기</div>
+            <div class="rr-hero-title">지금 가능한 만큼만 고르면 됩니다</div>
+            <p class="rr-hero-copy">네 가지 선택만 바꾸면 오늘 할 미션, 맞는 공식 자원, 위치 확인이 바로 다시 정리됩니다.</p>
+          </div>
+          <div class="rr-hero-visual">
+            <img src="{e(hero_src)}" alt="" />
+            <div class="rr-hero-steps">
+              <span><b>1</b>조건 선택</span>
+              <span><b>2</b>루트 확인</span>
+              <span><b>3</b>시작 기록</span>
+            </div>
           </div>
         </div>
         """,
@@ -4189,14 +4293,22 @@ def render_today_bento(profile: UserProfile, analysis: dict[str, Any], filtered_
     missions = analysis.get("next_3_missions", [])
     top_mission = missions[0] if missions else None
     top_resource = filtered_resources.iloc[0].to_dict() if not filtered_resources.empty else None
+    st.markdown(
+        """
+        <div class="rr-results-header">
+          <span>오늘 추천 루트</span>
+          <strong>하나만 확인하고 바로 시작하세요</strong>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.markdown('<div class="rr-bento-row">', unsafe_allow_html=True)
-    mission_col, resource_col, map_col = st.columns([1.0, 0.82, 0.72], gap="small")
-    with mission_col:
+    route_col, support_col = st.columns([0.92, 1.08], gap="medium")
+    with route_col:
         render_today_mission_card(profile, top_mission, recommended_stage)
         render_bottom_action_bar(profile, top_mission, recommended_stage)
-    with resource_col:
+    with support_col:
         render_resource_spotlight(top_resource)
-    with map_col:
         render_map_preview(filtered_resources, top_resource)
     st.markdown("</div>", unsafe_allow_html=True)
     return top_mission, top_resource, recommended_stage
@@ -4221,14 +4333,14 @@ def render_bottom_action_bar(profile: UserProfile, mission: dict[str, Any] | Non
         return
     with st.container(key="route_action_bar"):
         c1, c2 = st.columns([1.25, 0.75], gap="small")
-        if c1.button("이걸로 시작", key="route_start_primary", width="stretch", type="primary"):
+        if c1.button("오늘 이걸로 시작", key="route_start_primary", width="stretch", type="primary"):
             record_mission_action(profile, mission, ProgressStatus.started, recommended_stage)
-        if c2.button("완료", key="route_complete", width="stretch"):
+        if c2.button("완료했어요", key="route_complete", width="stretch"):
             record_mission_action(profile, mission, ProgressStatus.completed, recommended_stage)
         c3, c4 = st.columns(2, gap="small")
-        if c3.button("나중에", key="route_skip", width="stretch"):
+        if c3.button("나중에 보기", key="route_skip", width="stretch"):
             record_mission_action(profile, mission, ProgressStatus.skipped, recommended_stage)
-        if c4.button("어려움", key="route_too_hard", width="stretch"):
+        if c4.button("너무 어려움", key="route_too_hard", width="stretch"):
             record_mission_action(profile, mission, ProgressStatus.too_hard, recommended_stage)
 
 
