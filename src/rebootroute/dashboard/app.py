@@ -2831,19 +2831,30 @@ def apply_explicit_theme_css() -> None:
           }}
 
           .rr-app-shell {{
-            display: grid !important;
-            grid-template-columns: minmax(0, 1fr) auto !important;
-            gap: var(--rr-space-md) !important;
-            align-items: center !important;
+            display: block !important;
             margin: 0 0 var(--rr-space-lg) !important;
-            padding: 0 !important;
+            padding: var(--rr-space-lg) var(--rr-space-xl) !important;
             max-height: 120px !important;
+            background: var(--rr-surface) !important;
+            border: 1px solid var(--rr-line) !important;
+            border-radius: 16px !important;
+            box-shadow: var(--rr-shadow-soft) !important;
           }}
 
           .rr-brand-name {{
             color: var(--rr-ink) !important;
             font-size: 1.22rem !important;
             line-height: 1.15 !important;
+            font-weight: 930 !important;
+            margin-bottom: var(--rr-space-xs) !important;
+          }}
+
+          .rr-brand-tagline {{
+            color: var(--rr-ink) !important;
+            font-size: 1rem !important;
+            line-height: 1.35 !important;
+            font-weight: 850 !important;
+            margin-bottom: var(--rr-space-xs) !important;
           }}
 
           .rr-brand-sub,
@@ -2961,6 +2972,30 @@ def apply_explicit_theme_css() -> None:
 
           .rr-choice-row {{
             margin: 0 0 var(--rr-space-lg) !important;
+          }}
+
+          .rr-section-heading {{
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: var(--rr-space-md) !important;
+            margin: 0 0 var(--rr-space-sm) !important;
+          }}
+
+          .rr-section-heading span {{
+            color: var(--rr-ink) !important;
+            font-size: 1rem !important;
+            font-weight: 930 !important;
+          }}
+
+          .rr-section-heading strong {{
+            color: var(--rr-primary-strong) !important;
+            font-size: 0.82rem !important;
+            font-weight: 900 !important;
+            border: 1px solid var(--rr-line) !important;
+            background: var(--rr-surface-raised) !important;
+            border-radius: 999px !important;
+            padding: var(--rr-space-xs) var(--rr-space-sm) !important;
           }}
 
           .rr-choice-row [data-testid="stVerticalBlockBorderWrapper"] {{
@@ -3216,6 +3251,17 @@ def apply_explicit_theme_css() -> None:
             border-radius: 16px !important;
           }}
 
+          .st-key-route_action_bar [data-testid="stHorizontalBlock"] {{
+            display: grid !important;
+            grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, 0.85fr)) !important;
+            gap: var(--rr-space-sm) !important;
+          }}
+
+          .st-key-route_action_bar [data-testid="column"] {{
+            width: 100% !important;
+            min-width: 0 !important;
+          }}
+
           @media (max-width: 860px) {{
             .block-container {{
               padding: var(--rr-space-md) var(--rr-space-md) var(--rr-space-xl) !important;
@@ -3225,6 +3271,7 @@ def apply_explicit_theme_css() -> None:
               grid-template-columns: 1fr !important;
               gap: var(--rr-space-sm) !important;
               margin-bottom: var(--rr-space-md) !important;
+              padding: var(--rr-space-md) !important;
             }}
 
             .rr-theme-toggle-label {{
@@ -3245,6 +3292,11 @@ def apply_explicit_theme_css() -> None:
               height: 88px !important;
               min-height: 88px !important;
             }}
+
+            .st-key-route_action_bar [data-testid="stHorizontalBlock"] {{
+              grid-template-columns: minmax(0, 1.25fr) repeat(3, minmax(0, 0.8fr)) !important;
+              gap: var(--rr-space-sm) !important;
+            }}
           }}
 
           @media (max-width: 430px) {{
@@ -3255,6 +3307,23 @@ def apply_explicit_theme_css() -> None:
             .rr-route-hero {{
               padding: var(--rr-space-md) !important;
               margin-bottom: var(--rr-space-lg) !important;
+            }}
+
+            .rr-app-shell {{
+              padding: var(--rr-space-md) !important;
+            }}
+
+            .rr-brand-name {{
+              font-size: 1.08rem !important;
+            }}
+
+            .rr-brand-tagline {{
+              font-size: 0.9rem !important;
+            }}
+
+            .rr-brand-sub {{
+              font-size: 0.78rem !important;
+              line-height: 1.35 !important;
             }}
 
             .rr-hero-title {{
@@ -3287,6 +3356,20 @@ def apply_explicit_theme_css() -> None:
             .rr-resource-art {{
               height: 80px !important;
               min-height: 80px !important;
+            }}
+
+            .st-key-route_action_bar {{
+              padding: var(--rr-space-sm) !important;
+            }}
+
+            .st-key-route_action_bar [data-testid="stHorizontalBlock"] {{
+              grid-template-columns: minmax(0, 1.15fr) repeat(3, minmax(0, 0.8fr)) !important;
+              gap: var(--rr-space-xs) !important;
+            }}
+
+            .st-key-route_action_bar .stButton > button {{
+              font-size: 0.72rem !important;
+              padding: var(--rr-space-xs) var(--rr-space-xs) !important;
             }}
           }}
         </style>
@@ -3840,7 +3923,7 @@ def render_primary_mission(
     st.markdown(
         f"""
         <div class="rr-panel rr-stage-panel rr-primary-mission">
-          <div class="rr-section-title">2. 오늘 할 미션</div>
+          <div class="rr-section-title">오늘의 작은 미션</div>
           <div class="rr-card-title">{e(mission["title"])}</div>
           <div class="rr-card-body">{e(mission["description"])}</div>
           {chip(STAGE_LABELS.get(recommended_stage, "추천 단계"), "teal")}
@@ -4031,29 +4114,18 @@ def user_outcome_frame(outcome_df: pd.DataFrame, resources_df: pd.DataFrame, mis
 
 
 def render_app_shell() -> None:
-    shell_col, theme_col = st.columns([1, 0.34], gap="medium")
-    with shell_col:
-        st.markdown(
-            """
-            <div class="rr-app-shell">
-              <div class="rr-brand-lockup">
-                <div class="rr-brand-name">RebootRoute</div>
-                <div class="rr-brand-sub">오늘 가능한 한 가지 행동과 공식 자원을 바로 찾습니다.</div>
-              </div>
-              <div class="rr-session-pill">진단·상담 서비스 아님</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    with theme_col:
-        st.markdown('<div class="rr-theme-toggle-label">화면 모드</div>', unsafe_allow_html=True)
-        st.segmented_control(
-            "화면 모드",
-            ["밝게", "어둡게"],
-            key="ui_theme_choice",
-            label_visibility="collapsed",
-            width="stretch",
-        )
+    st.markdown(
+        """
+        <div class="rr-app-shell">
+          <div class="rr-brand-lockup">
+            <div class="rr-brand-name">RebootRoute</div>
+            <div class="rr-brand-tagline">오늘 할 수 있는 인천 정책·문화 루트</div>
+            <div class="rr-brand-sub">4가지만 고르면 오늘 확인할 공식 정보와 작은 행동을 추천해요.</div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def apply_route_choices_when_changed() -> None:
@@ -4146,18 +4218,9 @@ def render_advanced_controls() -> None:
 def render_route_builder() -> None:
     st.markdown(
         """
-        <div class="rr-route-hero">
-          <div class="rr-hero-copyblock">
-            <div class="rr-hero-kicker">오늘의 루트 만들기</div>
-            <div class="rr-hero-title">조건을 고르면 인천 공식 자원과 작은 행동을 추천합니다</div>
-            <p class="rr-hero-copy">선택은 즉시 반영됩니다. 추천 버튼을 따로 누를 필요가 없습니다.</p>
-          </div>
-          <div class="rr-use-guide">
-            <span><b>1</b>조건 선택</span>
-            <span><b>2</b>미션 확인</span>
-            <span><b>3</b>공식 자원 보기</span>
-            <span><b>4</b>시작 기록</span>
-          </div>
+        <div class="rr-section-heading">
+          <span>조건 선택</span>
+          <strong>4개만</strong>
         </div>
         """,
         unsafe_allow_html=True,
@@ -4182,7 +4245,7 @@ def render_today_mission_card(profile: UserProfile, mission: dict[str, Any] | No
         st.markdown(
             """
             <div class="rr-bento-card mission">
-              <div class="rr-card-eyebrow">오늘 할 미션</div>
+              <div class="rr-card-eyebrow">오늘의 작은 미션</div>
               <div class="rr-bento-title">조건을 조금 낮춰볼까요?</div>
               <div class="rr-bento-body">현재 선택으로는 바로 추천할 미션이 없습니다. 가능한 범위를 한 단계 넓혀보세요.</div>
             </div>
@@ -4193,14 +4256,12 @@ def render_today_mission_card(profile: UserProfile, mission: dict[str, Any] | No
     st.markdown(
         f"""
         <div class="rr-bento-card mission">
-          <div class="rr-card-eyebrow">오늘 할 미션</div>
+          <div class="rr-card-eyebrow">오늘의 작은 미션</div>
           <div class="rr-bento-title">{e(mission["title"])}</div>
-          <div class="rr-bento-body">{e(mission["description"])}</div>
+          <div class="rr-bento-body"><strong>10~20분 안에 끝나는 다음 행동</strong><br>{e(mission["description"])}</div>
           <div class="rr-mini-facts">
-            {fact(STAGE_LABELS.get(recommended_stage, "오늘 루트"))}
-            {fact(str(int(mission["expected_minutes"])) + "분")}
             {fact("부담 " + burden_text(mission["burden_level"]))}
-            {fact("조건 맞춤")}
+            {fact("예상 " + str(int(mission["expected_minutes"])) + "분")}
           </div>
         </div>
         """,
@@ -4225,8 +4286,8 @@ def render_resource_spotlight(resource: dict[str, Any] | None) -> None:
     fallback_src = fallback_image_for_resource(str(resource.get("resource_type", "")))
     source_name = display_text(resource.get("source_name")) or "공식 출처"
     source_url = resource_source_url(resource)
-    distance = resource.get("distance_km")
-    distance_text = f"{float(distance):.1f}km" if distance is not None and pd.notna(distance) else "위치 확인"
+    cost_text = COST_LABELS.get(str(resource.get("cost_type")), display_text(resource.get("cost_type")) or "확인 필요")
+    online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "현장 정보 확인 필요"
     st.markdown(
         f"""
         <div class="rr-bento-card resource">
@@ -4236,9 +4297,9 @@ def render_resource_spotlight(resource: dict[str, Any] | None) -> None:
               <div class="rr-card-eyebrow">가장 맞는 공식 자원</div>
               <div class="rr-bento-title">{e(compact_description(resource["name"], 52))}</div>
               <div class="rr-mini-facts">
-                {fact(RESOURCE_TYPE_LABELS.get(str(resource["resource_type"]), str(resource["resource_type"])))}
                 {fact(str(resource["district"]))}
-                {fact(distance_text)}
+                {fact(cost_text)}
+                {fact(online_text)}
               </div>
               <div class="rr-official-line">공식 출처: {e(source_name)}</div>
             </div>
@@ -4285,7 +4346,7 @@ def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> No
     name = compact_description(resource.get("name"), 60)
     destination = resource_destination_query(resource)
     embed_url = google_maps_embed_url(resource)
-    st.markdown('<div class="rr-card-eyebrow">내 위치와 활동 장소</div>', unsafe_allow_html=True)
+    st.markdown('<div class="rr-card-eyebrow">위치 확인</div>', unsafe_allow_html=True)
     components.html(
         f"""
         <div style="
@@ -4329,7 +4390,7 @@ def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> No
 
 
 def render_map_preview(resources: pd.DataFrame, top_resource: dict[str, Any] | None = None) -> None:
-    expanded = bool(st.session_state["show_map_large"])
+    expanded = False
     if top_resource:
         render_google_map_preview(top_resource, expanded=expanded)
     else:
@@ -4338,16 +4399,12 @@ def render_map_preview(resources: pd.DataFrame, top_resource: dict[str, Any] | N
         st.markdown(
             f"""
             <div class="rr-bento-card map">
-              <div class="rr-card-eyebrow">내 위치와 활동 장소</div>
+              <div class="rr-card-eyebrow">위치 확인</div>
               <div class="rr-map {map_class}">{map_markers(resources, max_items)}</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
-    if st.button("지도 접기" if expanded else "지도에서 보기", key="toggle_map_large", width="stretch"):
-        st.session_state["show_map_large"] = not expanded
-        st.session_state["last_action_message"] = "지도를 크게 열었어요." if st.session_state["show_map_large"] else "지도 미리보기로 접었어요."
-        st.rerun()
 
 
 def render_today_bento(profile: UserProfile, analysis: dict[str, Any], filtered_resources: pd.DataFrame) -> tuple[dict[str, Any] | None, dict[str, Any] | None, int]:
@@ -4358,25 +4415,16 @@ def render_today_bento(profile: UserProfile, analysis: dict[str, Any], filtered_
     missions = analysis.get("next_3_missions", [])
     top_mission = missions[0] if missions else None
     top_resource = filtered_resources.iloc[0].to_dict() if not filtered_resources.empty else None
-    st.markdown(
-        """
-        <div class="rr-results-header">
-          <span>오늘 추천 루트</span>
-          <strong>하나만 확인하고 바로 시작하세요</strong>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
     st.markdown('<div class="rr-bento-row">', unsafe_allow_html=True)
     mission_col, resource_col, map_col = st.columns([0.98, 0.92, 0.78], gap="small")
     with mission_col:
         render_today_mission_card(profile, top_mission, recommended_stage)
-        render_bottom_action_bar(profile, top_mission, recommended_stage)
     with resource_col:
         render_resource_spotlight(top_resource)
     with map_col:
         render_map_preview(filtered_resources, top_resource)
     st.markdown("</div>", unsafe_allow_html=True)
+    render_bottom_action_bar(profile, top_mission, recommended_stage)
     return top_mission, top_resource, recommended_stage
 
 
@@ -4399,12 +4447,11 @@ def render_bottom_action_bar(profile: UserProfile, mission: dict[str, Any] | Non
     if not mission:
         return
     with st.container(key="route_action_bar"):
-        c1, c2 = st.columns([1.25, 0.75], gap="small")
+        c1, c2, c3, c4 = st.columns([1.35, 0.85, 0.85, 0.85], gap="small")
         if c1.button("오늘 이걸로 시작", key="route_start_primary", width="stretch", type="primary"):
             record_mission_action(profile, mission, ProgressStatus.started, recommended_stage)
         if c2.button("완료", key="route_complete", width="stretch"):
             record_mission_action(profile, mission, ProgressStatus.completed, recommended_stage)
-        c3, c4 = st.columns(2, gap="small")
         if c3.button("나중에", key="route_skip", width="stretch", type="tertiary"):
             record_mission_action(profile, mission, ProgressStatus.skipped, recommended_stage)
         if c4.button("어려움", key="route_too_hard", width="stretch", type="tertiary"):
