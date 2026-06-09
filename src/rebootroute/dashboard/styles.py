@@ -2871,6 +2871,197 @@ def apply_explicit_theme_css() -> None:
             min-width: 0 !important;
           }}
 
+          .st-key-route_action_bar {{
+            position: fixed !important;
+            left: 50% !important;
+            right: auto !important;
+            bottom: var(--rr-space-md) !important;
+            width: min(1120px, calc(100vw - (var(--rr-space-xl) * 2))) !important;
+            transform: translateX(-50%) !important;
+            z-index: 1000 !important;
+          }}
+
+          .st-key-route_action_bar .stButton,
+          .st-key-route_action_bar .stButton > button {{
+            width: 100% !important;
+          }}
+
+          .st-key-route_action_bar [data-testid="stHorizontalBlock"] {{
+            justify-items: stretch !important;
+            align-items: stretch !important;
+          }}
+
+          .st-key-route_action_bar [data-testid="stColumn"],
+          .st-key-route_action_bar [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {{
+            width: 100% !important;
+            min-width: 0 !important;
+            justify-self: stretch !important;
+            align-self: stretch !important;
+          }}
+
+          .st-key-route_action_bar [data-testid="stElementContainer"],
+          .st-key-route_action_bar [data-testid="stButton"],
+          .st-key-route_action_bar [data-testid="stButton"] > button,
+          .st-key-route_action_bar button {{
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            inline-size: 100% !important;
+          }}
+
+          .st-key-route_action_bar [data-testid="stButton"] > button,
+          .st-key-route_action_bar button {{
+            display: flex !important;
+            justify-content: center !important;
+          }}
+
+          /* Pass 3: quiet, explicit button hierarchy. No gradient/glass button styling. */
+          [data-testid="stBaseButton-segmented_control"],
+          [data-testid="stBaseButton-segmented_controlActive"],
+          .stButton > button,
+          [class*="st-key-resource_source_"] a,
+          [class*="st-key-featured_source_"] a,
+          .st-key-map_directions a {{
+            border-radius: 999px !important;
+            min-height: 40px !important;
+            padding: 0 var(--rr-space-lg) !important;
+            font-size: 0.9rem !important;
+            font-weight: 850 !important;
+            line-height: 1.2 !important;
+            letter-spacing: 0 !important;
+            text-decoration: none !important;
+            box-shadow: none !important;
+            transform: none !important;
+            transition:
+              background-color 140ms ease,
+              border-color 140ms ease,
+              color 140ms ease,
+              box-shadow 140ms ease !important;
+          }}
+
+          [data-testid="stBaseButton-segmented_control"],
+          .stButton > button {{
+            background: var(--rr-surface) !important;
+            border: 1px solid var(--rr-line) !important;
+            color: var(--rr-ink) !important;
+          }}
+
+          [data-testid="stBaseButton-segmented_control"] *,
+          .stButton > button * {{
+            color: inherit !important;
+          }}
+
+          [data-testid="stBaseButton-segmented_control"]:hover,
+          .stButton > button:hover {{
+            background: var(--rr-primary-soft) !important;
+            border-color: var(--rr-primary) !important;
+            color: var(--rr-primary-strong) !important;
+            box-shadow: 0 0 0 3px var(--rr-primary-soft) !important;
+          }}
+
+          [data-testid="stBaseButton-segmented_control"]:focus-visible,
+          [data-testid="stBaseButton-segmented_controlActive"]:focus-visible,
+          .stButton > button:focus-visible,
+          [class*="st-key-resource_source_"] a:focus-visible,
+          [class*="st-key-featured_source_"] a:focus-visible,
+          .st-key-map_directions a:focus-visible {{
+            outline: 3px solid var(--rr-primary-soft) !important;
+            outline-offset: 2px !important;
+          }}
+
+          [data-testid="stBaseButton-segmented_controlActive"] {{
+            background: var(--rr-primary-soft) !important;
+            border: 1px solid var(--rr-primary) !important;
+            color: var(--rr-primary-strong) !important;
+            box-shadow: inset 0 0 0 1px var(--rr-primary) !important;
+          }}
+
+          [data-testid="stBaseButton-segmented_controlActive"] *,
+          [data-testid="stBaseButton-segmented_controlActive"] p,
+          [data-testid="stBaseButton-segmented_controlActive"] span {{
+            color: var(--rr-primary-strong) !important;
+          }}
+
+          [data-testid="stBaseButton-primary"],
+          .st-key-route_start_primary .stButton > button {{
+            background: var(--rr-action) !important;
+            border: 1px solid var(--rr-action) !important;
+            color: {palette["action_fg"]} !important;
+            box-shadow: 0 6px 14px color-mix(in srgb, var(--rr-action) 22%, transparent) !important;
+          }}
+
+          [data-testid="stBaseButton-primary"] *,
+          .st-key-route_start_primary .stButton > button * {{
+            color: {palette["action_fg"]} !important;
+          }}
+
+          [data-testid="stBaseButton-primary"]:hover,
+          .st-key-route_start_primary .stButton > button:hover {{
+            background: color-mix(in srgb, var(--rr-action) 88%, #000000) !important;
+            border-color: color-mix(in srgb, var(--rr-action) 88%, #000000) !important;
+            color: {palette["action_fg"]} !important;
+            box-shadow: 0 0 0 3px var(--rr-action-soft) !important;
+          }}
+
+          .st-key-route_complete .stButton > button,
+          [class*="st-key-resource_source_"] a,
+          [class*="st-key-featured_source_"] a,
+          .st-key-map_directions a {{
+            background: var(--rr-surface) !important;
+            border: 1px solid var(--rr-primary) !important;
+            color: var(--rr-primary-strong) !important;
+          }}
+
+          .st-key-route_complete .stButton > button *,
+          [class*="st-key-resource_source_"] a *,
+          [class*="st-key-featured_source_"] a *,
+          .st-key-map_directions a * {{
+            color: var(--rr-primary-strong) !important;
+          }}
+
+          .st-key-route_complete .stButton > button:hover,
+          [class*="st-key-resource_source_"] a:hover,
+          [class*="st-key-featured_source_"] a:hover,
+          .st-key-map_directions a:hover {{
+            background: var(--rr-primary-soft) !important;
+            border-color: var(--rr-primary) !important;
+            color: var(--rr-primary-strong) !important;
+            box-shadow: 0 0 0 3px var(--rr-primary-soft) !important;
+          }}
+
+          .st-key-route_skip .stButton > button,
+          .st-key-route_too_hard .stButton > button,
+          .st-key-toggle_advanced_controls .stButton > button,
+          .st-key-toggle_more_candidates .stButton > button,
+          .st-key-toggle_record_panel .stButton > button,
+          .st-key-reset_conditions .stButton > button {{
+            background: transparent !important;
+            border: 1px solid var(--rr-line) !important;
+            color: var(--rr-muted) !important;
+            box-shadow: none !important;
+          }}
+
+          .st-key-route_skip .stButton > button *,
+          .st-key-route_too_hard .stButton > button *,
+          .st-key-toggle_advanced_controls .stButton > button *,
+          .st-key-toggle_more_candidates .stButton > button *,
+          .st-key-toggle_record_panel .stButton > button *,
+          .st-key-reset_conditions .stButton > button * {{
+            color: var(--rr-muted) !important;
+          }}
+
+          .st-key-route_skip .stButton > button:hover,
+          .st-key-route_too_hard .stButton > button:hover,
+          .st-key-toggle_advanced_controls .stButton > button:hover,
+          .st-key-toggle_more_candidates .stButton > button:hover,
+          .st-key-toggle_record_panel .stButton > button:hover,
+          .st-key-reset_conditions .stButton > button:hover {{
+            background: var(--rr-surface-raised) !important;
+            border-color: var(--rr-muted) !important;
+            color: var(--rr-ink) !important;
+            box-shadow: none !important;
+          }}
+
           @media (max-width: 860px) {{
             .block-container {{
               padding: var(--rr-space-md) var(--rr-space-md) var(--rr-space-xl) !important;
