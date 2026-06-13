@@ -20,6 +20,7 @@
 [data-baseweb="tab"][aria-selected="true"] {
   color: #ffffff !important;
   background: var(--rr-primary_dark) !important;
+  box-shadow: 0 12px 28px rgba(76, 29, 149, 0.24) !important;
 }
 
 [data-baseweb="tab-highlight"] {

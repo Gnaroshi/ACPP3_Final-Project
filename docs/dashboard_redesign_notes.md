@@ -32,8 +32,9 @@
 
 1. 사용자가 오늘 쓸 수 있는 시간, 사람 만나는 부담, 먼저 보고 싶은 자료, 오늘 쓸 비용을 선택합니다.
 2. 네 조건이 모두 선택되기 전에는 추천 결과를 확정 노출하지 않습니다.
-3. 네 조건이 모두 선택되면 오늘 할 작은 미션, 가장 맞는 공식 자료, 지도 preview, 기록 버튼을 같은 결과 영역에 표시합니다.
-4. `세부 조건 더 조정하기`는 동네, 검색어, 최대 부담도, 확인 방식처럼 결과를 더 좁히고 싶을 때만 엽니다.
+3. 네 조건이 모두 선택되면 desktop에서는 조건 카드 4개가 한 줄로 유지됩니다. mobile에서는 한 장씩 세로로 쌓습니다.
+4. 선택 완료 후 결과 영역은 오늘 할 작은 미션을 먼저 전체폭으로 보여주고, 그 아래에 가장 맞는 공식 자료와 지도 preview를 desktop 2열로 표시합니다.
+5. `세부 조건 더 조정하기`는 동네, 검색어, 최대 부담도, 확인 방식처럼 결과를 더 좁히고 싶을 때만 엽니다.
 
 `정책·문화 찾기` 흐름:
 
@@ -77,19 +78,20 @@
 
 현재 dashboard는 light theme을 기본으로 사용합니다.
 
-- Page background: `#f4f7fb`
+- Page background: `#f7f4ff`
 - Surface: `#ffffff`
 - Main text: `#111827`
 - Muted text: `#475569`
-- Primary/nav ink: `#0f172a`
-- Primary accent: `#2563eb`
-- Secondary accent: `#14b8a6`
-- Border: `#d7e0ec`
+- Primary/nav ink: `#111827`
+- Primary accent: `#7c3aed`
+- Primary dark: `#4c1d95`
+- Secondary accent: `#a855f7`
+- Border: `rgba(148, 163, 184, 0.36)`
 - Radius: cards 20-28px, buttons 999px
 
 디자인 원칙:
 
-- 큰 빈 hero나 장식용 gradient를 만들지 않습니다.
+- hero는 큰 타이틀, 설명, 실제 이미지가 있는 서비스 진입부로 사용하되 제목이 desktop에서 줄바꿈되지 않아야 합니다.
 - 이미지가 필요한 곳에는 official thumbnail 또는 generated fallback image를 사용합니다.
 - 선택 전 preview와 선택 후 result를 같은 시각 위계로 섞지 않습니다.
 - 같은 역할의 card는 높이, padding, 이미지 비율, meta 위치를 맞춥니다.
@@ -135,6 +137,7 @@ src/rebootroute/dashboard/css/hero.css     # hero, project overview
 src/rebootroute/dashboard/css/navigation.css
 src/rebootroute/dashboard/css/resources.css
 src/rebootroute/dashboard/css/route.css
+src/rebootroute/dashboard/css/cards.css
 src/rebootroute/dashboard/css/results.css
 src/rebootroute/dashboard/css/footer.css
 src/rebootroute/dashboard/css/responsive.css
@@ -166,7 +169,9 @@ src/rebootroute/dashboard/assets/rebootroute_map_preview.png
 
 화면 검증:
 
-- Desktop 1484px/1152px 폭에서 horizontal overflow가 0이어야 합니다.
+- Desktop 1280px 이상에서 선택 완료 후 네 조건 카드가 한 줄로 정렬되어야 합니다.
+- Desktop 1280px 이상에서 선택 완료 후 결과 영역은 `미션 전체폭 -> 공식 자료/지도 2열` 순서로 보여야 합니다.
+- Desktop 1484px/1280px/1152px 폭에서 horizontal overflow가 0이어야 합니다.
 - Mobile 390px 폭에서 horizontal overflow가 0이어야 합니다.
 - Hero, project overview, official resource preview, tabs, route panel 순서가 유지되어야 합니다.
 - 네 조건 선택 전에는 추천 결과가 확정 표시되지 않아야 합니다.

@@ -14,6 +14,7 @@ CSS_FILES = (
     "navigation.css",
     "resources.css",
     "route.css",
+    "cards.css",
     "results.css",
     "footer.css",
     "responsive.css",
@@ -39,22 +40,22 @@ def apply_explicit_theme_css() -> None:
             "ink": "#f8fafc",
             "muted": "#cbd5e1",
             "line": "rgba(148, 163, 184, 0.34)",
-            "primary": "#60a5fa",
-            "primary_dark": "#2563eb",
-            "accent": "#2dd4bf",
+            "primary": "#a78bfa",
+            "primary_dark": "#7c3aed",
+            "accent": "#c084fc",
             "shadow": "0 24px 70px rgba(0, 0, 0, 0.35)",
         }
         if dark
         else {
-            "bg": "#f5f7fb",
+            "bg": "#f7f4ff",
             "surface": "#ffffff",
             "surface_soft": "#f8fafc",
             "ink": "#111827",
             "muted": "#475569",
             "line": "rgba(148, 163, 184, 0.36)",
-            "primary": "#2563eb",
-            "primary_dark": "#0f172a",
-            "accent": "#14b8a6",
+            "primary": "#7c3aed",
+            "primary_dark": "#4c1d95",
+            "accent": "#a855f7",
             "shadow": "0 24px 70px rgba(15, 23, 42, 0.10)",
         }
     )

@@ -5,7 +5,7 @@
   }
 
   .st-key-app_hero [data-testid="stHorizontalBlock"] {
-    grid-template-columns: minmax(0, 0.9fr) minmax(380px, 1.1fr) !important;
+    grid-template-columns: minmax(420px, 0.95fr) minmax(420px, 1.05fr) !important;
     gap: 24px !important;
   }
 
@@ -14,7 +14,7 @@
   }
 
   .rr-hero-copy-block h1 {
-    font-size: clamp(3.4rem, 6vw, 5rem) !important;
+    font-size: clamp(3.1rem, 5vw, 4.5rem) !important;
   }
 
   .rr-hero-visual {
@@ -27,6 +27,33 @@
 
   .st-key-route_choices [data-testid="stHorizontalBlock"] {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .st-key-route_resource_map_grid [data-testid="stHorizontalBlock"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .st-key-route_choices:has(.rr-choice-copy.compact) [data-testid="stHorizontalBlock"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .st-key-route_choices:has(.rr-choice-copy.compact) [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {
+    min-height: 208px !important;
+    padding: 12px !important;
+  }
+
+  .rr-choice-copy.compact .rr-choice-thumb {
+    height: 58px !important;
+  }
+
+  .rr-choice-copy.compact span {
+    font-size: 0.86rem !important;
+  }
+
+  .rr-choice-copy.compact small {
+    padding-left: 0 !important;
+    font-size: 0.78rem !important;
   }
 }
 
@@ -43,6 +70,8 @@
 
   .st-key-app_hero [data-testid="stHorizontalBlock"],
   .st-key-route_choices [data-testid="stHorizontalBlock"],
+  .st-key-route_choices:has(.rr-choice-copy.compact) [data-testid="stHorizontalBlock"],
+  .st-key-route_resource_map_grid [data-testid="stHorizontalBlock"],
   .st-key-route_resource_preview [data-testid="stHorizontalBlock"] {
     grid-template-columns: 1fr !important;
   }
@@ -52,7 +81,8 @@
   }
 
   .rr-hero-copy-block h1 {
-    font-size: clamp(3.2rem, 12vw, 5rem) !important;
+    font-size: clamp(2.55rem, 9.5vw, 4.2rem) !important;
+    white-space: nowrap !important;
   }
 
   .rr-hero-visual {
@@ -70,6 +100,11 @@
   .rr-resource-list-action {
     min-width: 0 !important;
     padding-top: 0 !important;
+  }
+
+  .st-key-resource_preview_prev button,
+  .st-key-resource_preview_next button {
+    min-height: 54px !important;
   }
 
   .st-key-route_choice_panel,
@@ -117,6 +152,13 @@
 
   .rr-preview-list-panel,
   .rr-preview-list-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rr-candidate-card,
+  .rr-resource-quickfacts,
+  .st-key-route_mission_row .rr-mission-detail-grid,
+  .rr-candidate-meta {
     grid-template-columns: 1fr !important;
   }
 }

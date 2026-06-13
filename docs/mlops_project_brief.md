@@ -37,7 +37,7 @@
 - Monitoring: batch validation, resource audit, MLflow run/metric logging, model/data card, error analysis, feedback/progress/outcome SQLite logs
 
 ## 7. Demo Path
-make pipeline -> make dashboard -> hero/공식 자료 preview 확인 -> 네 가지 조건 선택 -> 추천 미션/공식 자원/지도 확인 -> 시작/완료/too-hard/outcome 기록 -> 필요할 때만 ?operator=1 개발자/운영자 검증 확인
+make pipeline -> make dashboard -> hero/공식 자료 carousel 확인 -> 네 가지 조건 선택 -> 미션 전체폭 카드 확인 -> 공식 자원/지도 2열 확인 -> 시작/완료/too-hard/outcome 기록 -> 필요할 때만 ?operator=1 개발자/운영자 검증 확인
 
 ## 8. Main Risks
 - synthetic label과 실제 사용자 행동의 차이

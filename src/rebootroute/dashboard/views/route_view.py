@@ -138,15 +138,16 @@ def render_today_bento(profile: UserProfile, analysis: dict[str, Any], filtered_
         unsafe_allow_html=True,
     )
     with st.container(key="route_results_grid"):
-        mission_col, resource_col, map_col = st.columns([1.05, 1.05, 0.9], gap="medium")
-        with mission_col:
+        with st.container(key="route_mission_row"):
             render_today_mission_card(profile, top_mission, recommended_stage)
             render_bottom_action_bar(profile, top_mission, recommended_stage)
             render_route_action_feedback()
-        with resource_col:
-            render_resource_spotlight(top_resource)
-        with map_col:
-            render_map_preview(filtered_resources, top_resource)
+        with st.container(key="route_resource_map_grid"):
+            resource_col, map_col = st.columns([0.58, 0.42], gap="medium")
+            with resource_col:
+                render_resource_spotlight(top_resource)
+            with map_col:
+                render_map_preview(filtered_resources, top_resource)
     return top_mission, top_resource, recommended_stage
 
 
@@ -184,7 +185,7 @@ def _resource_meta(resource: dict[str, Any]) -> tuple[str, str, str, str]:
     return name, resource_type, district, period
 
 
-def resource_preview_cards_html(resources: pd.DataFrame, *, limit: int = 8) -> str:
+def _resource_preview_rows(resources: pd.DataFrame, *, limit: int = 8) -> list[dict[str, Any]]:
     preview_rows = []
     if not resources.empty:
         preferred_types = ["support_program", "culture_event", "culture_facility", "youth_program"]
@@ -203,10 +204,17 @@ def resource_preview_cards_html(resources: pd.DataFrame, *, limit: int = 8) -> s
         if not preview_rows:
             preview_rows = resources.head(limit).to_dict("records")
         preview_rows = preview_rows[:limit]
+    return preview_rows
+
+
+def resource_preview_cards_html(resources: pd.DataFrame, *, limit: int = 8, offset: int = 0, window: int = 4) -> str:
+    preview_rows = _resource_preview_rows(resources, limit=limit)
     if not preview_rows:
         return ""
+    offset = offset % len(preview_rows)
+    visible_rows = [preview_rows[(offset + idx) % len(preview_rows)] for idx in range(min(window, len(preview_rows)))]
     cards = []
-    for resource in preview_rows:
+    for resource in visible_rows:
         name, resource_type, district, period = _resource_meta(resource)
         card_title = _compact_text(name, max_chars=36)
         summary = _resource_summary(resource, max_chars=86)
@@ -227,7 +235,9 @@ def resource_preview_cards_html(resources: pd.DataFrame, *, limit: int = 8) -> s
 
 
 def render_resource_preview_section(resources: pd.DataFrame, *, compact: bool = False) -> None:
-    cards_html = resource_preview_cards_html(resources, limit=8)
+    preview_count = len(_resource_preview_rows(resources, limit=8))
+    offset = int(st.session_state.get("resource_preview_offset", 0))
+    cards_html = resource_preview_cards_html(resources, limit=8, offset=offset)
     if not cards_html:
         return
     title = "조건 선택 전에 볼 공식 자료" if compact else "조건 선택에 참고할 자료"
@@ -242,7 +252,6 @@ def render_resource_preview_section(resources: pd.DataFrame, *, compact: bool = 
             st.markdown(
                 f"""
                 <div class="rr-resource-showcase-header">
-                  <span>인천 공식 자료</span>
                   <h2>{e(title)}</h2>
                   <p>{e(body)}</p>
                 </div>
@@ -258,7 +267,17 @@ def render_resource_preview_section(resources: pd.DataFrame, *, compact: bool = 
                 st.rerun()
             st.markdown("</div>", unsafe_allow_html=True)
         compact_class = " compact" if compact else ""
-        st.markdown(f'<div class="rr-preview-resource-strip showcase{compact_class}">{cards_html}</div>', unsafe_allow_html=True)
+        prev_col, cards_col, next_col = st.columns([0.08, 0.84, 0.08], gap="small")
+        with prev_col:
+            if st.button("이전", key="resource_preview_prev", type="tertiary", width="stretch"):
+                st.session_state["resource_preview_offset"] = (offset - 1) % max(preview_count, 1)
+                st.rerun()
+        with cards_col:
+            st.markdown(f'<div class="rr-preview-resource-strip showcase{compact_class}">{cards_html}</div>', unsafe_allow_html=True)
+        with next_col:
+            if st.button("다음", key="resource_preview_next", type="tertiary", width="stretch"):
+                st.session_state["resource_preview_offset"] = (offset + 1) % max(preview_count, 1)
+                st.rerun()
         show_list = bool(st.session_state.get("show_resource_preview_list", False))
         if show_list:
             rows = resources.head(8).to_dict("records")

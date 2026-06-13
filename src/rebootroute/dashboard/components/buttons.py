@@ -4,6 +4,7 @@ from typing import Any
 
 import streamlit as st
 
+from rebootroute.dashboard.components.layout import asset_data_uri
 from rebootroute.dashboard.state import (
     ROUTE_CONTACT_OPTIONS,
     ROUTE_COST_OPTIONS,
@@ -47,37 +48,43 @@ def render_choice_chips() -> None:
                 "집에서만 확인할지, 짧게 이동할 수 있는지 정합니다.",
                 ROUTE_RANGE_OPTIONS,
                 "route_range_choice",
+                "rebootroute_map_preview.png",
             ),
             (
                 "사람 만나는 부담",
                 "비대면 확인부터 소규모 참여까지 가능한 범위를 정합니다.",
                 ROUTE_CONTACT_OPTIONS,
                 "route_contact_choice",
+                "rebootroute_youth_space.png",
             ),
             (
                 "먼저 보고 싶은 자료",
                 "지원금, 청년공간, 문화행사, 프로그램 중 우선순위를 고릅니다.",
                 ROUTE_INTENT_OPTIONS,
                 "route_intent_choice",
+                "rebootroute_policy_support.png",
             ),
             (
                 "오늘 쓸 비용",
                 "무료만 볼지, 저비용 활동까지 포함할지 정합니다.",
                 ROUTE_COST_OPTIONS,
                 "route_cost_choice",
+                "rebootroute_culture_event.png",
             ),
         ]
         row_size = 4 if compact else 2
         for start in range(0, len(groups), row_size):
             cols = st.columns(row_size, gap="small")
-            for offset, (col, (label, caption, options, key)) in enumerate(zip(cols, groups[start : start + row_size], strict=False), start=1):
+            for offset, (col, (label, caption, options, key, image_name)) in enumerate(zip(cols, groups[start : start + row_size], strict=False), start=1):
                 with col:
                     current = st.session_state.get(key)
                     index = options.index(current) if current in options else None
                     step_number = start + offset
+                    image_src = asset_data_uri(image_name)
                     st.markdown(
                         f"""
                         <div class="rr-choice-copy {'compact' if compact else ''}">
+                          <div class="rr-choice-thumb" role="img" aria-label="{e(label)} 이미지" style="background-image:url(&quot;{e(image_src)}&quot;);"></div>
                           <span><em>{step_number}</em>{e(label)}</span>
                           <small>{e(caption)}</small>
                         </div>
