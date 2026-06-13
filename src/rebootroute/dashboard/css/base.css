@@ -1,0 +1,119 @@
+[data-testid="stHeader"],
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"] {
+  display: none !important;
+}
+
+html,
+body,
+.stApp {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.stApp {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.10), transparent 34%),
+    radial-gradient(circle at 100% 18%, rgba(20, 184, 166, 0.10), transparent 28%),
+    linear-gradient(180deg, var(--rr-bg) 0%, #eef4fb 100%) !important;
+  color: var(--rr-ink) !important;
+}
+
+.block-container {
+  max-width: 1240px !important;
+  padding: 22px 18px 42px !important;
+}
+
+.stMarkdown h1 a,
+.stMarkdown h2 a,
+.stMarkdown h3 a,
+.stMarkdown h4 a,
+[data-testid="stMarkdownContainer"] h1 a,
+[data-testid="stMarkdownContainer"] h2 a,
+[data-testid="stMarkdownContainer"] h3 a,
+[data-testid="stMarkdownContainer"] h4 a,
+.rr-resource-showcase-header h1 > span,
+.rr-resource-showcase-header h2 > span,
+.rr-resource-showcase-header h3 > span,
+.rr-route-heading-copy h1 > span,
+.rr-route-heading-copy h2 > span,
+.rr-route-heading-copy h3 > span,
+.rr-results-heading h1 > span,
+.rr-results-heading h2 > span,
+.rr-results-heading h3 > span {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+[data-testid="stButton"] button,
+[data-testid="stLinkButton"] a {
+  min-height: 44px !important;
+  border-radius: 999px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease !important;
+}
+
+[data-testid="stButton"] button p,
+[data-testid="stLinkButton"] a p {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+[data-testid="stButton"] button:hover,
+[data-testid="stLinkButton"] a:hover {
+  transform: translateY(-1px) !important;
+}
+
+.rr-inline-notice {
+  display: none !important;
+}
+
+.st-key-top_utility {
+  position: fixed !important;
+  inset: auto 18px 18px auto !important;
+  width: auto !important;
+  z-index: 10000 !important;
+  pointer-events: none !important;
+}
+
+.st-key-top_utility .stLinkButton {
+  width: auto !important;
+  pointer-events: auto !important;
+}
+
+.st-key-top_utility .stLinkButton a {
+  min-height: 52px !important;
+  padding: 0 20px !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  background: #0f172a !important;
+  border-color: #0f172a !important;
+  box-shadow: 0 20px 46px rgba(15, 23, 42, 0.26) !important;
+}
+
+.rr-card-eyebrow,
+.rr-chip,
+.rr-resource-meta {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: fit-content !important;
+  border-radius: 999px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+}

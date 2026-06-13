@@ -64,7 +64,7 @@ REQUIREMENTS = [
     Requirement(
         "Dashboard demo",
         ["src/rebootroute/dashboard/app.py", "README.md"],
-        "사용자 화면과 내부 검증 화면을 탭 흐름으로 분리하고 지도/결과 기록을 포함합니다.",
+        "Hero, 공식 자료 preview, 내 루트 조건 선택, 지도/결과 기록, ?operator=1 개발자 검증 흐름을 포함합니다.",
     ),
     Requirement(
         "Human evaluation",

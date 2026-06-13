@@ -102,7 +102,7 @@ def _project_config(metadata: dict[str, Any]) -> dict[str, Any]:
         "project_title": "RebootRoute",
         "one_sentence_problem": (
             "우리는 인천 청년정책·문화활동 탐색 부담이 큰 청년을 위해 공식 자원 데이터와 "
-            "사용자 상태 입력을 사용하여 오늘 실행 가능한 낮은 부담의 루트와 미션을 제공한다."
+            "사용자의 오늘 조건 입력을 사용하여 오늘 실행 가능한 낮은 부담의 루트와 미션을 제공한다."
         ),
         "target_user": "인천 거주 19-39세 고립·은둔 또는 고립 위험 청년과 지역 청년지원/문화기관 운영자",
         "input_data": (
@@ -141,7 +141,7 @@ def _project_config(metadata: dict[str, Any]) -> dict[str, Any]:
             "batch validation, resource audit, MLflow run/metric logging, model/data card, "
             "error analysis, feedback/progress/outcome SQLite logs"
         ),
-        "demo_path": "make pipeline -> make dashboard -> 조건 칩 선택 -> 추천 미션/공식 자원/지도 확인 -> 시작/완료/too-hard/outcome 기록",
+        "demo_path": "make pipeline -> make dashboard -> hero/공식 자료 preview 확인 -> 네 가지 조건 선택 -> 추천 미션/공식 자원/지도 확인 -> 시작/완료/too-hard/outcome 기록 -> 필요할 때만 ?operator=1 개발자/운영자 검증 확인",
         "main_risks": [
             "synthetic label과 실제 사용자 행동의 차이",
             "공식 페이지 DOM 변경으로 인한 수집 누락",

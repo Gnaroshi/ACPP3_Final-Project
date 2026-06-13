@@ -250,16 +250,17 @@ def build_doc() -> None:
     add_heading(doc, "2. 사용자 화면 사용 순서", 1)
     add_paragraph(
         doc,
-        "대시보드의 첫 탭은 실제 사용자가 무엇을 먼저 보고 무엇을 얻는지 명확히 알 수 있도록 네 단계로 재구성했습니다. 조건을 변경하면 추천 미션, 자원 후보, 지도 위치가 즉시 갱신되며, 별도 업데이트 버튼이나 추천 루트 버튼을 누르지 않습니다.",
+        "대시보드는 사용자가 먼저 서비스 범위와 공식 자료를 확인한 뒤 조건을 고르는 구조입니다. 네 조건이 모두 선택되기 전에는 추천 결과를 확정해서 보여주지 않고, 조건이 완성되면 추천 미션, 자원 후보, 지도 위치가 즉시 갱신됩니다. 별도 업데이트 버튼이나 재추천 버튼을 누르지 않습니다.",
     )
     add_table(
         doc,
         ["순서", "화면에서 하는 일", "사용자가 얻는 것"],
         [
-            ["1", "내 조건 입력", "위치, 외출 가능 시간, 비용, 대면 부담, 관심 분야"],
-            ["2", "추천 루트 확인", "현재 부담도에 맞는 단계와 오늘 할 미션"],
-            ["3", "지도 확인", "내 위치와 활동 장소의 상대 위치, 대략 직선거리"],
-            ["4", "결과 기록", "미션 시작/완료/too-hard, 프로그램 참여, 지원 신청/결과, 미니 프로젝트 제출"],
+            ["1", "Hero와 프로젝트 설명 확인", "공식 자료 기반 낮은 부담 행동 추천 MVP라는 서비스 범위"],
+            ["2", "조건 선택 전에 볼 공식 자료 확인", "인천 청년정책, 청년공간, 문화행사, 프로그램 preview"],
+            ["3", "네 가지 조건 선택", "오늘 쓸 수 있는 시간, 사람 만나는 부담, 먼저 볼 자료, 비용 범위"],
+            ["4", "오늘 루트 확인", "오늘 할 미션, 가장 맞는 공식 자료, 지도 안내"],
+            ["5", "결과 기록", "미션 시작/완료/too-hard, 프로그램 참여, 지원 신청/결과, 미니 프로젝트 제출"],
         ],
         [900, 3200, 5260],
     )
@@ -270,7 +271,6 @@ def build_doc() -> None:
         fill="FFF3D8",
     )
 
-    doc.add_page_break()
     add_heading(doc, "3. 전체 아키텍처", 1)
     add_table(
         doc,
@@ -282,14 +282,12 @@ def build_doc() -> None:
             ["4", "RAG Resource Index", "src/rebootroute/rag/retriever.py", "TF-IDF 기반 공식 자원 검색"],
             ["5", "Safety Guardrail", "src/rebootroute/recommender/safety_guardrails.py", "위험 표현 감지 시 안전 자원 분기"],
             ["6", "Stage + Mission 추천", "src/rebootroute/recommender/*.py", "rule stage, mission ranking, resource ranking, mini project 생성"],
-            ["7", "API / Dashboard", "src/rebootroute/api/main.py, src/rebootroute/dashboard/app.py", "FastAPI와 Streamlit 오늘 루트/자원·지도/기록/검증 화면"],
+            ["7", "API / Dashboard", "src/rebootroute/api/main.py, src/rebootroute/dashboard/app.py", "FastAPI와 Streamlit hero/공식자료 preview/오늘 루트/검색/기록/운영자 검증 화면"],
             ["8", "Operational Logs", "src/rebootroute/database.py", "progress_logs, feedback_events, outcome_events, user_state 저장"],
             ["9", "Evaluation / Retraining", "evaluation/*.csv, scripts/build_human_eval_sheet.py, scripts/run_pipeline.py", "human eval sheet와 batch 학습 루프"],
         ],
         [760, 1720, 3320, 3560],
     )
-    doc.add_page_break()
-
     add_heading(doc, "4. 코드 구조", 1)
     add_table(
         doc,
@@ -300,7 +298,12 @@ def build_doc() -> None:
             ["src/rebootroute/schemas.py", "Pydantic schema: UserProfile, Mission, Resource, ProgressLog, FeedbackEvent, OutcomeEvent, RAGSearchRequest"],
             ["src/rebootroute/database.py", "SQLite 연결, DB 초기화, progress/feedback/outcome 저장, reboot point 조회"],
             ["src/rebootroute/api/main.py", "FastAPI endpoint 정의"],
-            ["src/rebootroute/dashboard/app.py", "Streamlit 대시보드. 기본 사용자 탭은 내 루트, 정책·문화 찾기, 내 기록이며 URL 쿼리 ?operator=1에서만 운영자 검증 탭 표시"],
+            ["src/rebootroute/dashboard/app.py", "Streamlit page orchestration. hero, 프로젝트 설명, 공식 자료 preview, 기본 탭, ?operator=1 운영자 패널 순서 렌더링"],
+            ["src/rebootroute/dashboard/components/*.py", "버튼, 카드, hero/footer layout component"],
+            ["src/rebootroute/dashboard/views/*.py", "내 루트, 정책·문화 찾기, 내 기록, 운영자 검증 view"],
+            ["src/rebootroute/dashboard/styles.py", "역할별 CSS 파일을 읽어 Streamlit에 주입하는 loader"],
+            ["src/rebootroute/dashboard/css/*.css", "base, hero, navigation, resources, route, results, footer, responsive 스타일 분리"],
+            ["src/rebootroute/dashboard/assets/*.png", "hero와 fallback resource/route/map 이미지 asset"],
             ["src/rebootroute/data/*.py", "Synthetic sample 생성, 공식 HTML 수집, fallback seed, validation"],
             ["src/rebootroute/features/build_features.py", "feature table과 synthetic label 생성"],
             ["src/rebootroute/modeling/*.py", "모델 학습, 평가, registry, prediction, explanation"],
@@ -311,8 +314,6 @@ def build_doc() -> None:
         ],
         [3500, 5860],
     )
-    doc.add_page_break()
-
     add_heading(doc, "5. 데이터와 저장소 산출물", 1)
     add_table(
         doc,
@@ -436,33 +437,32 @@ def build_doc() -> None:
         [1700, 4700, 2960],
     )
 
-    doc.add_page_break()
     add_heading(doc, "10. Dashboard 재설계 내용", 1)
     add_table(
         doc,
-        ["탭", "보여주는 대상", "내용"],
+        ["영역", "보여주는 대상", "내용"],
         [
-            ["오늘 루트", "실제 사용자", "내 조건 입력 → 추천 루트 → 지도 → 미션/결과 기록. ID, score, point 숨김"],
-            ["자원·지도", "실제 사용자", "RAG 검색 결과를 자원 카드, 공식 출처 링크, 내 위치/활동 장소 지도 중심으로 표시"],
+            ["공통 상단", "실제 사용자", "Hero, 프로젝트 설명, 조건 선택 전에 볼 공식 자료 preview를 탭 위에 배치"],
+            ["내 루트", "실제 사용자", "네 조건 선택 전에는 추천을 확정 노출하지 않고, 조건 완료 후 오늘 미션/공식 자료/지도/기록 버튼 표시"],
+            ["정책·문화 찾기", "실제 사용자", "RAG 검색 결과를 자원 카드, 공식 출처 링크, 지도 중심으로 표시"],
             ["기록", "실제 사용자/발표자", "데모 세션의 progress/outcome/feedback 개수와 최근 로그 확인"],
-            ["운영자 검증", "발표자/운영자", "URL 쿼리 ?operator=1에서만 Rule stage, ML 보조 stage, contributing factors, IDs, score, raw payload, feedback/progress/outcome log, 운영자 review 입력, 모델 metric 확인"],
+            ["개발자/운영자 검증", "발표자/운영자", "URL 쿼리 ?operator=1에서만 Rule stage, ML 보조 stage, contributing factors, IDs, score, raw payload, feedback/progress/outcome log, 운영자 review 입력, 모델 metric 확인"],
         ],
         [1700, 1900, 5760],
     )
     add_bullets(
         doc,
         [
-            "첫 화면은 내 조건, 추천 루트, 지도, 결과 기록 순서로 보이도록 재구성했습니다.",
-            "조건 변경 즉시 추천 루트, 미션, 자원 후보, 지도 위치가 갱신됩니다.",
+            "첫 화면은 hero, 프로젝트 설명, 공식 자료 preview, 탭, 내 루트 순서로 보이도록 재구성했습니다.",
+            "네 조건 선택 전에는 추천 결과를 확정 노출하지 않고, 조건 완료 후 오늘 루트, 미션, 자원 후보, 지도 위치가 갱신됩니다.",
             "사용자 화면의 행동은 시작, 완료, 너무 어려움, 참여/지원 결과처럼 실제 학습 loop에 필요한 기록으로 정리했습니다.",
-            "사용자 화면에는 내부 ranking score, 식별자, point를 숨기고, URL 쿼리 ?operator=1 운영자 검증 탭에서만 표로 공개합니다.",
+            "사용자 화면에는 내부 ranking score, 식별자, point를 숨기고, URL 쿼리 ?operator=1 개발자/운영자 검증 화면에서만 표로 공개합니다.",
             "위도/경도 기반 미니맵으로 내 위치와 활동 장소를 함께 표시합니다.",
             "미션 시작/완료/too-hard, 프로그램 참여, 지원 신청/결과, 미니 프로젝트 제출, 운영자 review를 SQLite에 저장합니다.",
-            "모바일 폭에서는 단계 안내와 필터/카드가 한 열로 쌓이도록 반응형 CSS를 적용했습니다.",
+            "CSS는 base, hero, navigation, resources, route, results, footer, responsive 파일로 분리했습니다.",
+            "모바일 폭에서는 hero, official resource preview, 선택 panel, 결과 카드가 한 열로 쌓이도록 반응형 CSS를 적용했습니다.",
         ],
     )
-    doc.add_page_break()
-
     add_heading(doc, "11. API 구현", 1)
     add_table(
         doc,
@@ -538,14 +538,16 @@ def build_doc() -> None:
         doc,
         [
             "make dashboard로 Streamlit을 실행한다.",
-            "오늘 루트 탭에서 내 조건 → 추천 루트 → 지도 → 결과 기록 순서가 보이는지 확인한다.",
-            "외출 부담, 대면 부담, 위치, 자원 종류, 비용, 최대 부담도를 바꿔 추천 미션과 자원 후보가 즉시 바뀌는 것을 보여준다.",
+            "Hero, 프로젝트 설명, 조건 선택 전에 볼 공식 자료 preview가 탭 위에 보이는지 확인한다.",
+            "내 루트 탭에서 오늘 쓸 수 있는 시간, 사람 만나는 부담, 먼저 볼 자료, 오늘 쓸 비용을 선택한다.",
+            "네 조건이 모두 선택되기 전에는 추천 결과가 확정 노출되지 않는 것을 보여준다.",
+            "네 조건을 모두 선택한 뒤 추천 미션과 자원 후보가 즉시 바뀌는 것을 보여준다.",
             "지도에서 내 위치와 활동 장소가 함께 표시되는 것을 보여준다.",
             "미션 시작/완료/너무 어려움 버튼을 눌러 progress log가 저장되는 것을 보여준다.",
             "활동/지원 결과 기록 폼에서 프로그램 참여 또는 지원 신청 outcome을 저장한다.",
-            "자원·지도 탭에서 RAG 검색 결과, 공식 출처 링크, 지도 표시를 보여준다.",
+            "정책·문화 찾기 탭에서 RAG 검색 결과, 공식 출처 링크, 지도 표시를 보여준다.",
             "기록 탭에서 progress/outcome/feedback 로그가 쌓인 것을 확인한다.",
-            "URL 쿼리 ?operator=1 운영자 검증 탭에서 mission_id, resource_id, score, raw payload, feedback/outcome log가 내부 검증용으로만 보이는 것을 확인한다.",
+            "URL 쿼리 ?operator=1 개발자/운영자 검증 화면에서 mission_id, resource_id, score, raw payload, feedback/outcome log가 내부 검증용으로만 보이는 것을 확인한다.",
             "API 문서에서 safety guardrail, feedback, progress, outcomes endpoint가 구현되어 있음을 보여준다.",
         ],
     )
@@ -566,7 +568,6 @@ def build_doc() -> None:
         [2000, 2500, 4860],
     )
 
-    doc.add_page_break()
     add_heading(doc, "16. Known limitations", 1)
     add_bullets(
         doc,
@@ -586,11 +587,12 @@ def build_doc() -> None:
         doc,
         ["검증", "현재 결과"],
         [
-            ["make test", "16 passed"],
+            ["uv run ruff check .", "passed"],
+            ["make test", "29 passed"],
             ["make eval-sheet", "reports/human_eval_review_sheet.csv 생성 성공"],
             ["make capstone-check", "reports/capstone_requirements_check.md 생성 성공"],
             ["make pipeline", "성공. metadata, model card, data card, error analysis 갱신"],
-            ["Dashboard QA", "내 조건→추천 루트→지도→결과 기록 흐름, ID/score 숨김, 모바일/색상 대비 점검"],
+            ["Dashboard QA", "desktop 1484/1152, mobile 390에서 horizontal overflow 0. 기본 URL ID/score 숨김, ?operator=1 검증 화면 확인"],
         ],
         [2500, 6860],
     )

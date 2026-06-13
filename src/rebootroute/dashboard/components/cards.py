@@ -72,19 +72,37 @@ def asset_data_uri(filename: str) -> str:
 
 def fallback_image_for_resource(resource_type: str) -> str:
     if resource_type == "culture_event":
-        return asset_data_uri("resource_culture.png")
+        return asset_data_uri("rebootroute_culture_event.png")
     if resource_type == "culture_facility":
-        return asset_data_uri("resource_space.png")
+        return asset_data_uri("rebootroute_youth_space.png")
     if resource_type == "support_program":
-        return asset_data_uri("resource_policy.png")
-    return asset_data_uri("resource_route.png")
+        return asset_data_uri("rebootroute_policy_support.png")
+    return asset_data_uri("rebootroute_empty_planning.png")
 
 
 def resource_image_src(resource: dict[str, Any]) -> str:
     thumbnail_url = display_text(resource.get("thumbnail_url"))
-    if thumbnail_url.startswith("https://"):
+    if thumbnail_url.startswith(("https://", "http://")):
         return thumbnail_url
     return fallback_image_for_resource(str(resource.get("resource_type", "")))
+
+
+def resource_art_html(resource: dict[str, Any], class_name: str) -> str:
+    image_src = resource_image_src(resource)
+    name = display_text(resource.get("name")) or "공식 자원"
+    thumbnail_url = display_text(resource.get("thumbnail_url"))
+    if thumbnail_url.startswith(("https://", "http://")):
+        return (
+            f'<div class="{e(class_name)} has-image" role="img" aria-label="{e(name)} 공식 이미지" '
+            f'style="background-image:url(&quot;{e(image_src)}&quot;);">'
+            '<span>공식 이미지</span>'
+            "</div>"
+        )
+    return (
+        f'<div class="{e(class_name)} no-image" role="img" aria-label="{e(name)} 이미지 없음">'
+        "<span>공식 이미지 없음</span>"
+        "</div>"
+    )
 
 
 def google_maps_api_key() -> str:
@@ -119,6 +137,19 @@ def resource_destination_query(resource: dict[str, Any]) -> str:
     ]
     deduped = list(dict.fromkeys(part for part in parts if part))
     return " ".join(deduped)
+
+
+def resource_destination_label(resource: dict[str, Any]) -> str:
+    parts = [
+        display_text(resource.get("official_place")),
+        display_text(resource.get("address")),
+        display_text(resource.get("district")),
+        display_text(resource.get("name")),
+    ]
+    for part in parts:
+        if part:
+            return part
+    return "장소는 공식 페이지에서 확인"
 
 
 def google_maps_embed_url(resource: dict[str, Any]) -> str:
@@ -273,7 +304,7 @@ def render_compact_route_controls() -> None:
         st.session_state["resource_costs"] = COST_SCOPE_OPTIONS[st.session_state["resource_cost_scope"]]
 
         f3, f4 = st.columns(2)
-        f3.selectbox("확인 방식", ACCESS_MODE_OPTIONS, key="resource_access_mode")
+        f3.selectbox("먼저 볼 방식", ACCESS_MODE_OPTIONS, key="resource_access_mode")
         f4.selectbox("최대 부담도", BURDEN_FILTER_OPTIONS, format_func=burden_filter_label, key="resource_max_burden")
         st.session_state["resource_online_only"] = st.session_state["resource_access_mode"] == "온라인 먼저 확인"
 
@@ -288,7 +319,7 @@ def render_compact_route_controls() -> None:
         detail1.selectbox("생활 리듬", LEVEL_OPTIONS, format_func=level_option_label, key="daily_rhythm_level")
         detail2.selectbox("취업 부담", LEVEL_OPTIONS, format_func=level_option_label, key="employment_burden")
         detail3.selectbox("미래 불안", LEVEL_OPTIONS, format_func=level_option_label, key="future_anxiety")
-        st.text_area("오늘 상태 메모", height=68, key="free_text", placeholder="예: 오늘은 집에서 먼저 확인할 수 있는 활동만 보고 싶어요.")
+        st.text_area("원하는 조건 메모", height=68, key="free_text", placeholder="예: 오늘은 집에서 먼저 확인할 수 있는 활동만 보고 싶어요.")
         if st.button("조건 초기화", key="reset_conditions", width="stretch", type="tertiary"):
             reset_demo_state()
             st.session_state["last_action_message"] = "조건을 초기화했어요."
@@ -383,17 +414,15 @@ def render_user_resource(resource: dict[str, Any], key_prefix: str) -> None:
     source_name = display_text(resource.get("source_name")) or "공식 출처"
     address = display_text(resource.get("address"))
     period = format_period(resource)
-    online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "현장 정보 확인 필요"
+    online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "방문 전 공식 페이지 확인"
     distance = resource.get("distance_km")
     distance_text = f" · 내 위치에서 약 {float(distance):.1f}km" if distance is not None and pd.notna(distance) else ""
-    image_src = resource_image_src(resource)
-    fallback_src = fallback_image_for_resource(str(resource.get("resource_type", "")))
     official_place = display_text(resource.get("official_place")) or address
     st.markdown(
         f"""
         <div class="rr-resource-card">
           <div class="rr-card-with-media">
-            <img class="rr-resource-thumb" src="{e(image_src)}" alt="{e(resource['name'])} 이미지" loading="lazy" onerror="this.onerror=null;this.src='{e(fallback_src)}';" />
+            {resource_art_html(resource, "rr-resource-thumb")}
             <div>
               <div class="rr-card-title">{e(resource["name"])}</div>
               <div class="rr-card-body">{e(resource["description"])}</div>
@@ -423,15 +452,13 @@ def render_featured_resource(resource: dict[str, Any]) -> None:
     source_name = display_text(resource.get("source_name")) or "공식 출처"
     distance = resource.get("distance_km")
     distance_text = f"{float(distance):.1f}km" if distance is not None and pd.notna(distance) else "위치 확인"
-    image_src = resource_image_src(resource)
-    fallback_src = fallback_image_for_resource(str(resource.get("resource_type", "")))
     official_place = display_text(resource.get("official_place")) or display_text(resource.get("address"))
     period = format_period(resource)
     st.markdown(
         f"""
         <div class="rr-featured-resource">
           <div class="rr-card-with-media">
-            <img class="rr-resource-thumb" src="{e(image_src)}" alt="{e(resource['name'])} 이미지" loading="lazy" onerror="this.onerror=null;this.src='{e(fallback_src)}';" />
+            {resource_art_html(resource, "rr-resource-thumb")}
             <div>
               <div class="rr-section-title">3. 공식 자원</div>
               <div class="rr-card-title">{e(resource["name"])}</div>
@@ -501,12 +528,61 @@ def compact_description(text: Any, limit: int = 115) -> str:
     return clean[: limit - 1].rstrip() + "..."
 
 
+def _has_raw_schedule_parts(text: str) -> bool:
+    return any(marker in text for marker in ["접수중", "진행중", "신청기간", "진행기간", "특강 접수중", " · #", "· #"])
+
+
+def _drop_raw_schedule_parts(text: str) -> str:
+    parts = [part.strip() for part in text.split("·") if part.strip()]
+    keep = [
+        part
+        for part in parts
+        if "접수" not in part
+        and "진행중" not in part
+        and "신청기간" not in part
+        and "진행기간" not in part
+        and not part.startswith("#")
+        and "문  의" not in part
+        and "문의" not in part
+    ]
+    return " · ".join(keep).strip()
+
+
+def user_resource_summary(resource: dict[str, Any], resource_type: str) -> str:
+    description = display_text(resource.get("description"))
+    official_summary = display_text(resource.get("official_summary"))
+    if resource.get("resource_type") == "culture_event":
+        return f"{resource_type}입니다. 일정, 장소, 관람 조건은 공식 페이지에서 확인하세요."
+    if "공식 프로그램입니다" in description or resource.get("resource_type") == "youth_program":
+        return f"{resource_type}입니다. 장소와 참여 조건은 공식 페이지에서 확인하세요."
+    if (
+        "공식 공간대관 자원입니다" in description
+        or "공간대관" in description
+        or "신청 후 승인" in description
+        or resource.get("resource_type") == "culture_facility"
+    ):
+        return f"{resource_type}입니다. 이용 방법과 위치는 공식 페이지에서 확인하세요."
+    if "문화행사입니다" in description:
+        return compact_description(description.split("·", 1)[0], limit=92)
+    if _has_raw_schedule_parts(description):
+        cleaned = _drop_raw_schedule_parts(description)
+        if cleaned and cleaned != description:
+            return compact_description(cleaned, limit=92)
+    if description:
+        return description
+    if official_summary:
+        cleaned = _drop_raw_schedule_parts(official_summary)
+        if cleaned:
+            return compact_description(cleaned, limit=92)
+    return "대상, 장소, 참여 조건은 공식 페이지에서 확인하세요."
+
+
 def render_today_mission_card(profile: UserProfile, mission: dict[str, Any] | None, recommended_stage: int) -> None:
     if not mission:
         st.markdown(
             """
             <div class="rr-bento-card mission">
-              <div class="rr-card-eyebrow">오늘의 작은 미션</div>
+              <div class="rr-card-eyebrow">오늘 바로 할 행동</div>
               <div class="rr-bento-title">조건을 조금 낮춰볼까요?</div>
               <div class="rr-bento-body">현재 선택으로는 바로 추천할 미션이 없습니다. 가능한 범위를 한 단계 넓혀보세요.</div>
             </div>
@@ -516,10 +592,19 @@ def render_today_mission_card(profile: UserProfile, mission: dict[str, Any] | No
         return
     st.markdown(
         f"""
-        <div class="rr-bento-card mission">
-          <div class="rr-card-eyebrow">오늘의 작은 미션</div>
+          <div class="rr-bento-card mission">
+          <div class="rr-card-eyebrow">오늘 바로 할 행동</div>
           <div class="rr-bento-title">{e(mission["title"])}</div>
-          <div class="rr-bento-body"><strong>10~20분 안에 끝나는 다음 행동</strong><br>{e(mission["description"])}</div>
+          <div class="rr-mission-detail-grid">
+            <div>
+              <span>오늘 할 일</span>
+              <strong>{e(mission["description"])}</strong>
+            </div>
+            <div>
+              <span>완료 기준</span>
+              <strong>공식 페이지에서 시간·장소·비용 중 하나를 확인하면 완료입니다.</strong>
+            </div>
+          </div>
           <div class="rr-mini-facts">
             {fact("부담 " + burden_text(mission["burden_level"]))}
             {fact("예상 " + str(int(mission["expected_minutes"])) + "분")}
@@ -543,27 +628,31 @@ def render_resource_spotlight(resource: dict[str, Any] | None) -> None:
             unsafe_allow_html=True,
         )
         return
-    image_src = resource_image_src(resource)
-    fallback_src = fallback_image_for_resource(str(resource.get("resource_type", "")))
     source_name = display_text(resource.get("source_name")) or "공식 출처"
     source_url = resource_source_url(resource)
-    cost_text = COST_LABELS.get(str(resource.get("cost_type")), display_text(resource.get("cost_type")) or "확인 필요")
-    online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "현장 정보 확인 필요"
+    resource_type = RESOURCE_TYPE_LABELS.get(str(resource.get("resource_type")), display_text(resource.get("resource_type")) or "공식 자료")
+    cost_text = COST_LABELS.get(str(resource.get("cost_type")), display_text(resource.get("cost_type")) or "공식 페이지 확인")
+    online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "방문 전 공식 페이지 확인"
+    period = format_period(resource)
+    place = resource_destination_label(resource)
+    district = display_text(resource.get("district")) or "인천"
+    description = user_resource_summary(resource, resource_type)
     st.markdown(
         f"""
-        <div class="rr-bento-card resource">
-          <div class="rr-resource-layout">
-            <img class="rr-resource-art" src="{e(image_src)}" alt="{e(resource['name'])} 이미지" loading="lazy" onerror="this.onerror=null;this.src='{e(fallback_src)}';" />
-            <div>
-              <div class="rr-card-eyebrow">가장 맞는 공식 자원</div>
-              <div class="rr-bento-title">{e(compact_description(resource["name"], 52))}</div>
-              <div class="rr-mini-facts">
-                {fact(str(resource["district"]))}
-                {fact(cost_text)}
-                {fact(online_text)}
-              </div>
-              <div class="rr-official-line">공식 출처: {e(source_name)}</div>
+        <div class="rr-bento-card resource rr-resource-spotlight">
+          {resource_art_html(resource, "rr-resource-art-large")}
+          <div class="rr-resource-copy">
+            <div class="rr-card-eyebrow">가장 맞는 공식 자료</div>
+            <div class="rr-bento-title">{e(display_text(resource.get("name")) or "공식 자료")}</div>
+            <div class="rr-resource-kind">{e(resource_type)} · {e(district)}</div>
+            <div class="rr-resource-summary">{e(description)}</div>
+            <div class="rr-resource-quickfacts">
+              <div><span>기간</span><strong>{e(period)}</strong></div>
+              <div><span>장소</span><strong>{e(place)}</strong></div>
+              <div><span>비용</span><strong>{e(cost_text)}</strong></div>
+              <div><span>확인 방식</span><strong>{e(online_text)}</strong></div>
             </div>
+            <div class="rr-official-line">공식 출처: {e(source_name)}</div>
           </div>
         </div>
         """,
@@ -596,18 +685,17 @@ def map_markers(resources: pd.DataFrame, max_items: int) -> str:
     return "".join(markers)
 
 
-def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> None:
+def render_google_map_preview(resource: dict[str, Any], *, expanded: bool, key_suffix: str) -> None:
     dark = current_theme_mode() == "dark"
     card_bg = "#182235" if dark else "#FFFFFF"
     card_border = "#3B4A60" if dark else "#D6DEEA"
     ink = "#F8FAFC" if dark else "#111827"
     muted = "#D1D5DB" if dark else "#374151"
-    iframe_height = 280 if expanded else 118
-    card_height = iframe_height + 96
-    name = compact_description(resource.get("name"), 60)
-    destination = resource_destination_query(resource)
+    iframe_height = 420 if expanded else 260
+    card_height = iframe_height + 142
+    name = display_text(resource.get("name")) or "활동 장소"
+    destination = resource_destination_label(resource)
     embed_url = google_maps_embed_url(resource)
-    st.markdown('<div class="rr-card-eyebrow">위치 확인</div>', unsafe_allow_html=True)
     components.html(
         f"""
         <div style="
@@ -621,7 +709,8 @@ def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> No
           color:{ink};
           font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         ">
-          <div style="font-size:14px;font-weight:850;line-height:1.35;margin:0 0 8px;color:{ink};">{e(name)}</div>
+          <div style="font-size:12px;font-weight:760;line-height:1.2;margin:0 0 6px;color:{muted};">장소 확인</div>
+          <div style="font-size:16px;font-weight:820;line-height:1.35;margin:0 0 10px;color:{ink};word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{e(name)}</div>
           <iframe
             title="Google Maps - {e(name)}"
             src="{e(embed_url)}"
@@ -632,35 +721,90 @@ def render_google_map_preview(resource: dict[str, Any], *, expanded: bool) -> No
             referrerpolicy="no-referrer-when-downgrade"
             allowfullscreen>
           </iframe>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
             <span style="
               min-width:0;
-              overflow:hidden;
-              text-overflow:ellipsis;
-              white-space:nowrap;
+              overflow:visible;
+              white-space:normal;
+              word-break:keep-all;
               color:{muted};
               font-size:12px;
               font-weight:700;
+              line-height:1.35;
+              display:-webkit-box;
+              -webkit-line-clamp:2;
+              -webkit-box-orient:vertical;
             ">{e(destination)}</span>
           </div>
         </div>
         """,
         height=card_height + 8,
     )
-    render_secondary_link("길찾기", google_maps_directions_url(resource), "map_directions")
+    render_secondary_link("길찾기", google_maps_directions_url(resource), f"map_directions_{key_suffix}")
 
 
-def render_map_preview(resources: pd.DataFrame, top_resource: dict[str, Any] | None = None) -> None:
+def render_resource_candidates(resources: pd.DataFrame, *, max_items: int = 8) -> None:
+    if len(resources) <= 1:
+        return
+    candidate_rows = resources.iloc[1 : max_items + 1].to_dict("records")
+    total = max(0, len(resources) - 1)
+    st.markdown(
+        f"""
+        <div class="rr-candidate-section">
+          <div class="rr-candidate-heading">
+            <div>
+              <span>공식 자원 후보</span>
+              <strong>조건에 맞는 자료 {total}건</strong>
+            </div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    columns = st.columns(2, gap="small")
+    for idx, resource in enumerate(candidate_rows, start=1):
+        with columns[(idx - 1) % 2]:
+            resource_type = RESOURCE_TYPE_LABELS.get(str(resource.get("resource_type")), display_text(resource.get("resource_type")) or "공식 자료")
+            cost_text = COST_LABELS.get(str(resource.get("cost_type")), display_text(resource.get("cost_type")) or "공식 페이지 확인")
+            online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "공식 페이지 확인"
+            source_name = display_text(resource.get("source_name")) or "공식 출처"
+            period = format_period(resource)
+            place = display_text(resource.get("official_place")) or display_text(resource.get("address")) or str(resource.get("district", "인천"))
+            description = user_resource_summary(resource, resource_type)
+            st.markdown(
+                f"""
+                <div class="rr-candidate-card">
+                  {resource_art_html(resource, "rr-candidate-thumb")}
+                  <div class="rr-candidate-copy">
+                    <div class="rr-card-eyebrow">{e(resource_type)}</div>
+                    <div class="rr-candidate-title">{e(display_text(resource.get("name")) or "공식 자료")}</div>
+                    <div class="rr-candidate-description">{e(description)}</div>
+                    <div class="rr-candidate-meta">
+                      <div><span>기간</span><strong>{e(period)}</strong></div>
+                      <div><span>장소</span><strong>{e(place)}</strong></div>
+                      <div><span>비용</span><strong>{e(cost_text)}</strong></div>
+                      <div><span>확인</span><strong>{e(online_text)}</strong></div>
+                    </div>
+                    <div class="rr-official-line">공식 출처: {e(source_name)}</div>
+                  </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            render_secondary_link("공식 페이지 열기", resource_source_url(resource), f"resource_source_candidate_{display_text(resource.get('resource_id'))}_{idx}")
+
+
+def render_map_preview(resources: pd.DataFrame, top_resource: dict[str, Any] | None = None, *, key_suffix: str = "route") -> None:
     expanded = False
     if top_resource:
-        render_google_map_preview(top_resource, expanded=expanded)
+        render_google_map_preview(top_resource, expanded=expanded, key_suffix=key_suffix)
     else:
         map_class = "expanded" if expanded else "compact"
         max_items = 8 if expanded else 5
         st.markdown(
             f"""
             <div class="rr-bento-card map">
-              <div class="rr-card-eyebrow">위치 확인</div>
+              <div class="rr-card-eyebrow">장소 확인</div>
               <div class="rr-map {map_class}">{map_markers(resources, max_items)}</div>
             </div>
             """,
@@ -688,6 +832,23 @@ def render_hidden_record_panel(profile: UserProfile, resources: pd.DataFrame, mi
         st.session_state["show_record_panel"] = not st.session_state["show_record_panel"]
         st.session_state["last_action_message"] = "활동 결과 기록을 열었어요." if st.session_state["show_record_panel"] else "활동 결과 기록을 닫았어요."
         st.rerun()
+    if st.session_state["show_record_panel"]:
+        st.markdown('<div class="rr-progressive-panel">', unsafe_allow_html=True)
+        render_outcome_form(profile, resources, missions, "today")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+
+def render_route_secondary_controls(profile: UserProfile, resources: pd.DataFrame, missions: list[dict[str, Any]]) -> None:
+    if len(resources) <= 1 and resources.empty:
+        return
+    render_resource_candidates(resources)
+    with st.container(key="route_secondary_actions"):
+        record_col, spacer_col = st.columns([0.36, 0.64], gap="small")
+        if not resources.empty and record_col.button("참여/지원 결과 남기기", key="toggle_record_panel", width="stretch", type="tertiary"):
+            st.session_state["show_record_panel"] = not st.session_state["show_record_panel"]
+            st.session_state["last_action_message"] = "활동 결과 기록을 열었어요." if st.session_state["show_record_panel"] else "활동 결과 기록을 닫았어요."
+            st.rerun()
+        spacer_col.empty()
     if st.session_state["show_record_panel"]:
         st.markdown('<div class="rr-progressive-panel">', unsafe_allow_html=True)
         render_outcome_form(profile, resources, missions, "today")

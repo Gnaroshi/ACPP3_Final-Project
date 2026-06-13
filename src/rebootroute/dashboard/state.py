@@ -69,7 +69,7 @@ COST_LABELS = {
     "free": "무료",
     "low_cost": "저비용",
     "paid": "유료",
-    "unknown": "확인 필요",
+    "unknown": "공식 페이지 확인",
 }
 SOURCE_KIND_LABELS = {
     "open_api": "공식 API 수집",
@@ -105,23 +105,24 @@ DEFAULT_STATE = {
 }
 DEFAULT_RESOURCE_TYPES = ["youth_program", "support_program", "culture_event", "culture_facility"]
 DEFAULT_COSTS = ["free", "low_cost", "unknown"]
-ROUTE_RANGE_OPTIONS = ["집에서", "20분 외출", "1시간 가능", "상관없음"]
-ROUTE_CONTACT_OPTIONS = ["비대면", "낮은 대면", "소규모", "상관없음"]
-ROUTE_INTENT_OPTIONS = ["지원금", "청년공간", "문화행사", "프로그램"]
-ROUTE_COST_OPTIONS = ["무료", "저비용 포함", "전체"]
+ROUTE_RANGE_OPTIONS = ["전체", "집", "20분", "1시간"]
+ROUTE_CONTACT_OPTIONS = ["전체", "비대면", "낮은 대면", "소규모"]
+ROUTE_INTENT_OPTIONS = ["전체", "지원금", "청년공간", "문화행사", "프로그램"]
+ROUTE_COST_OPTIONS = ["전체", "무료", "저비용"]
 ROUTE_RANGE_CONFIG = {
-    "집에서": {"max_outdoor_minutes": 0, "outside_burden": 5, "resource_access_mode": "온라인 먼저 확인"},
-    "20분 외출": {"max_outdoor_minutes": 20, "outside_burden": 4, "resource_access_mode": "전체"},
-    "1시간 가능": {"max_outdoor_minutes": 60, "outside_burden": 3, "resource_access_mode": "방문 가능한 장소 포함"},
-    "상관없음": {"max_outdoor_minutes": 120, "outside_burden": 2, "resource_access_mode": "전체"},
+    "집": {"max_outdoor_minutes": 0, "outside_burden": 5, "resource_access_mode": "온라인 먼저 확인"},
+    "20분": {"max_outdoor_minutes": 20, "outside_burden": 4, "resource_access_mode": "전체"},
+    "1시간": {"max_outdoor_minutes": 60, "outside_burden": 3, "resource_access_mode": "방문 가능한 장소 포함"},
+    "전체": {"max_outdoor_minutes": 120, "outside_burden": 2, "resource_access_mode": "전체"},
 }
 ROUTE_CONTACT_CONFIG = {
     "비대면": {"preferred_contact_mode": "online", "social_burden": 5, "resource_access_mode": "온라인 먼저 확인"},
     "낮은 대면": {"preferred_contact_mode": "low_contact", "social_burden": 4},
     "소규모": {"preferred_contact_mode": "small_group", "social_burden": 3},
-    "상관없음": {"preferred_contact_mode": "in_person", "social_burden": 2},
+    "전체": {"preferred_contact_mode": "in_person", "social_burden": 2},
 }
 ROUTE_INTENT_CONFIG = {
+    "전체": {"resource_scope": "전체", "interests": ["culture", "planning", "public_policy"]},
     "지원금": {"resource_scope": "정책·지원", "interests": ["public_policy", "data"]},
     "청년공간": {"resource_scope": "공간·장소", "interests": ["culture", "planning"]},
     "문화행사": {"resource_scope": "문화 행사", "interests": ["culture", "design"]},
@@ -129,7 +130,7 @@ ROUTE_INTENT_CONFIG = {
 }
 ROUTE_COST_CONFIG = {
     "무료": {"resource_cost_scope": "무료만", "budget_limit": 0},
-    "저비용 포함": {"resource_cost_scope": "무료/확인필요", "budget_limit": 10000},
+    "저비용": {"resource_cost_scope": "무료/확인필요", "budget_limit": 10000},
     "전체": {"resource_cost_scope": "전체", "budget_limit": 50000},
 }
 LEVEL_OPTIONS = [1, 2, 3, 4, 5]
@@ -204,10 +205,10 @@ def init_session_state() -> None:
     st.session_state.setdefault("resource_online_only", False)
     st.session_state.setdefault("rag_query", "연수구 무료 전시 청년 문화활동")
     st.session_state.setdefault("rag_result", None)
-    st.session_state.setdefault("route_range_choice", "20분 외출")
-    st.session_state.setdefault("route_contact_choice", "비대면")
-    st.session_state.setdefault("route_intent_choice", "문화행사")
-    st.session_state.setdefault("route_cost_choice", "저비용 포함")
+    st.session_state.setdefault("route_range_choice", None)
+    st.session_state.setdefault("route_contact_choice", None)
+    st.session_state.setdefault("route_intent_choice", None)
+    st.session_state.setdefault("route_cost_choice", None)
     st.session_state.setdefault("show_advanced_controls", False)
     st.session_state.setdefault("show_more_candidates", False)
     st.session_state.setdefault("show_map_large", False)
@@ -518,10 +519,10 @@ def reset_demo_state() -> None:
     st.session_state["resource_online_only"] = False
     st.session_state["resource_query"] = ""
     st.session_state["resource_max_burden"] = 3
-    st.session_state["route_range_choice"] = "20분 외출"
-    st.session_state["route_contact_choice"] = "비대면"
-    st.session_state["route_intent_choice"] = "문화행사"
-    st.session_state["route_cost_choice"] = "저비용 포함"
+    st.session_state["route_range_choice"] = None
+    st.session_state["route_contact_choice"] = None
+    st.session_state["route_intent_choice"] = None
+    st.session_state["route_cost_choice"] = None
     st.session_state["show_advanced_controls"] = False
     st.session_state["show_more_candidates"] = False
     st.session_state["show_map_large"] = False
@@ -558,12 +559,38 @@ def record_mission_action(profile: UserProfile, mission: dict[str, Any], status:
             policy_version="streamlit_demo",
         )
     )
-    st.session_state["last_action_message"] = {
-        ProgressStatus.started: "시작으로 기록했어요.",
-        ProgressStatus.completed: "완료로 저장했어요.",
-        ProgressStatus.skipped: "나중에로 저장했어요.",
-        ProgressStatus.too_hard: "어려움으로 기록했어요.",
+    action_feedback = {
+        ProgressStatus.started: {
+            "status": "started",
+            "label": "시작 저장",
+            "title": "오늘 할 행동으로 저장했습니다.",
+            "message": "공식 페이지에서 조건을 확인한 뒤, 끝나면 완료를 눌러 기록하세요.",
+            "next": "다음: 공식 페이지 열기 또는 길찾기로 현재 운영 여부를 확인합니다.",
+        },
+        ProgressStatus.completed: {
+            "status": "completed",
+            "label": "완료 저장",
+            "title": "완료로 기록했습니다.",
+            "message": "내 기록에서 방금 완료한 행동과 누적 기록을 확인할 수 있습니다.",
+            "next": "다음: 비슷한 조건의 다른 공식 자료를 이어서 살펴볼 수 있습니다.",
+        },
+        ProgressStatus.skipped: {
+            "status": "skipped",
+            "label": "나중에 저장",
+            "title": "나중에 다시 볼 행동으로 남겼습니다.",
+            "message": "오늘 조건이 맞지 않으면 후보 자료를 보거나 조건을 조금 낮춰 다시 고르세요.",
+            "next": "다음: 가능한 시간, 대면 부담, 비용 조건을 조정해 추천을 바꿉니다.",
+        },
+        ProgressStatus.too_hard: {
+            "status": "too_hard",
+            "label": "어려움 저장",
+            "title": "어려움으로 기록했습니다.",
+            "message": "현재 추천이 부담스럽다는 신호로 저장했습니다. 더 낮은 부담의 조건으로 다시 고르는 흐름이 적합합니다.",
+            "next": "다음: 집에서 가능, 비대면, 무료 조건을 먼저 선택해 보세요.",
+        },
     }[status]
+    st.session_state["last_route_action"] = action_feedback
+    st.session_state["last_action_message"] = action_feedback["title"]
     st.rerun()
 
 
@@ -661,7 +688,21 @@ def user_outcome_frame(outcome_df: pd.DataFrame, resources_df: pd.DataFrame, mis
     )
 
 
-def apply_route_choices_when_changed() -> None:
+def route_choices_complete() -> bool:
+    return all(
+        [
+            st.session_state.get("route_range_choice") in ROUTE_RANGE_OPTIONS,
+            st.session_state.get("route_contact_choice") in ROUTE_CONTACT_OPTIONS,
+            st.session_state.get("route_intent_choice") in ROUTE_INTENT_OPTIONS,
+            st.session_state.get("route_cost_choice") in ROUTE_COST_OPTIONS,
+        ]
+    )
+
+
+def apply_route_choices_when_changed() -> bool:
+    if not route_choices_complete():
+        st.session_state["route_choice_signature"] = None
+        return False
     signature = (
         st.session_state.get("route_range_choice"),
         st.session_state.get("route_contact_choice"),
@@ -669,7 +710,7 @@ def apply_route_choices_when_changed() -> None:
         st.session_state.get("route_cost_choice"),
     )
     if st.session_state.get("route_choice_signature") == signature:
-        return
+        return True
     range_config = ROUTE_RANGE_CONFIG[str(st.session_state["route_range_choice"])]
     contact_config = ROUTE_CONTACT_CONFIG[str(st.session_state["route_contact_choice"])]
     intent_config = ROUTE_INTENT_CONFIG[str(st.session_state["route_intent_choice"])]
@@ -677,8 +718,9 @@ def apply_route_choices_when_changed() -> None:
     for config in [range_config, contact_config, intent_config, cost_config]:
         for key, value in config.items():
             st.session_state[key] = value
-    st.session_state["resource_max_burden"] = 5 if st.session_state["route_range_choice"] == "상관없음" else 3
+    st.session_state["resource_max_burden"] = 5 if st.session_state["route_range_choice"] == "전체" else 3
     st.session_state["route_choice_signature"] = signature
+    return True
 
 
 def sync_derived_resource_filters() -> None:

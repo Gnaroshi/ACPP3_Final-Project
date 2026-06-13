@@ -6,10 +6,10 @@
 - Score: 26/26
 - Level: A: 발표 준비 구조가 매우 좋음
 - Data version: `d2a7440a96209a42`
-- Trained at: `2026-06-08T16:04:42.033400+00:00`
+- Trained at: `2026-06-09T08:06:24.920925+00:00`
 
 ## One-Line MLOps Statement
-우리는 인천 청년정책·문화활동 탐색 부담이 큰 청년을 위해 공식 자원 데이터와 사용자 상태 입력을 사용하여 오늘 실행 가능한 낮은 부담의 루트와 미션을 제공한다.
+우리는 인천 청년정책·문화활동 탐색 부담이 큰 청년을 위해 공식 자원 데이터와 사용자의 오늘 조건 입력을 사용하여 오늘 실행 가능한 낮은 부담의 루트와 미션을 제공한다.
 
 성공은 stage macro F1, mission ROC-AUC, mission macro F1, human rubric score와 MLflow/model card/data card/API demo로 확인합니다. 운영 리스크는 synthetic label, 공식 페이지 DOM drift, privacy, safety misuse이며 batch validation, resource audit, feedback/outcome logging으로 관리합니다.
 
@@ -74,7 +74,7 @@
 | Baseline | 2/2 | `docs/baseline_plan.md`<br>`reports/stage_metrics.json`<br>`reports/mission_success_metrics.json` | Stage와 mission success 모두 Dummy baseline과 후보 모델을 같은 split에서 비교합니다. |
 | Metric | 2/2 | `src/rebootroute/modeling/evaluate.py`<br>`reports/error_analysis.md` | Stage는 accuracy/macro F1/per-class/confusion matrix, mission은 ROC-AUC/reliability까지 기록합니다. |
 | Versioning | 2/2 | `configs/config.yaml`<br>`data/features/data_version.json`<br>`models/latest/metadata.json` | Git, config.yaml, data_version hash, model metadata로 재현 근거를 남깁니다. DVC remote는 production 보강 항목입니다. |
-| Tracking | 2/2 | `src/rebootroute/modeling/mlflow_utils.py`<br>`data/mlflow.db`<br>`mlruns` | MLflow SQLite backend에 runs 128건, metrics 320건, params 512건이 있습니다. |
+| Tracking | 2/2 | `src/rebootroute/modeling/mlflow_utils.py`<br>`data/mlflow.db`<br>`mlruns` | MLflow SQLite backend에 runs 136건, metrics 340건, params 544건이 있습니다. |
 | XAI/Error | 2/2 | `reports/error_analysis.md`<br>`src/rebootroute/modeling/explain.py` | Baseline 비교, confusion matrix, reliability summary, 취약 stage, 실패 조건을 리포트로 생성합니다. |
 | Serving | 2/2 | `src/rebootroute/api/main.py`<br>`Dockerfile`<br>`docker-compose.yml` | FastAPI endpoint와 Streamlit dashboard, Docker compose 실행 경로가 있습니다. |
 | Monitoring | 2/2 | `reports/resource_audit.md`<br>`reports/data_card.md`<br>`reports/model_card.md`<br>`reports/mlops_readiness_check.md` | 현재는 batch monitoring입니다. resource provenance, schema, MLflow metric, reliability, outcome log를 추적합니다. |
@@ -83,9 +83,9 @@
 | Champion | 2/2 | `models/latest/metadata.json`<br>`reports/error_analysis.md` | 현재 champion은 stage `random_forest`, mission success `logistic_regression`입니다. |
 
 ## Experiment Tracking
-- MLflow runs: 128
-- MLflow metrics rows: 320
-- MLflow params rows: 512
+- MLflow runs: 136
+- MLflow metrics rows: 340
+- MLflow params rows: 544
 - Tracking URI: `sqlite:///data/mlflow.db` from `configs/config.yaml`
 
 ## Leakage / Scope Check

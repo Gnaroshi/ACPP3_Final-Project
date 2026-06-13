@@ -12,6 +12,7 @@ from rebootroute.dashboard.state import (
     apply_route_choices_when_changed,
     e,
     record_mission_action,
+    route_choices_complete,
     sync_derived_resource_filters,
     widget_key,
 )
@@ -38,31 +39,60 @@ def render_mission_action_buttons(profile: UserProfile, mission: dict[str, Any],
 
 
 def render_choice_chips() -> None:
-    st.markdown('<div class="rr-choice-row">', unsafe_allow_html=True)
-    cols = st.columns(4, gap="small")
-    groups = [
-        ("오늘 가능한 범위", ROUTE_RANGE_OPTIONS, "route_range_choice", "20분 외출"),
-        ("사람 만나는 정도", ROUTE_CONTACT_OPTIONS, "route_contact_choice", "비대면"),
-        ("찾고 싶은 것", ROUTE_INTENT_OPTIONS, "route_intent_choice", "문화행사"),
-        ("오늘 비용", ROUTE_COST_OPTIONS, "route_cost_choice", "저비용 포함"),
-    ]
-    for col, (label, options, key, fallback) in zip(cols, groups, strict=False):
-        with col:
-            with st.container(border=True):
-                if st.session_state.get(key) not in options:
-                    st.session_state[key] = fallback
-                st.markdown(f'<div class="rr-choice-label">{e(label)}</div>', unsafe_allow_html=True)
-                value = st.segmented_control(
-                    label,
-                    options,
-                    selection_mode="single",
-                    key=key,
-                    label_visibility="collapsed",
-                    width="stretch",
-                )
-                if value is None:
-                    st.session_state[key] = fallback
-    st.markdown("</div>", unsafe_allow_html=True)
+    compact = route_choices_complete()
+    with st.container(key="route_choices"):
+        groups = [
+            (
+                "오늘 쓸 수 있는 시간",
+                "집에서만 확인할지, 짧게 이동할 수 있는지 정합니다.",
+                ROUTE_RANGE_OPTIONS,
+                "route_range_choice",
+            ),
+            (
+                "사람 만나는 부담",
+                "비대면 확인부터 소규모 참여까지 가능한 범위를 정합니다.",
+                ROUTE_CONTACT_OPTIONS,
+                "route_contact_choice",
+            ),
+            (
+                "먼저 보고 싶은 자료",
+                "지원금, 청년공간, 문화행사, 프로그램 중 우선순위를 고릅니다.",
+                ROUTE_INTENT_OPTIONS,
+                "route_intent_choice",
+            ),
+            (
+                "오늘 쓸 비용",
+                "무료만 볼지, 저비용 활동까지 포함할지 정합니다.",
+                ROUTE_COST_OPTIONS,
+                "route_cost_choice",
+            ),
+        ]
+        row_size = 4 if compact else 2
+        for start in range(0, len(groups), row_size):
+            cols = st.columns(row_size, gap="small")
+            for offset, (col, (label, caption, options, key)) in enumerate(zip(cols, groups[start : start + row_size], strict=False), start=1):
+                with col:
+                    current = st.session_state.get(key)
+                    index = options.index(current) if current in options else None
+                    step_number = start + offset
+                    st.markdown(
+                        f"""
+                        <div class="rr-choice-copy {'compact' if compact else ''}">
+                          <span><em>{step_number}</em>{e(label)}</span>
+                          <small>{e(caption)}</small>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+                    st.selectbox(
+                        label,
+                        options,
+                        index=index,
+                        key=key,
+                        placeholder="선택",
+                        label_visibility="collapsed",
+                        width="stretch",
+                    )
     apply_route_choices_when_changed()
     sync_derived_resource_filters()
 
@@ -71,7 +101,8 @@ def render_bottom_action_bar(profile: UserProfile, mission: dict[str, Any] | Non
     if not mission:
         return
     with st.container(key="route_action_bar"):
-        c1, c2, c3, c4 = st.columns([1.35, 0.85, 0.85, 0.85], gap="small")
+        action_cols = st.columns([1.75, 0.9, 0.9, 0.9], gap="small")
+        c1, c2, c3, c4 = action_cols[:4]
         if c1.button("오늘 이걸로 시작", key="route_start_primary", width="stretch", type="primary"):
             record_mission_action(profile, mission, ProgressStatus.started, recommended_stage)
         if c2.button("완료", key="route_complete", width="stretch"):
@@ -80,3 +111,29 @@ def render_bottom_action_bar(profile: UserProfile, mission: dict[str, Any] | Non
             record_mission_action(profile, mission, ProgressStatus.skipped, recommended_stage)
         if c4.button("어려움", key="route_too_hard", width="stretch", type="tertiary"):
             record_mission_action(profile, mission, ProgressStatus.too_hard, recommended_stage)
+
+
+def render_route_action_feedback() -> None:
+    feedback = st.session_state.get("last_route_action")
+    if not isinstance(feedback, dict):
+        return
+    status = e(feedback.get("status", "started"))
+    label = e(feedback.get("label", "기록 저장"))
+    title = e(feedback.get("title", "기록했습니다."))
+    message = e(feedback.get("message", "내 기록에서 확인할 수 있습니다."))
+    next_step = e(feedback.get("next", "다음 행동을 이어서 선택하세요."))
+    st.markdown(
+        f"""
+        <div class="rr-action-feedback {status}" role="status" aria-live="polite">
+          <div class="rr-action-feedback-label">{label}</div>
+          <div class="rr-action-feedback-copy">
+            <strong>{title}</strong>
+            <span>{message}</span>
+            <small>{next_step}</small>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.session_state.pop("last_route_action", None)
+    st.session_state.pop("last_action_message", None)

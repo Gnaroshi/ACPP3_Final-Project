@@ -115,6 +115,7 @@ def test_bottom_action_buttons_write_progress_status(
 
     progress = get_progress_df("button_test_user")
     assert progress["status"].tolist() == [expected_status]
+    assert dashboard_state.st.session_state["last_route_action"]["status"] == expected_status
 
 
 def test_advanced_controls_toggle_open_and_closed(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -125,12 +126,12 @@ def test_advanced_controls_toggle_open_and_closed(monkeypatch: pytest.MonkeyPatc
     with pytest.raises(_StopRerun):
         route_view.render_advanced_controls()
     assert session_state["show_advanced_controls"] is True
-    assert session_state["last_action_message"] == "세부 조건을 열었어요."
+    assert "last_action_message" not in session_state
 
     with pytest.raises(_StopRerun):
         route_view.render_advanced_controls()
     assert session_state["show_advanced_controls"] is False
-    assert session_state["last_action_message"] == "세부 조건을 닫았어요."
+    assert "last_action_message" not in session_state
 
 
 def test_advanced_controls_render_when_open(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -141,7 +142,7 @@ def test_advanced_controls_render_when_open(monkeypatch: pytest.MonkeyPatch) -> 
 
     route_view.render_advanced_controls()
 
-    assert "세부 조건" in " ".join(fake_st.markdown_values)
+    assert "지역·조건 직접 조정" in " ".join(fake_st.markdown_values)
 
 
 def test_operator_tab_is_hidden_on_default_url() -> None:
@@ -158,4 +159,5 @@ def test_operator_tab_is_visible_only_with_operator_query_param() -> None:
     app.run(timeout=20)
 
     assert not app.exception
-    assert [tab.label for tab in app.tabs] == ["내 루트", "정책·문화 찾기", "내 기록", "운영자 검증"]
+    assert [tab.label for tab in app.tabs] == ["내 루트", "정책·문화 찾기", "내 기록"]
+    assert any("엔지니어 검증" in str(markdown.value) for markdown in app.markdown)

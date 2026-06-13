@@ -25,7 +25,8 @@ from rebootroute.schemas import ContactMode
 
 
 def render_operator_panel() -> None:
-    st.subheader("운영자 검증")
+    st.markdown('<div class="rr-engineer-title">엔지니어 검증</div>', unsafe_allow_html=True)
+    st.subheader("엔지니어 검증")
     profile, analysis = current_profile_and_analysis()
     data = cached_data()
     stage = int(analysis["recommended_stage"])

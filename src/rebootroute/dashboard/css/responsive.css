@@ -1,0 +1,122 @@
+@media (max-width: 1180px) {
+  .block-container {
+    max-width: 960px !important;
+    padding-inline: 18px !important;
+  }
+
+  .st-key-app_hero [data-testid="stHorizontalBlock"] {
+    grid-template-columns: minmax(0, 0.9fr) minmax(380px, 1.1fr) !important;
+    gap: 24px !important;
+  }
+
+  .rr-hero-copy-block {
+    min-height: 350px !important;
+  }
+
+  .rr-hero-copy-block h1 {
+    font-size: clamp(3.4rem, 6vw, 5rem) !important;
+  }
+
+  .rr-hero-visual {
+    height: 380px !important;
+  }
+
+  .rr-project-overview {
+    grid-template-columns: 1fr !important;
+  }
+
+  .st-key-route_choices [data-testid="stHorizontalBlock"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .block-container {
+    max-width: 100% !important;
+    padding: 14px 18px 42px !important;
+  }
+
+  .st-key-app_hero {
+    padding: 28px !important;
+    border-radius: 30px !important;
+  }
+
+  .st-key-app_hero [data-testid="stHorizontalBlock"],
+  .st-key-route_choices [data-testid="stHorizontalBlock"],
+  .st-key-route_resource_preview [data-testid="stHorizontalBlock"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rr-hero-copy-block {
+    min-height: auto !important;
+  }
+
+  .rr-hero-copy-block h1 {
+    font-size: clamp(3.2rem, 12vw, 5rem) !important;
+  }
+
+  .rr-hero-visual {
+    height: 260px !important;
+  }
+
+  [data-baseweb="tab-list"] {
+    margin-top: 22px !important;
+  }
+
+  .rr-project-points {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rr-resource-list-action {
+    min-width: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .st-key-route_choice_panel,
+  .st-key-route_resource_preview {
+    padding: 22px !important;
+    border-radius: 28px !important;
+  }
+
+  .rr-choice-copy,
+  .rr-choice-copy small {
+    min-height: auto !important;
+  }
+
+  .rr-choice-copy small {
+    padding-left: 0 !important;
+  }
+
+  .rr-footer {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .block-container {
+    padding-inline: 14px !important;
+  }
+
+  .st-key-app_hero {
+    padding: 22px !important;
+  }
+
+  .rr-hero-visual {
+    height: 190px !important;
+  }
+
+  .rr-route-heading-copy > div,
+  .rr-resource-showcase-header h2 {
+    font-size: 1.65rem !important;
+  }
+
+  .rr-preview-resource-strip.showcase .rr-preview-resource-card {
+    flex-basis: min(292px, 82vw) !important;
+    width: min(292px, 82vw) !important;
+  }
+
+  .rr-preview-list-panel,
+  .rr-preview-list-card {
+    grid-template-columns: 1fr !important;
+  }
+}

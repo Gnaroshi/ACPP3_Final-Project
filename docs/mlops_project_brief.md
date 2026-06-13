@@ -1,7 +1,7 @@
 # RebootRoute MLOps Project Brief
 
 ## 1. One Sentence Problem Definition
-우리는 인천 청년정책·문화활동 탐색 부담이 큰 청년을 위해 공식 자원 데이터와 사용자 상태 입력을 사용하여 오늘 실행 가능한 낮은 부담의 루트와 미션을 제공한다.
+우리는 인천 청년정책·문화활동 탐색 부담이 큰 청년을 위해 공식 자원 데이터와 사용자의 오늘 조건 입력을 사용하여 오늘 실행 가능한 낮은 부담의 루트와 미션을 제공한다.
 
 ## 2. Project Framing
 - Team: RebootRoute
@@ -37,7 +37,7 @@
 - Monitoring: batch validation, resource audit, MLflow run/metric logging, model/data card, error analysis, feedback/progress/outcome SQLite logs
 
 ## 7. Demo Path
-make pipeline -> make dashboard -> 조건 칩 선택 -> 추천 미션/공식 자원/지도 확인 -> 시작/완료/too-hard/outcome 기록
+make pipeline -> make dashboard -> hero/공식 자료 preview 확인 -> 네 가지 조건 선택 -> 추천 미션/공식 자원/지도 확인 -> 시작/완료/too-hard/outcome 기록 -> 필요할 때만 ?operator=1 개발자/운영자 검증 확인
 
 ## 8. Main Risks
 - synthetic label과 실제 사용자 행동의 차이

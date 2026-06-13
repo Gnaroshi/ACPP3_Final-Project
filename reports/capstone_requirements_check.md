@@ -13,7 +13,7 @@
 | Model card/data card | 충족 | `reports/model_card.md`<br>`reports/data_card.md` | 학습 데이터, label 상태, 사용 금지 목적, 운영 전 조건을 명시했습니다. |
 | 오류분석과 해석 가능성 | 충족 | `src/rebootroute/modeling/explain.py`<br>`reports/error_analysis.md` | Baseline 비교, confusion matrix, reliability, 취약 구간, 실패 조건을 리포트로 생성합니다. |
 | Serving/API | 충족 | `src/rebootroute/api/main.py`<br>`Dockerfile`<br>`docker-compose.yml` | FastAPI, Streamlit, Docker compose 실행 경로를 제공합니다. |
-| Dashboard demo | 충족 | `src/rebootroute/dashboard/app.py`<br>`README.md` | 사용자 화면과 내부 검증 화면을 탭 흐름으로 분리하고 지도/결과 기록을 포함합니다. |
+| Dashboard demo | 충족 | `src/rebootroute/dashboard/app.py`<br>`README.md` | Hero, 공식 자료 preview, 내 루트 조건 선택, 지도/결과 기록, ?operator=1 개발자 검증 흐름을 포함합니다. |
 | Human evaluation | 충족 | `evaluation/human_eval_cases.csv`<br>`evaluation/rubric.md`<br>`reports/human_eval_review_sheet.csv` | Cold-start 평가를 open-loop human rubric 방식으로 구성했습니다. |
 | 발표 산출물 | 충족 | `docs/RebootRoute_Project_Report.docx`<br>`docs/final_presentation_outline.md` | DOCX 명세서와 최종 발표 outline을 제공합니다. |
 | 팀 역할과 운영 계획 | 충족 | `docs/capstone_project_brief.md`<br>`README.md` | Data, modeling, serving/MLOps, presentation/docs 역할을 명시했습니다. |

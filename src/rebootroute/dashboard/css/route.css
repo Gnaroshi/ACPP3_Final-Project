@@ -1,0 +1,210 @@
+.st-key-route_start_workspace,
+.st-key-route_choice_panel,
+.st-key-route_builder_heading,
+.st-key-route_choices,
+.st-key-route_detail_bar {
+  width: 100% !important;
+}
+
+.st-key-route_choice_panel {
+  padding: 28px !important;
+  border-radius: 32px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid var(--rr-line) !important;
+  box-shadow: 0 22px 58px rgba(15, 23, 42, 0.08) !important;
+}
+
+.rr-route-heading-copy {
+  padding: 0 0 22px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.26) !important;
+}
+
+.rr-route-heading-copy span {
+  display: none !important;
+}
+
+.rr-route-heading-copy > div {
+  margin: 0 0 12px !important;
+  color: var(--rr-ink) !important;
+  font-size: clamp(2.1rem, 3.2vw, 3rem) !important;
+  line-height: 1.1 !important;
+  font-weight: 950 !important;
+}
+
+.rr-route-heading-copy p {
+  max-width: 860px !important;
+  margin: 0 !important;
+  color: var(--rr-muted) !important;
+  font-size: 1rem !important;
+  line-height: 1.7 !important;
+  font-weight: 700 !important;
+}
+
+.st-key-route_choices {
+  padding: 24px 0 0 !important;
+}
+
+.st-key-route_choices [data-testid="stHorizontalBlock"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+  margin: 0 0 18px !important;
+}
+
+.st-key-route_choices [data-testid="stColumn"] {
+  min-width: 0 !important;
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+.st-key-route_choices [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {
+  min-height: 208px !important;
+  padding: 22px 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  border-radius: 26px !important;
+  background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
+  border: 1px solid rgba(148, 163, 184, 0.36) !important;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06) !important;
+}
+
+.rr-choice-copy {
+  min-height: 106px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  margin: 0 !important;
+}
+
+.rr-choice-copy span {
+  min-height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin: 0 !important;
+  color: var(--rr-ink) !important;
+  font-size: 1.02rem !important;
+  line-height: 1.28 !important;
+  font-weight: 900 !important;
+}
+
+.rr-choice-copy em {
+  width: 32px !important;
+  height: 32px !important;
+  flex: 0 0 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  color: var(--rr-primary) !important;
+  background: rgba(37, 99, 235, 0.09) !important;
+  font-style: normal !important;
+  font-size: 0.86rem !important;
+  font-weight: 950 !important;
+}
+
+.rr-choice-copy small {
+  min-height: 48px !important;
+  padding-left: 44px !important;
+  margin: 0 !important;
+  color: var(--rr-muted) !important;
+  font-size: 0.88rem !important;
+  line-height: 1.55 !important;
+  font-weight: 700 !important;
+}
+
+.st-key-route_choices .stSelectbox {
+  margin-top: auto !important;
+}
+
+.st-key-route_choices .stSelectbox [data-baseweb="select"] > div {
+  min-height: 50px !important;
+  border-radius: 16px !important;
+  background: #f8fafc !important;
+}
+
+.st-key-route_detail_bar {
+  min-height: 88px !important;
+  padding: 18px 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  border-radius: 24px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.34) !important;
+}
+
+.st-key-route_detail_bar [data-testid="stHorizontalBlock"] {
+  align-items: center !important;
+}
+
+.rr-detail-copy {
+  min-height: 52px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.rr-detail-copy strong {
+  color: var(--rr-ink) !important;
+  font-size: 1rem !important;
+  line-height: 1.25 !important;
+  font-weight: 900 !important;
+}
+
+.rr-detail-copy span {
+  color: var(--rr-muted) !important;
+  font-size: 0.88rem !important;
+  line-height: 1.45 !important;
+  font-weight: 700 !important;
+}
+
+.st-key-toggle_advanced_controls button {
+  min-height: 48px !important;
+  border: 1px solid var(--rr-line) !important;
+  color: var(--rr-muted) !important;
+  background: #ffffff !important;
+}
+
+.rr-progressive-panel {
+  margin-top: 18px !important;
+  padding: 20px !important;
+  border-radius: 22px !important;
+  background: #ffffff !important;
+  border: 1px solid var(--rr-line) !important;
+}
+
+.st-key-route_action_bar {
+  position: static !important;
+  margin-top: 14px !important;
+  padding: 12px !important;
+  border-radius: 24px !important;
+  background: #ffffff !important;
+  border: 1px solid var(--rr-line) !important;
+}
+
+.st-key-route_start_primary button {
+  background: #c2410c !important;
+  border-color: #c2410c !important;
+  color: #ffffff !important;
+}
+
+.st-key-route_complete button,
+[class*="st-key-resource_source_"] a,
+[class*="st-key-map_directions"] a {
+  border-color: var(--rr-primary) !important;
+  color: var(--rr-primary) !important;
+  background: #ffffff !important;
+}
+
+.st-key-route_skip button,
+.st-key-route_too_hard button,
+.st-key-route_secondary_actions button {
+  border-color: var(--rr-line) !important;
+  color: var(--rr-muted) !important;
+  background: #ffffff !important;
+}

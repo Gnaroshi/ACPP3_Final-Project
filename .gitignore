@@ -19,3 +19,6 @@ mlruns/*
 reports/*metrics*.json
 artifacts/*
 !artifacts/.gitkeep
+docs/*.local.md
+docs/~$*.docx
+~$*.docx

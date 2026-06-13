@@ -1,71 +1,180 @@
 # Dashboard Redesign Notes
 
-## Reference Sources
+이 문서는 RebootRoute Streamlit dashboard의 현재 구현 기준서입니다. 제품 정의는 "인천 청년정책·청년공간·문화행사·프로그램 공식 데이터를 오늘 확인할 수 있는 작은 행동으로 정리하는 MVP"입니다. 이 앱은 정신건강 진단, 치료, 상담 챗봇, 위험도 판정, 단순 취업 추천 앱이 아닙니다.
 
-이번 재설계는 공공기관 웹사이트 스타일이 아니라, 젊은 사용자가 바로 행동을 고를 수 있는 모바일 앱형 route builder를 기준으로 정리했다.
+## 1. Design References
 
-- Composite UX Trends 2025: bento grid, layered surfaces, microinteractions
+이번 재설계는 공공기관 홈페이지 복제가 아니라, 젊은 사용자가 공식 자료를 훑고 바로 조건을 좁힐 수 있는 현대적인 web app 흐름을 기준으로 정리했습니다.
+
+- Composite UX Trends 2025: modular/bento layout, layered surfaces, restrained microinteractions
   - https://www.composite.global/news/top-ux-trends-in-2025
-- Midrocket UI Trends 2026: modular bento layout, mature dark mode, restrained glass effect
+- Midrocket UI Trends 2026: modular bento layout, mature theme contrast, restrained glass effect
   - https://midrocket.com/en/guides/ui-design-trends-2026/
 - Muzli Mobile App Design Trends 2026: mobile-first adaptive UI, context-driven navigation
   - https://muz.li/blog/whats-changing-in-mobile-app-design-ui-patterns-that-matter-in-2026/
-- UXPin Progressive Disclosure: 현재 필요한 선택만 먼저 보여주고 보조 조건은 접는 방식
+- UXPin Progressive Disclosure: 현재 필요한 정보와 선택을 먼저 보여주고 보조 조건은 접는 방식
   - https://www.uxpin.com/studio/blog/what-is-progressive-disclosure/
 
-공식 데이터의 정보 구조와 원문 링크 검증에는 인천청년포털, 인천청년공간 대관, 인천문화재단 문화행사 페이지를 사용한다.
+공식 데이터의 정보 구조와 원문 링크 검증에는 인천청년포털, 인천청년공간 대관, 인천문화재단 문화행사 페이지를 사용합니다.
 
-## Applied Principles
+## 2. Current Information Architecture
 
-- 첫 화면은 `폼 + 결과 + 지도 + 기록` 나열이 아니라 `오늘의 루트 생성` 경험으로 구성한다.
-- 핵심 선택지는 `오늘 가능한 범위`, `사람 만나는 정도`, `찾고 싶은 것`, `오늘 비용` 네 묶음으로 제한한다.
-- 선택을 바꾸면 추천 미션, 공식 자원, 지도 후보가 즉시 갱신된다. 별도 `추천 루트` 버튼은 없다.
-- 세부 조건은 `더 조정하기` 뒤에 숨긴다.
-- 후보 목록과 결과 기록은 기본 화면에 펼치지 않고 progressive disclosure로 둔다.
-- 사용자 화면에는 `resource_id`, `mission_id`, ranking score, RAG score, source_kind, source_checked_at, model metadata, raw payload를 노출하지 않는다.
-- 운영자/연구자 정보는 `?operator=1`에서만 접근하는 `운영자 검증` 탭으로 분리한다.
-- 라이트/다크 모드 모두 명시 색상 토큰을 사용해 버튼, segmented control, 카드 텍스트 대비를 유지한다.
+기본 사용자 화면 순서:
 
-## Current UI Structure
+1. Hero: `RebootRoute`와 서비스 범위를 크게 보여줍니다.
+2. Project overview: 공식 자료 확인, 작은 행동 추천, 지도와 기록 연결을 설명합니다.
+3. Official resource preview: 조건 선택 전에 수집된 인천 공식 자료를 먼저 비교합니다.
+4. Tabs: `내 루트`, `정책·문화 찾기`, `내 기록`
+5. Developer/operator panel: `?operator=1`에서만 기본 탭 아래에 표시됩니다.
+6. Footer: 서비스 범위와 공식 페이지 최종 확인 원칙을 짧게 정리합니다.
 
-- 기본 탭: `내 루트`, `정책·문화 찾기`, `내 기록`
-- 운영자 탭: `http://localhost:8501?operator=1`에서만 생성
-- `내 루트` 첫 화면:
-  - `RebootRoute`, `오늘 할 수 있는 인천 정책·문화 루트`, `4가지만 고르면 오늘 확인할 공식 정보와 작은 행동을 추천해요.` 상단 안내
-  - 네 개의 segmented choice group
-  - `더 조정하기` 세부 조건 버튼
-  - 오늘의 작은 미션 카드
-  - 가장 맞는 공식 자원 카드와 이미지, 공식 페이지 버튼
-  - 위치 확인 지도 preview와 길찾기 버튼
-  - 하단 고정 action bar: `오늘 이걸로 시작`, `완료`, `나중에`, `어려움`
-- Desktop 1280x720:
-  - 선택 영역 다음에 미션, 공식 자원, 지도 preview가 같은 줄에서 시작한다.
-- Mobile 390x844:
-  - 선택지는 한 줄 segmented control로 압축한다.
-  - 하단 action bar는 한 줄 compact grid로 유지한다.
-  - 자원 카드는 좌측 이미지, 우측 제목 구조로 첫 화면에서 일부라도 확인 가능하게 한다.
+`내 루트` 흐름:
 
-## Visual System
+1. 사용자가 오늘 쓸 수 있는 시간, 사람 만나는 부담, 먼저 보고 싶은 자료, 오늘 쓸 비용을 선택합니다.
+2. 네 조건이 모두 선택되기 전에는 추천 결과를 확정 노출하지 않습니다.
+3. 네 조건이 모두 선택되면 오늘 할 작은 미션, 가장 맞는 공식 자료, 지도 preview, 기록 버튼을 같은 결과 영역에 표시합니다.
+4. `세부 조건 더 조정하기`는 동네, 검색어, 최대 부담도, 확인 방식처럼 결과를 더 좁히고 싶을 때만 엽니다.
 
-- Light background: `#F5F7FB`
-- Light surface: `#FFFFFF`
-- Light text: `#111827`
-- Primary: `#2563EB`
-- Secondary: `#14B8A6`
-- Action accent: `#F97316`
-- Dark background: `#0B1020`
-- Dark surface: `#111827`
-- Dark text: `#F8FAFC`
-- Dark accents: `#60A5FA`, `#2DD4BF`, `#FB7185`
-- Card radius: 16-18px
-- Button radius: 999px
-- Glass effect: selected choice, hero layer, bottom action only
+`정책·문화 찾기` 흐름:
 
-## Validation Criteria
+1. 사용자가 질문, 구/군, 최대 부담도를 입력합니다.
+2. local TF-IDF RAG가 공식 자료 후보를 정렬합니다.
+3. 검색 답변, 근거 카드, 공식 페이지 링크, 지도 preview를 보여줍니다.
 
-- 기본 사용자 URL에 `운영자 검증`, `Rule Stage`, `ML 보조 Stage`, `resource_id`, `mission_id`, `score`, `rag_score`, `html_scrape`, `source_checked_at`이 보이지 않아야 한다.
-- `?operator=1`에서는 운영자 탭과 내부 지표가 보여야 한다.
-- Desktop 1280x720에서 선택, 미션, 공식 자원, 지도 preview, primary CTA가 첫 화면에 들어와야 한다.
-- Mobile 390x844에서 horizontal overflow가 0이어야 한다.
-- 깨진 이미지가 없어야 한다.
-- 다크 모드에서 segmented control 비선택/선택 텍스트가 모두 읽혀야 한다.
+`내 기록` 흐름:
+
+1. 미션 시작/완료/나중에/too-hard progress log를 보여줍니다.
+2. 프로그램 참여, 지원 신청, 지원 결과, 미니 프로젝트 제출 outcome log를 보여줍니다.
+3. feedback event 개수를 확인합니다.
+
+## 3. User / Operator Separation
+
+기본 URL에서 숨기는 정보:
+
+- `resource_id`
+- `mission_id`
+- ranking score
+- RAG score
+- source key, source kind, source checked timestamp
+- model metric
+- raw JSON payload
+- operator/debug/admin information
+
+`?operator=1`에서만 보이는 정보:
+
+- rule-based stage
+- ML 보조 stage
+- safety flag
+- data version
+- contributing factors
+- mission/resource debug table
+- feedback/progress/outcome log
+- model metadata
+- model card/data card/human evaluation sheet preview
+- operator review form
+
+## 4. Visual System
+
+현재 dashboard는 light theme을 기본으로 사용합니다.
+
+- Page background: `#f4f7fb`
+- Surface: `#ffffff`
+- Main text: `#111827`
+- Muted text: `#475569`
+- Primary/nav ink: `#0f172a`
+- Primary accent: `#2563eb`
+- Secondary accent: `#14b8a6`
+- Border: `#d7e0ec`
+- Radius: cards 20-28px, buttons 999px
+
+디자인 원칙:
+
+- 큰 빈 hero나 장식용 gradient를 만들지 않습니다.
+- 이미지가 필요한 곳에는 official thumbnail 또는 generated fallback image를 사용합니다.
+- 선택 전 preview와 선택 후 result를 같은 시각 위계로 섞지 않습니다.
+- 같은 역할의 card는 높이, padding, 이미지 비율, meta 위치를 맞춥니다.
+- 버튼은 Streamlit native widget을 사용하고, CSS는 key/class 기반으로만 조정합니다.
+
+## 5. Button Rules
+
+기능 버튼은 반드시 Streamlit widget입니다.
+
+- `st.button`
+- `st.link_button`
+- `st.form_submit_button`
+
+Primary:
+
+- `오늘 이걸로 시작`
+
+Secondary:
+
+- `완료`
+- `공식 페이지 열기`
+- `길찾기`
+- `다시 추천받기`
+
+Tertiary:
+
+- `나중에`
+- `어려움`
+- `세부 조건 더 조정하기`
+- `활동 결과 기록`
+- `전체 자료 보기`
+
+모든 중요 버튼은 stable key를 가져야 하며, 클릭 후 session state, database/API log, rerun 중 하나의 실제 동작을 수행해야 합니다.
+
+## 6. CSS Structure
+
+기존 단일 대형 CSS 문자열을 역할별 파일로 분리했습니다.
+
+```text
+src/rebootroute/dashboard/styles.py        # CSS file loader
+src/rebootroute/dashboard/css/base.css     # page, typography, Streamlit base override
+src/rebootroute/dashboard/css/hero.css     # hero, project overview
+src/rebootroute/dashboard/css/navigation.css
+src/rebootroute/dashboard/css/resources.css
+src/rebootroute/dashboard/css/route.css
+src/rebootroute/dashboard/css/results.css
+src/rebootroute/dashboard/css/footer.css
+src/rebootroute/dashboard/css/responsive.css
+```
+
+이미지 asset:
+
+```text
+src/rebootroute/dashboard/assets/rebootroute_hero_route.png
+src/rebootroute/dashboard/assets/rebootroute_route_planning_scene.png
+src/rebootroute/dashboard/assets/rebootroute_empty_planning.png
+src/rebootroute/dashboard/assets/rebootroute_policy_support.png
+src/rebootroute/dashboard/assets/rebootroute_culture_event.png
+src/rebootroute/dashboard/assets/rebootroute_youth_space.png
+src/rebootroute/dashboard/assets/rebootroute_map_preview.png
+```
+
+## 7. Validation Criteria
+
+기능 검증:
+
+- `오늘 이걸로 시작` 클릭 시 progress log에 `started`가 기록됩니다.
+- `완료` 클릭 시 `completed`가 기록됩니다.
+- `나중에` 클릭 시 `skipped`가 기록됩니다.
+- `어려움` 클릭 시 `too_hard`가 기록됩니다.
+- `세부 조건 더 조정하기` 클릭 시 advanced controls가 열리고 다시 클릭하면 접힙니다.
+- 기본 URL에서는 개발자/운영자 정보가 보이지 않습니다.
+- `?operator=1`에서만 개발자/운영자 검증 화면이 보입니다.
+
+화면 검증:
+
+- Desktop 1484px/1152px 폭에서 horizontal overflow가 0이어야 합니다.
+- Mobile 390px 폭에서 horizontal overflow가 0이어야 합니다.
+- Hero, project overview, official resource preview, tabs, route panel 순서가 유지되어야 합니다.
+- 네 조건 선택 전에는 추천 결과가 확정 표시되지 않아야 합니다.
+- 네 조건 선택 후 mission/resource/map/action이 같은 결과 영역에서 보여야 합니다.
+- 사용자 화면에는 내부 ID, score, model metric, raw payload가 없어야 합니다.
+
+최신 검증 결과:
+
+- `uv run ruff check .`: passed
+- `make test`: 29 passed
+- Browser QA: desktop 1484/1152 and mobile 390 horizontal overflow 0

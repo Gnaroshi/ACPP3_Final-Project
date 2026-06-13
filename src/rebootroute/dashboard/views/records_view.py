@@ -12,10 +12,11 @@ def render_records_view() -> None:
     data = cached_data()
     st.markdown(
         """
-        <div class="rr-route-hero">
-          <div class="rr-hero-kicker">내 기록</div>
-          <div class="rr-hero-title">오늘 남긴 행동만 모아봅니다.</div>
-          <p class="rr-hero-copy">시작한 미션과 확인한 공식 자원을 카드로 정리합니다.</p>
+        <div class="rr-page-title">
+          <div>
+            <h2>내 기록</h2>
+            <p>시작한 미션과 확인한 공식 자원을 카드로 정리합니다.</p>
+          </div>
         </div>
         """,
         unsafe_allow_html=True,

@@ -288,7 +288,7 @@ def parse_youth_programs_html(html: str, *, source_url: str = YOUTH_PROGRAM_URL,
         category = clean_text(card.select_one(".cate-box p:not(.location)").get_text(" ", strip=True) if card.select_one(".cate-box p:not(.location)") else "")
         district = infer_district(location, title)
         official_summary = " · ".join(part for part in [status, f"신청기간 {apply_period}", f"진행기간 {run_period}", location, category] if part)
-        description = f"{title} 공식 프로그램입니다. {official_summary}"
+        description = f"{title} 공식 프로그램입니다. 장소와 참여 조건은 공식 페이지에서 확인하세요."
         contact_level = contact_level_from_text(f"{title} {category} {location}", default=2)
         rows.append(
             normalize_resource(
@@ -407,12 +407,13 @@ def parse_youth_rentals_html(
         target = info.get("신청대상", "")
         method = info.get("신청방법", "")
         official_summary = " · ".join(part for part in [space_name, method, target, hours, contact] if part)
+        description = f"{space_name}의 공식 공간대관 자원입니다. 이용 방법과 위치는 공식 페이지에서 확인하세요."
         rows.append(
             normalize_resource(
                 {
                     "resource_type": "culture_facility",
                     "name": f"{space_name} {title}",
-                    "description": f"{space_name}의 공식 공간대관 자원입니다. {official_summary}",
+                    "description": description,
                     "district": district,
                     "address": space_name,
                     "cost_type": "unknown",
