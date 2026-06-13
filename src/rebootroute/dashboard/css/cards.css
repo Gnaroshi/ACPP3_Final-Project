@@ -152,7 +152,9 @@
 }
 
 .rr-candidate-section {
-  margin: 26px 0 14px !important;
+  margin: 28px 0 16px !important;
+  padding-top: 22px !important;
+  border-top: 1px solid rgba(124, 58, 237, 0.14) !important;
 }
 
 .rr-candidate-heading span {
@@ -171,17 +173,19 @@
   display: block !important;
   margin-top: 8px !important;
   color: var(--rr-ink) !important;
-  font-size: 1.35rem !important;
+  font-size: clamp(1.3rem, 1.65vw, 1.8rem) !important;
   line-height: 1.3 !important;
   font-weight: 950 !important;
 }
 
 .rr-candidate-card {
   display: grid !important;
-  grid-template-columns: 150px minmax(0, 1fr) !important;
-  gap: 16px !important;
-  min-height: 220px !important;
-  padding: 16px !important;
+  grid-template-columns: 184px minmax(0, 1fr) minmax(210px, 0.45fr) !important;
+  gap: 18px !important;
+  align-items: stretch !important;
+  min-height: 208px !important;
+  margin-bottom: 14px !important;
+  padding: 18px !important;
   border-radius: 22px !important;
   background: #ffffff !important;
   border: 1px solid rgba(124, 58, 237, 0.14) !important;
@@ -190,7 +194,8 @@
 
 .rr-candidate-thumb {
   width: 100% !important;
-  min-height: 150px !important;
+  min-height: 172px !important;
+  height: 100% !important;
   border-radius: 18px !important;
   background-size: cover !important;
   background-position: center !important;
@@ -205,7 +210,50 @@
 
 .rr-candidate-title {
   color: var(--rr-ink) !important;
-  font-size: 1rem !important;
+  font-size: 1.08rem !important;
   line-height: 1.35 !important;
   font-weight: 950 !important;
+}
+
+.rr-candidate-meta.compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.rr-candidate-place {
+  display: flex !important;
+  min-width: 0 !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 18px !important;
+  border-radius: 20px !important;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(124, 58, 237, 0.14), transparent 34%),
+    linear-gradient(135deg, #faf7ff, #ffffff) !important;
+  border: 1px solid rgba(124, 58, 237, 0.16) !important;
+}
+
+.rr-candidate-place span {
+  width: fit-content !important;
+  padding: 5px 10px !important;
+  border-radius: 999px !important;
+  color: var(--rr-primary_dark) !important;
+  background: rgba(124, 58, 237, 0.10) !important;
+  font-size: 0.74rem !important;
+  font-weight: 900 !important;
+}
+
+.rr-candidate-place strong {
+  color: var(--rr-ink) !important;
+  font-size: 1rem !important;
+  line-height: 1.45 !important;
+  font-weight: 950 !important;
+  word-break: keep-all !important;
+}
+
+.rr-candidate-place small {
+  color: var(--rr-muted) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.4 !important;
+  font-weight: 800 !important;
 }

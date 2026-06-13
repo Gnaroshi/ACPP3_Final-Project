@@ -125,6 +125,14 @@
   .rr-footer {
     grid-template-columns: 1fr !important;
   }
+
+  .rr-candidate-card {
+    grid-template-columns: 180px minmax(0, 1fr) !important;
+  }
+
+  .rr-candidate-place {
+    grid-column: 1 / -1 !important;
+  }
 }
 
 @media (max-width: 560px) {

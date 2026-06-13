@@ -8,6 +8,7 @@ import streamlit as st
 from rebootroute.dashboard.components.buttons import render_bottom_action_bar, render_choice_chips, render_route_action_feedback
 from rebootroute.dashboard.components.cards import (
     render_map_preview,
+    render_resource_candidates,
     render_route_secondary_controls,
     render_resource_spotlight,
     render_safety_branch,
@@ -131,8 +132,8 @@ def render_today_bento(profile: UserProfile, analysis: dict[str, Any], filtered_
         """
         <div class="rr-results-heading">
           <span>오늘 루트</span>
-          <h2>미션, 공식 자료, 장소를 한 번에 확인합니다</h2>
-          <p>조건에 맞춰 고른 작은 행동과 가장 먼저 열어볼 공식 자료, 이동이 필요한 경우의 장소 안내를 같은 영역에 모았습니다.</p>
+          <h2>오늘 행동부터 확인하고, 공식 자료와 장소를 이어서 봅니다</h2>
+          <p>가장 짧은 실행 단계를 먼저 보여주고, 바로 열어볼 공식 자료와 위치 안내를 같은 결과 영역에서 연결합니다.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -148,6 +149,7 @@ def render_today_bento(profile: UserProfile, analysis: dict[str, Any], filtered_
                 render_resource_spotlight(top_resource)
             with map_col:
                 render_map_preview(filtered_resources, top_resource)
+        render_resource_candidates(filtered_resources)
     return top_mission, top_resource, recommended_stage
 
 

@@ -642,7 +642,7 @@ def render_resource_spotlight(resource: dict[str, Any] | None) -> None:
         <div class="rr-bento-card resource rr-resource-spotlight">
           {resource_art_html(resource, "rr-resource-art-large")}
           <div class="rr-resource-copy">
-            <div class="rr-card-eyebrow">가장 맞는 공식 자료</div>
+            <div class="rr-card-eyebrow">추천 공식 자료 Top</div>
             <div class="rr-bento-title">{e(display_text(resource.get("name")) or "공식 자료")}</div>
             <div class="rr-resource-kind">{e(resource_type)} · {e(district)}</div>
             <div class="rr-resource-summary">{e(description)}</div>
@@ -753,45 +753,48 @@ def render_resource_candidates(resources: pd.DataFrame, *, max_items: int = 8) -
         <div class="rr-candidate-section">
           <div class="rr-candidate-heading">
             <div>
-              <span>공식 자원 후보</span>
-              <strong>조건에 맞는 자료 {total}건</strong>
+              <span>추가 추천 자료</span>
+              <strong>Top 자료와 함께 볼 공식 자료 {total}건</strong>
             </div>
           </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    columns = st.columns(2, gap="small")
     for idx, resource in enumerate(candidate_rows, start=1):
-        with columns[(idx - 1) % 2]:
-            resource_type = RESOURCE_TYPE_LABELS.get(str(resource.get("resource_type")), display_text(resource.get("resource_type")) or "공식 자료")
-            cost_text = COST_LABELS.get(str(resource.get("cost_type")), display_text(resource.get("cost_type")) or "공식 페이지 확인")
-            online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "공식 페이지 확인"
-            source_name = display_text(resource.get("source_name")) or "공식 출처"
-            period = format_period(resource)
-            place = display_text(resource.get("official_place")) or display_text(resource.get("address")) or str(resource.get("district", "인천"))
-            description = user_resource_summary(resource, resource_type)
-            st.markdown(
-                f"""
-                <div class="rr-candidate-card">
-                  {resource_art_html(resource, "rr-candidate-thumb")}
-                  <div class="rr-candidate-copy">
-                    <div class="rr-card-eyebrow">{e(resource_type)}</div>
-                    <div class="rr-candidate-title">{e(display_text(resource.get("name")) or "공식 자료")}</div>
-                    <div class="rr-candidate-description">{e(description)}</div>
-                    <div class="rr-candidate-meta">
-                      <div><span>기간</span><strong>{e(period)}</strong></div>
-                      <div><span>장소</span><strong>{e(place)}</strong></div>
-                      <div><span>비용</span><strong>{e(cost_text)}</strong></div>
-                      <div><span>확인</span><strong>{e(online_text)}</strong></div>
-                    </div>
-                    <div class="rr-official-line">공식 출처: {e(source_name)}</div>
-                  </div>
+        resource_type = RESOURCE_TYPE_LABELS.get(str(resource.get("resource_type")), display_text(resource.get("resource_type")) or "공식 자료")
+        cost_text = COST_LABELS.get(str(resource.get("cost_type")), display_text(resource.get("cost_type")) or "공식 페이지 확인")
+        online_text = "온라인 확인 가능" if as_bool(resource.get("online_available")) else "공식 페이지 확인"
+        source_name = display_text(resource.get("source_name")) or "공식 출처"
+        period = format_period(resource)
+        place = display_text(resource.get("official_place")) or display_text(resource.get("address")) or str(resource.get("district", "인천"))
+        distance = resource.get("distance_km")
+        distance_text = f"{float(distance):.1f}km" if distance is not None and pd.notna(distance) else "위치 확인"
+        description = user_resource_summary(resource, resource_type)
+        st.markdown(
+            f"""
+            <div class="rr-candidate-card">
+              {resource_art_html(resource, "rr-candidate-thumb")}
+              <div class="rr-candidate-copy">
+                <div class="rr-card-eyebrow">{e(resource_type)} · {e(display_text(resource.get("district")) or "인천")}</div>
+                <div class="rr-candidate-title">{e(display_text(resource.get("name")) or "공식 자료")}</div>
+                <div class="rr-candidate-description">{e(description)}</div>
+                <div class="rr-candidate-meta compact">
+                  <div><span>일정</span><strong>{e(period)}</strong></div>
+                  <div><span>비용·확인</span><strong>{e(cost_text)} · {e(online_text)}</strong></div>
                 </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            render_secondary_link("공식 페이지 열기", resource_source_url(resource), f"resource_source_candidate_{display_text(resource.get('resource_id'))}_{idx}")
+                <div class="rr-official-line">공식 출처: {e(source_name)}</div>
+              </div>
+              <div class="rr-candidate-place">
+                <span>장소 확인</span>
+                <strong>{e(place)}</strong>
+                <small>{e(distance_text)}</small>
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        render_secondary_link("공식 페이지 열기", resource_source_url(resource), f"resource_source_candidate_{display_text(resource.get('resource_id'))}_{idx}")
 
 
 def render_map_preview(resources: pd.DataFrame, top_resource: dict[str, Any] | None = None, *, key_suffix: str = "route") -> None:
@@ -841,7 +844,6 @@ def render_hidden_record_panel(profile: UserProfile, resources: pd.DataFrame, mi
 def render_route_secondary_controls(profile: UserProfile, resources: pd.DataFrame, missions: list[dict[str, Any]]) -> None:
     if len(resources) <= 1 and resources.empty:
         return
-    render_resource_candidates(resources)
     with st.container(key="route_secondary_actions"):
         record_col, spacer_col = st.columns([0.36, 0.64], gap="small")
         if not resources.empty and record_col.button("참여/지원 결과 남기기", key="toggle_record_panel", width="stretch", type="tertiary"):
